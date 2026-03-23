@@ -644,32 +644,23 @@ async function sendMessage() {
 
   try {
     const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-  contents: [
-    {
-      role: "user",
-      parts: [{ text: SYSTEM[lang] }]
-    },
-    ...history
-  ],
-  generationConfig: {
-    temperature: 0.8,
-    maxOutputTokens: 8192
-  }
-})
+          system_instruction: { parts: [{ text: SYSTEM[lang] }] },
+          contents: history,
+          generationConfig: { temperature: 0.8, maxOutputTokens: 8192 }
+        })
       }
     );
 
     const d = await res.json();
     document.getElementById('typing')?.remove();
 
-if (!res.ok || d.error) {
-  console.error(d);
-  const msg = d.error.message || '';
+    if (d.error) {
+      const msg = d.error.message || '';
       const isRate = msg.includes('quota') || msg.includes('rate') || msg.includes('429') || msg.includes('limit');
       addMsg('ai', isRate ? i18n[lang].rateLimitMsg : i18n[lang].errorMsg);
     } else {
