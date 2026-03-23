@@ -402,10 +402,6 @@
     <span class="brand-name">Ninh Bình AI</span>
     <span class="brand-tag">Trợ lý du lịch</span>
   </div>
-  <div class="status-pill">
-    <span class="status-dot"></span>
-    Gemini 1.5 Flash
-  </div>
 </header>
 
 <nav class="topics">
@@ -602,8 +598,11 @@ async function sendMessage() {
     }
   } catch {
     document.getElementById('typing')?.remove();
-    addMsg('ai', '⚠️ Không kết nối được. Kiểm tra lại API key hoặc internet.');
-  }
+const errText = d?.error?.message || '';
+const msg = errText.includes('quota') || errText.includes('rate') || errText.includes('429')
+  ? '⏳ Bạn hỏi hơi nhanh! Chờ 30 giây rồi thử lại nhé.'
+  : '⚠️ Không kết nối được. Kiểm tra lại API key hoặc internet.';
+addMsg('ai', msg);  }
 
   document.getElementById('sendBtn').disabled = false;
   inp.focus();
