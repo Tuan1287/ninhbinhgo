@@ -649,10 +649,15 @@ async function sendMessage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          system_instruction: { parts: [{ text: SYSTEM[lang] }] },
-          contents: history,
-          generationConfig: { temperature: 0.8, maxOutputTokens: 8192 }
-        })
+  systemInstruction: {
+    parts: [{ text: SYSTEM[lang] }]
+  },
+  contents: history,
+  generationConfig: {
+    temperature: 0.8,
+    maxOutputTokens: 8192
+  }
+})
       }
     );
 
