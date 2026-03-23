@@ -585,7 +585,7 @@ async function sendMessage() {
         body: JSON.stringify({
           system_instruction: { parts: [{ text: SYSTEM }] },
           contents: history,
-          generationConfig: { temperature: 0.75, maxOutputTokens: 1024 }
+          generationConfig: { temperature: 0.75, maxOutputTokens: 8192 }
         })
       }
     );
