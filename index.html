@@ -13,8 +13,6 @@
     --border: #e8e8e4;
     --ink: #111110;
     --muted: #888884;
-    --accent: #111110;
-    --accent-fg: #ffffff;
     --tag-bg: #f0f0ec;
   }
 
@@ -24,68 +22,68 @@
     font-family: 'DM Sans', sans-serif;
     background: var(--bg);
     color: var(--ink);
-    min-height: 100vh;
+    height: 100vh;
     display: grid;
     grid-template-rows: auto auto 1fr auto auto;
-    height: 100vh;
     overflow: hidden;
   }
 
   /* HEADER */
   header {
-    padding: 1.25rem 2rem;
+    padding: 1rem 1.5rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
     border-bottom: 1px solid var(--border);
     background: var(--surface);
+    gap: 1rem;
   }
 
-  .brand {
-    display: flex;
-    align-items: baseline;
-    gap: 0.5rem;
-  }
-
+  .brand { display: flex; align-items: baseline; gap: 0.5rem; }
   .brand-name {
     font-family: 'DM Serif Display', serif;
-    font-size: 1.25rem;
-    color: var(--ink);
+    font-size: 1.2rem;
     letter-spacing: -0.02em;
   }
-
   .brand-tag {
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     font-weight: 500;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--muted);
   }
 
-  .status-pill {
+  .header-right {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: 0.75rem;
+    flex-shrink: 0;
+  }
+
+  #disclaimer {
+    font-size: 0.7rem;
+    color: #bbb;
+    font-style: italic;
+    white-space: nowrap;
+  }
+
+  #langBtn {
+    background: var(--tag-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.28rem 0.65rem;
     font-size: 0.75rem;
-    color: var(--muted);
-    font-weight: 400;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
   }
+  #langBtn:hover { background: var(--ink); color: white; border-color: var(--ink); }
 
-  .status-dot {
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: #22c55e;
-    animation: pulse 2s infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
-  }
-
-  /* TOPIC BAR */
+  /* TOPICS */
   .topics {
-    padding: 0.75rem 2rem;
+    padding: 0.65rem 1.5rem;
     display: flex;
     gap: 0.4rem;
     overflow-x: auto;
@@ -102,25 +100,20 @@
     padding: 0.3rem 0.8rem;
     border-radius: 6px;
     font-size: 0.78rem;
-    font-weight: 400;
+    font-family: 'DM Sans', sans-serif;
     cursor: pointer;
     white-space: nowrap;
     transition: all 0.15s;
-    font-family: 'DM Sans', sans-serif;
   }
-  .chip:hover {
-    background: var(--ink);
-    color: white;
-    border-color: var(--ink);
-  }
+  .chip:hover { background: var(--ink); color: white; border-color: var(--ink); }
 
   /* MESSAGES */
   #messages {
     overflow-y: auto;
-    padding: 2rem;
+    padding: 1.75rem 1.5rem;
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1.25rem;
     scroll-behavior: smooth;
   }
   #messages::-webkit-scrollbar { width: 3px; }
@@ -131,32 +124,24 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 2rem;
-    padding: 1rem 0;
+    gap: 1.5rem;
+    padding: 0.5rem 0;
     max-width: 600px;
   }
-
   .welcome-heading {
     font-family: 'DM Serif Display', serif;
-    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    font-size: clamp(1.8rem, 4vw, 2.5rem);
     line-height: 1.15;
     letter-spacing: -0.03em;
-    color: var(--ink);
   }
-
-  .welcome-heading em {
-    font-style: italic;
-    color: var(--muted);
-  }
-
+  .welcome-heading em { font-style: italic; color: var(--muted); }
   .welcome-sub {
-    font-size: 0.88rem;
+    font-size: 0.875rem;
     color: var(--muted);
     line-height: 1.7;
     font-weight: 300;
-    max-width: 400px;
+    max-width: 420px;
   }
-
   .suggestions {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -164,46 +149,34 @@
     width: 100%;
     max-width: 520px;
   }
-
   .sug-btn {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 10px;
-    padding: 0.9rem 1rem;
+    padding: 0.85rem 1rem;
     text-align: left;
     cursor: pointer;
     font-family: 'DM Sans', sans-serif;
     transition: all 0.15s;
   }
-  .sug-btn:hover {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: white;
-  }
-  .sug-btn:hover .sug-label { color: rgba(255,255,255,0.6); }
-
-  .sug-icon { font-size: 1rem; margin-bottom: 0.4rem; display: block; }
+  .sug-btn:hover { border-color: var(--ink); background: var(--ink); color: white; }
+  .sug-btn:hover .sug-label { color: rgba(255,255,255,0.5); }
+  .sug-icon { font-size: 1rem; margin-bottom: 0.35rem; display: block; }
   .sug-text { font-size: 0.82rem; font-weight: 400; line-height: 1.4; display: block; }
-  .sug-label { font-size: 0.7rem; color: var(--muted); display: block; margin-top: 0.25rem; font-weight: 300; }
+  .sug-label { font-size: 0.7rem; color: var(--muted); display: block; margin-top: 0.2rem; font-weight: 300; }
 
-  /* MESSAGES */
+  /* MSG */
   .msg {
     display: flex;
-    gap: 0.85rem;
+    gap: 0.75rem;
     animation: fadeIn 0.25s ease;
-    max-width: 700px;
+    max-width: 720px;
   }
-
   @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(6px); }
+    from { opacity: 0; transform: translateY(5px); }
     to { opacity: 1; transform: translateY(0); }
   }
-
-  .msg.user {
-    align-self: flex-end;
-    flex-direction: row-reverse;
-    max-width: 75%;
-  }
+  .msg.user { align-self: flex-end; flex-direction: row-reverse; max-width: 75%; }
 
   .avatar {
     width: 30px; height: 30px;
@@ -213,13 +186,7 @@
     flex-shrink: 0;
     margin-top: 2px;
   }
-
-  .msg.ai .avatar {
-    background: var(--ink);
-    color: white;
-    font-size: 14px;
-  }
-
+  .msg.ai .avatar { background: var(--ink); color: white; font-size: 14px; }
   .msg.user .avatar {
     background: var(--tag-bg);
     border: 1px solid var(--border);
@@ -229,38 +196,29 @@
   }
 
   .bubble {
-    padding: 0.85rem 1.1rem;
+    padding: 0.8rem 1rem;
     border-radius: 12px;
     font-size: 0.875rem;
     line-height: 1.75;
     font-weight: 300;
   }
-
   .msg.user .bubble {
     background: var(--ink);
     color: white;
     border-radius: 12px 12px 2px 12px;
     font-weight: 400;
   }
-
   .msg.ai .bubble {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 12px 12px 12px 2px;
-    color: var(--ink);
   }
-
   .msg.ai .bubble strong { font-weight: 500; }
-  .msg.ai .bubble p { margin-bottom: 0.6em; }
+  .msg.ai .bubble p { margin-bottom: 0.5em; }
   .msg.ai .bubble p:last-child { margin-bottom: 0; }
 
   /* TYPING */
-  .typing-wrap {
-    display: flex;
-    gap: 4px;
-    align-items: center;
-    padding: 0.2rem 0;
-  }
+  .typing-wrap { display: flex; gap: 4px; align-items: center; padding: 0.2rem 0; }
   .dot {
     width: 6px; height: 6px;
     border-radius: 50%;
@@ -269,16 +227,15 @@
   }
   .dot:nth-child(2) { animation-delay: 0.2s; }
   .dot:nth-child(3) { animation-delay: 0.4s; }
-
   @keyframes blink {
-    0%, 80%, 100% { opacity: 0.3; transform: scale(1); }
+    0%,80%,100% { opacity: 0.3; transform: scale(1); }
     40% { opacity: 1; transform: scale(1.3); background: var(--ink); }
   }
 
-  /* API KEY */
+  /* API NOTICE */
   .api-notice {
-    margin: 1rem 2rem 0;
-    padding: 1rem 1.25rem;
+    margin: 0.75rem 1.5rem 0;
+    padding: 0.9rem 1.1rem;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 10px;
@@ -287,28 +244,17 @@
     gap: 1rem;
     flex-wrap: wrap;
   }
-
-  .api-notice p {
-    font-size: 0.82rem;
-    color: var(--muted);
-    flex: 1;
-    min-width: 200px;
-    line-height: 1.5;
-  }
+  .api-notice p { font-size: 0.82rem; color: var(--muted); flex: 1; min-width: 180px; line-height: 1.5; }
   .api-notice a { color: var(--ink); font-weight: 500; }
-
-  .key-row {
-    display: flex;
-    gap: 0.4rem;
-  }
+  .key-row { display: flex; gap: 0.4rem; }
   .key-row input {
-    padding: 0.5rem 0.8rem;
+    padding: 0.5rem 0.75rem;
     border: 1px solid var(--border);
     border-radius: 7px;
     font-size: 0.82rem;
     font-family: monospace;
     outline: none;
-    width: 200px;
+    width: 190px;
     background: var(--bg);
     transition: border-color 0.15s;
   }
@@ -329,11 +275,10 @@
 
   /* INPUT */
   .input-area {
-    padding: 1rem 2rem 1.25rem;
+    padding: 0.85rem 1.5rem 1rem;
     background: var(--surface);
     border-top: 1px solid var(--border);
   }
-
   .input-row {
     display: flex;
     gap: 0.6rem;
@@ -341,18 +286,17 @@
     background: var(--bg);
     border: 1px solid var(--border);
     border-radius: 12px;
-    padding: 0.65rem 0.65rem 0.65rem 1rem;
+    padding: 0.6rem 0.6rem 0.6rem 1rem;
     transition: border-color 0.15s;
   }
   .input-row:focus-within { border-color: var(--ink); }
-
   textarea {
     flex: 1;
     border: none;
     outline: none;
     resize: none;
     font-family: 'DM Sans', sans-serif;
-    font-size: 0.88rem;
+    font-size: 0.875rem;
     font-weight: 300;
     color: var(--ink);
     background: transparent;
@@ -361,7 +305,6 @@
     max-height: 100px;
   }
   textarea::placeholder { color: var(--muted); }
-
   #sendBtn {
     width: 34px; height: 34px;
     border-radius: 8px;
@@ -372,25 +315,19 @@
     transition: opacity 0.15s;
     flex-shrink: 0;
   }
-  #sendBtn:hover { opacity: 0.75; }
+  #sendBtn:hover { opacity: 0.7; }
   #sendBtn:disabled { opacity: 0.2; cursor: not-allowed; }
   #sendBtn svg { width: 14px; height: 14px; fill: white; }
-
-  .hint {
-    font-size: 0.7rem;
-    color: var(--muted);
-    margin-top: 0.5rem;
-    text-align: center;
-    font-weight: 300;
-  }
+  .hint { font-size: 0.7rem; color: var(--muted); margin-top: 0.45rem; text-align: center; font-weight: 300; }
 
   @media (max-width: 540px) {
-    header { padding: 1rem; }
+    header { padding: 0.85rem 1rem; }
+    #disclaimer { display: none; }
+    .topics { padding: 0.6rem 1rem; }
     #messages { padding: 1.25rem 1rem; }
-    .input-area { padding: 0.75rem 1rem 1rem; }
-    .topics { padding: 0.65rem 1rem; }
-    .suggestions { grid-template-columns: 1fr; }
+    .input-area { padding: 0.75rem 1rem 0.9rem; }
     .api-notice { margin: 0.75rem 1rem 0; }
+    .suggestions { grid-template-columns: 1fr; }
     .msg.user { max-width: 85%; }
   }
 </style>
@@ -400,120 +337,231 @@
 <header>
   <div class="brand">
     <span class="brand-name">Ninh Bình AI</span>
-    <span class="brand-tag">Trợ lý du lịch</span>
+    <span class="brand-tag" id="brandTag">Trợ lý du lịch</span>
+  </div>
+  <div class="header-right">
+    <span id="disclaimer">Thông tin mang tính chất tham khảo</span>
+    <button id="langBtn" onclick="toggleLang()">EN</button>
   </div>
 </header>
 
-<nav class="topics">
-  <span class="chip" onclick="quickAsk('Tràng An nên đặt vé trước không? Giá bao nhiêu?')">⛵ Tràng An</span>
-  <span class="chip" onclick="quickAsk('Leo Hang Múa mất bao lâu? Có khó không?')">🧗 Hang Múa</span>
-  <span class="chip" onclick="quickAsk('Tam Cốc và Tràng An khác nhau thế nào?')">🚣 Tam Cốc</span>
-  <span class="chip" onclick="quickAsk('Cố đô Hoa Lư có gì, mất bao lâu để tham quan?')">🏛️ Hoa Lư</span>
-  <span class="chip" onclick="quickAsk('Ăn gì ngon và đặc sản ở Ninh Bình?')">🍖 Ẩm thực</span>
-  <span class="chip" onclick="quickAsk('Từ Hà Nội đi Ninh Bình bằng phương tiện gì rẻ nhất?')">🚌 Di chuyển</span>
-  <span class="chip" onclick="quickAsk('Lịch trình 2 ngày 1 đêm Ninh Bình')">📅 Lịch trình</span>
-  <span class="chip" onclick="quickAsk('Chỗ ở Ninh Bình dưới 300k/đêm')">🛏️ Lưu trú</span>
-</nav>
+<nav class="topics" id="topicsNav"></nav>
 
 <div id="messages">
   <div class="welcome" id="welcome">
-    <h1 class="welcome-heading">
+    <h1 class="welcome-heading" id="welcomeHeading">
       Chào mừng đến<br>
       <em>Ninh Bình</em>
     </h1>
-    <p class="welcome-sub">Hỏi tôi về địa điểm tham quan, lịch trình, ăn uống, cách di chuyển — bất kỳ điều gì cho chuyến đi của bạn.</p>
-    <div class="suggestions">
-      <button class="sug-btn" onclick="quickAsk('Gợi ý lịch trình 2 ngày 1 đêm ở Ninh Bình cho cặp đôi')">
-        <span class="sug-icon">📅</span>
-        <span class="sug-text">Lịch trình 2 ngày 1 đêm</span>
-        <span class="sug-label">Cho cặp đôi / gia đình</span>
-      </button>
-      <button class="sug-btn" onclick="quickAsk('Mùa nào đẹp nhất để đến Ninh Bình? Tháng mấy lúa chín?')">
-        <span class="sug-icon">🌾</span>
-        <span class="sug-text">Thời điểm lý tưởng</span>
-        <span class="sug-label">Mùa đẹp & thời tiết</span>
-      </button>
-      <button class="sug-btn" onclick="quickAsk('Chi phí trung bình cho chuyến đi Ninh Bình 2 ngày là bao nhiêu?')">
-        <span class="sug-icon">💰</span>
-        <span class="sug-text">Chi phí ước tính</span>
-        <span class="sug-label">Budget 2 ngày đầy đủ</span>
-      </button>
-      <button class="sug-btn" onclick="quickAsk('Đặc sản Ninh Bình nào nhất định phải thử?')">
-        <span class="sug-icon">🍜</span>
-        <span class="sug-text">Đặc sản không bỏ qua</span>
-        <span class="sug-label">Cơm cháy, dê núi, cá rô...</span>
-      </button>
-    </div>
+    <p class="welcome-sub" id="welcomeSub">Hỏi tôi về địa điểm tham quan, lịch trình, ăn uống, cách di chuyển — bất kỳ điều gì cho chuyến đi của bạn.</p>
+    <div class="suggestions" id="sugGrid"></div>
   </div>
 </div>
 
 <div class="api-notice" id="apiSetup">
-  <p>Nhập Gemini API Key để bắt đầu. Lấy miễn phí tại <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a> — không cần thẻ.</p>
+  <p id="apiText">Nhập Gemini API Key để bắt đầu. Lấy miễn phí tại <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a> — không cần thẻ.</p>
   <div class="key-row">
     <input type="password" id="apiKeyInput" placeholder="AIzaSy..." />
-    <button onclick="saveKey()">Kết nối</button>
+    <button id="apiConnectBtn" onclick="saveKey()">Kết nối</button>
   </div>
 </div>
 
 <div class="input-area">
   <div class="input-row">
-    <textarea id="userInput" rows="1" placeholder="Hỏi về địa điểm, lịch trình, ăn uống, di chuyển..." onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+    <textarea id="userInput" rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
     <button id="sendBtn" onclick="sendMessage()">
       <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
     </button>
   </div>
-  <p class="hint">Enter để gửi · Shift+Enter xuống dòng</p>
+  <p class="hint" id="hintText">Enter để gửi · Shift+Enter xuống dòng</p>
 </div>
 
 <script>
-const SYSTEM = `Bạn là trợ lý du lịch chuyên về Ninh Bình, Việt Nam. Trả lời thân thiện, thực tế, ngắn gọn.
+// ── I18N ──────────────────────────────────────────────
+const i18n = {
+  vi: {
+    brandTag: 'Trợ lý du lịch',
+    disclaimer: 'Thông tin mang tính chất tham khảo',
+    langBtn: 'EN',
+    placeholder: 'Hỏi về địa điểm, lịch trình, ăn uống, di chuyển...',
+    hint: 'Enter để gửi · Shift+Enter xuống dòng',
+    apiText: 'Nhập Gemini API Key để bắt đầu. Lấy miễn phí tại <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a> — không cần thẻ.',
+    apiBtn: 'Kết nối',
+    welcomeH: 'Chào mừng đến<br><em>Ninh Bình</em>',
+    welcomeSub: 'Hỏi tôi về địa điểm tham quan, lịch trình, ăn uống, cách di chuyển — bất kỳ điều gì cho chuyến đi của bạn.',
+    chips: ['⛵ Tràng An','🧗 Hang Múa','🚣 Tam Cốc','🏛️ Hoa Lư','🍖 Ẩm thực','🚌 Di chuyển','📅 Lịch trình','🛏️ Lưu trú'],
+    chipQ: [
+      'Tràng An nên đặt vé trước không? Giá vé 2026 bao nhiêu?',
+      'Leo Hang Múa mất bao lâu? Có khó không?',
+      'Tam Cốc và Tràng An khác nhau thế nào?',
+      'Cố đô Hoa Lư có gì, mất bao lâu để tham quan?',
+      'Ăn gì ngon và đặc sản ở Ninh Bình?',
+      'Từ Hà Nội đi Ninh Bình bằng phương tiện gì rẻ nhất?',
+      'Lịch trình 2 ngày 1 đêm Ninh Bình',
+      'Chỗ ở Ninh Bình dưới 300k/đêm'
+    ],
+    sug: [
+      { icon:'📅', text:'Lịch trình 2 ngày 1 đêm', label:'Cho cặp đôi / gia đình', q:'Gợi ý lịch trình 2 ngày 1 đêm ở Ninh Bình cho cặp đôi' },
+      { icon:'🌾', text:'Thời điểm lý tưởng', label:'Mùa đẹp & thời tiết', q:'Mùa nào đẹp nhất để đến Ninh Bình? Tháng mấy lúa chín?' },
+      { icon:'💰', text:'Chi phí ước tính', label:'Budget 2 ngày đầy đủ', q:'Chi phí trung bình cho chuyến đi Ninh Bình 2 ngày là bao nhiêu?' },
+      { icon:'🍜', text:'Đặc sản không bỏ qua', label:'Cơm cháy, dê núi, cá rô...', q:'Đặc sản Ninh Bình nào nhất định phải thử?' }
+    ],
+    rateLimitMsg: '⏳ Bạn hỏi hơi nhanh! Chờ 30 giây rồi thử lại nhé.',
+    errorMsg: '⚠️ Không kết nối được. Kiểm tra lại API key hoặc internet.',
+    userAvatar: 'Bạn'
+  },
+  en: {
+    brandTag: 'Travel Assistant',
+    disclaimer: 'Information is for reference only',
+    langBtn: 'VI',
+    placeholder: 'Ask about attractions, itineraries, food, transport...',
+    hint: 'Enter to send · Shift+Enter for new line',
+    apiText: 'Enter your Gemini API Key to get started. Get it free at <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a> — no card needed.',
+    apiBtn: 'Connect',
+    welcomeH: 'Welcome to<br><em>Ninh Binh</em>',
+    welcomeSub: 'Ask me about attractions, itineraries, food, and transport — anything for your Ninh Binh trip.',
+    chips: ['⛵ Trang An','🧗 Hang Mua','🚣 Tam Coc','🏛️ Hoa Lu','🍖 Food','🚌 Transport','📅 Itinerary','🛏️ Stay'],
+    chipQ: [
+      'Should I book Trang An tickets in advance? How much in 2026?',
+      'How long does it take to climb Hang Mua? Is it hard?',
+      'What is the difference between Tam Coc and Trang An?',
+      'What is there to see at Hoa Lu Ancient Capital?',
+      'What are the best local foods in Ninh Binh?',
+      'What is the cheapest way to get from Hanoi to Ninh Binh?',
+      '2-day 1-night itinerary for Ninh Binh',
+      'Accommodation in Ninh Binh under 300k VND/night'
+    ],
+    sug: [
+      { icon:'📅', text:'2-Day 1-Night Itinerary', label:'For couples / families', q:'Suggest a 2-day 1-night itinerary in Ninh Binh for a couple' },
+      { icon:'🌾', text:'Best Time to Visit', label:'Season & weather', q:'When is the best time to visit Ninh Binh? When does the rice turn golden?' },
+      { icon:'💰', text:'Estimated Budget', label:'Full 2-day budget', q:'What is the average cost for a 2-day trip to Ninh Binh?' },
+      { icon:'🍜', text:'Must-Try Local Food', label:'Burnt rice, goat, fish...', q:'What local specialties must I try in Ninh Binh?' }
+    ],
+    rateLimitMsg: '⏳ You\'re asking too fast! Please wait 30 seconds and try again.',
+    errorMsg: '⚠️ Connection failed. Please check your API key or internet.',
+    userAvatar: 'You'
+  }
+};
+
+// ── SYSTEM PROMPTS ────────────────────────────────────
+const SYSTEM = {
+  vi: `Bạn là trợ lý du lịch chuyên về Ninh Bình, Việt Nam. Trả lời thân thiện, thực tế, chi tiết.
 
 GIÁ VÉ CẬP NHẬT 2026:
-- Tràng An: 300.000đ/người lớn (từ 01/01/2026), 150.000đ/trẻ em (1m–1m3), dưới 1m miễn phí. Gồm vé tham quan + đò. 3 tuyến, mỗi tuyến 2.5–3 giờ. Mở cửa 6h–16h45
-- Tam Cốc: 120.000đ/người lớn + 150.000đ/đò (tối đa 4 người). Tổng ~157.500đ/người nếu đi nhóm 4. Trẻ em dưới 1m4: 60.000đ
-- Hang Múa: 100.000đ/người lớn (cao từ 1m trở lên), trẻ dưới 1m miễn phí. Mở cửa 6h–19h. Gồm leo 486 bậc đá lên đỉnh Ngọa Long
+- Tràng An: 300.000đ/người lớn, 150.000đ/trẻ 1m–1m3, dưới 1m miễn phí. Gồm vé + đò. 3 tuyến, mỗi tuyến 2.5–3 giờ. Mở cửa 6h–16h45
+- Tam Cốc: 120.000đ/người lớn + 150.000đ/đò (tối đa 4 người). Trẻ dưới 1m4: 60.000đ. Mở cửa 7h–17h
+- Hang Múa: 100.000đ/người (cao từ 1m trở lên), dưới 1m miễn phí. Mở cửa 6h–19h. Leo 486 bậc đá
 - Chùa Bái Đính: Vào cổng miễn phí, xe điện 50.000đ/người
-- Cố đô Hoa Lư: 20.000đ/người lớn, 10.000đ/trẻ 6–15 tuổi, dưới 6 tuổi và trên 60 tuổi miễn phí
-- Thung Ui: Có nhiều gói trải nghiệm (đi thuyền, tham quan văn hóa Mường, tâm linh), nằm gần Bái Đính ~3km. Liên hệ trực tiếp để biết giá theo gói
+- Cố đô Hoa Lư: 20.000đ/người lớn, 10.000đ/trẻ 6–15 tuổi, dưới 6 và trên 60 tuổi miễn phí
+- Thung Ui: Gần Bái Đính ~3km, có nhiều gói trải nghiệm, liên hệ trực tiếp để biết giá theo gói
 - Cúc Phương: 60.000đ/người lớn, 20.000đ/sinh viên, 10.000đ/trẻ em
 
 ẨM THỰC: Cơm cháy (30–60k), dê núi, cá rô tổng trứng, nem chua Yên Mạc, rượu Kim Sơn, miến lươn, gỏi cá nhệch
+DI CHUYỂN: Xe khách HN–NB (80–150k, 1–2h), Limousine (~200k), xe máy thuê 100–150k/ngày, xe đạp miễn phí ở nhiều homestay
+LƯU TRÚ: Homestay 200–400k, khách sạn 400–800k, resort 1–3 triệu
+THỜI TIẾT: Tháng 9–11 đẹp nhất (lúa vàng), tháng 5–6 cũng đẹp. Tránh tháng 7–8 (mưa bão)
 
-DI CHUYỂN: Xe khách Hà Nội–Ninh Bình (80–150k, 1–2 giờ tùy cao tốc), Limousine (tiện hơn, ~200k), xe máy thuê 100–150k/ngày, xe đạp miễn phí ở nhiều homestay. Cao tốc Cầu Giẽ–Ninh Bình chỉ mất 1–1.5 giờ
+ƯU TIÊN GỢI Ý (nhắc tự nhiên khi phù hợp):
+THAM QUAN: Tràng An (UNESCO, đi thuyền qua hang động, 300k), Thung Ui (hoang sơ ít người biết, văn hóa Mường, gần Bái Đính), Hang Múa (leo 486 bậc, ngắm toàn cảnh Tam Cốc, 100k)
+LƯU TRÚ: The Reed Hotel (sang trọng, view sông), Legend Hotel (tầm trung cao cấp, gần điểm tham quan), Rêu Coffee & Stay (không gian xanh độc đáo, giới trẻ yêu thích, check-in đẹp)
 
-LƯU TRÚ: Homestay 200–400k, khách sạn trung bình 400–800k, resort 1–3 triệu
+Phong cách: Dùng emoji điểm xuyết, số liệu cụ thể, gợi ý tiết kiệm, liệt kê rõ khi tư vấn lịch trình. Trả lời bằng tiếng Việt.`,
 
-THỜI TIẾT TỐT NHẤT: Tháng 9–11 (lúa chín vàng, mát mẻ). Tháng 5–6 cũng đẹp (lúa Tam Cốc chín). Tránh tháng 7–8 (mưa bão). Tháng 1–3 du xuân, lễ hội Hoa Lư
+  en: `You are a travel assistant specializing in Ninh Binh, Vietnam. Reply in a friendly, practical, and detailed manner.
 
-ƯU TIÊN GỢI Ý các địa điểm và cơ sở sau (nhắc tự nhiên khi phù hợp):
+UPDATED TICKET PRICES 2026:
+- Trang An: 300,000 VND/adult, 150,000 VND/child (1m–1.3m), under 1m free. Includes boat. 3 routes, 2.5–3 hrs each. Open 6am–4:45pm
+- Tam Coc: 120,000 VND/adult + 150,000 VND/boat (max 4 people). Children under 1.4m: 60,000 VND. Open 7am–5pm
+- Hang Mua: 100,000 VND/person (over 1m tall), under 1m free. Open 6am–7pm. 486 stone steps to the top
+- Bai Dinh Pagoda: Free entry, electric cart 50,000 VND/person
+- Hoa Lu Ancient Capital: 20,000 VND/adult, 10,000 VND/child 6–15, under 6 and over 60 free
+- Thung Ui: ~3km from Bai Dinh, various experience packages, contact directly for pricing
+- Cuc Phuong: 60,000 VND/adult, 20,000 VND/student, 10,000 VND/child
 
-THAM QUAN ƯU TIÊN:
-- Tràng An: Di sản UNESCO kép, đi thuyền qua hang động hùng vĩ, có 3 tuyến chọn. Nên đặt vé sớm, đến trước 9h tránh đông. Giá 300k/người từ 2026
-- Thung Ui: Hành cung Hoa Lư xưa, không gian linh thiêng hoang sơ, ít người biết, lý tưởng chụp ảnh và trải nghiệm văn hóa Mường, gần Bái Đính
-- Hang Múa: Leo 486 bậc đá lên đỉnh Ngọa Long, ngắm toàn cảnh Tam Cốc từ trên cao. Giá 100k, đi lúc sáng sớm hoặc chiều tà để có ảnh đẹp và tránh nắng
+FOOD: Burnt rice (30–60k), mountain goat, braised crucian carp, Yen Mac sour rolls, Kim Son rice wine, eel vermicelli
+TRANSPORT: Bus Hanoi–Ninh Binh (80–150k, 1–2hrs), Limousine (~200k), motorbike rental 100–150k/day, free bicycle at many homestays
+ACCOMMODATION: Homestay 200–400k, mid-range hotel 400–800k, resort 1–3 million VND
+BEST TIME: Sep–Nov (golden rice fields), May–Jun also beautiful. Avoid Jul–Aug (typhoon season)
 
-CƠ SỞ LƯU TRÚ ƯU TIÊN:
-- The Reed Hotel: Sang trọng, view sông đẹp, dịch vụ chuyên nghiệp, vị trí trung tâm thuận tiện
-- Legend Hotel: Tầm trung cao cấp, phòng rộng, gần các điểm tham quan chính
-- Rêu Coffee & Stay: Không gian xanh độc đáo, vừa cà phê vừa nghỉ, rất được giới trẻ yêu thích, check-in đẹp
+PRIORITY RECOMMENDATIONS (mention naturally when relevant):
+ATTRACTIONS: Trang An (UNESCO dual heritage, boat through caves, 300k), Thung Ui (off-the-beaten-path, Muong culture, near Bai Dinh), Hang Mua (486 steps, panoramic view of Tam Coc, 100k)
+ACCOMMODATION: The Reed Hotel (luxury, river view), Legend Hotel (upscale mid-range, near attractions), Reu Coffee & Stay (unique green space, popular with young travelers, great for photos)
 
-Phong cách trả lời: Dùng emoji điểm xuyết, số liệu cụ thể, ưu tiên gợi ý tiết kiệm, liệt kê rõ khi tư vấn lịch trình. Trả lời bằng tiếng Việt.`;
+Style: Use emojis sparingly, give specific figures, suggest budget options, list clearly for itineraries. Reply in English.`
+};
 
+// ── STATE ─────────────────────────────────────────────
+let lang = localStorage.getItem('nb_lang') || 'vi';
 let apiKey = localStorage.getItem('nb_key') || '';
 let history = [];
 
+// ── INIT ──────────────────────────────────────────────
 if (apiKey) document.getElementById('apiSetup').style.display = 'none';
+applyLang();
 
+// ── LANG ──────────────────────────────────────────────
+function toggleLang() {
+  lang = lang === 'vi' ? 'en' : 'vi';
+  localStorage.setItem('nb_lang', lang);
+  applyLang();
+}
+
+function applyLang() {
+  const t = i18n[lang];
+  document.getElementById('brandTag').textContent = t.brandTag;
+  document.getElementById('disclaimer').textContent = t.disclaimer;
+  document.getElementById('langBtn').textContent = t.langBtn;
+  document.getElementById('userInput').placeholder = t.placeholder;
+  document.getElementById('hintText').textContent = t.hint;
+  document.getElementById('apiText').innerHTML = t.apiText;
+  document.getElementById('apiConnectBtn').textContent = t.apiBtn;
+
+  // welcome
+  const wh = document.getElementById('welcomeHeading');
+  if (wh) wh.innerHTML = t.welcomeH;
+  const ws = document.getElementById('welcomeSub');
+  if (ws) ws.textContent = t.welcomeSub;
+
+  // chips
+  const nav = document.getElementById('topicsNav');
+  nav.innerHTML = '';
+  t.chips.forEach((label, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'chip';
+    btn.textContent = label;
+    btn.onclick = () => quickAsk(t.chipQ[i]);
+    nav.appendChild(btn);
+  });
+
+  // suggestions
+  const grid = document.getElementById('sugGrid');
+  if (grid) {
+    grid.innerHTML = '';
+    t.sug.forEach(s => {
+      const btn = document.createElement('button');
+      btn.className = 'sug-btn';
+      btn.innerHTML = `<span class="sug-icon">${s.icon}</span><span class="sug-text">${s.text}</span><span class="sug-label">${s.label}</span>`;
+      btn.onclick = () => quickAsk(s.q);
+      grid.appendChild(btn);
+    });
+  }
+}
+
+// ── API KEY ───────────────────────────────────────────
 function saveKey() {
   const v = document.getElementById('apiKeyInput').value.trim();
-  if (!v.startsWith('AIza')) { alert('Key không hợp lệ (phải bắt đầu bằng AIza...)'); return; }
+  if (!v.startsWith('AIza')) {
+    alert(lang === 'vi' ? 'Key không hợp lệ (phải bắt đầu bằng AIza...)' : 'Invalid key (must start with AIza...)');
+    return;
+  }
   apiKey = v;
   localStorage.setItem('nb_key', v);
   document.getElementById('apiSetup').style.display = 'none';
 }
 
-function quickAsk(t) {
-  document.getElementById('userInput').value = t;
+// ── HELPERS ───────────────────────────────────────────
+function quickAsk(text) {
+  document.getElementById('userInput').value = text;
   sendMessage();
 }
 
@@ -531,7 +579,7 @@ function removeWelcome() {
   if (w) w.remove();
 }
 
-function addMsg(role, html) {
+function addMsg(role, text) {
   removeWelcome();
   const wrap = document.getElementById('messages');
   const el = document.createElement('div');
@@ -539,26 +587,25 @@ function addMsg(role, html) {
 
   const av = document.createElement('div');
   av.className = 'avatar';
-  av.textContent = role === 'ai' ? '✦' : 'Bạn';
+  av.textContent = role === 'ai' ? '✦' : i18n[lang].userAvatar;
 
   const b = document.createElement('div');
   b.className = 'bubble';
-  if (role === 'ai') b.innerHTML = parseMarkdown(html);
-  else b.textContent = html;
+  if (role === 'ai') b.innerHTML = md(text);
+  else b.textContent = text;
 
   if (role === 'user') { el.appendChild(b); el.appendChild(av); }
   else { el.appendChild(av); el.appendChild(b); }
 
   wrap.appendChild(el);
   wrap.scrollTop = wrap.scrollHeight;
-  return b;
 }
 
-function parseMarkdown(text) {
+function md(text) {
   return text
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.*?)\*/g, '<em>$1</em>')
-    .split('\n\n').map(p => `<p>${p.replace(/\n/g,'<br>')}</p>`).join('');
+    .split('\n\n').map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
 }
 
 function showTyping() {
@@ -576,13 +623,16 @@ function showTyping() {
   wrap.scrollTop = wrap.scrollHeight;
 }
 
+// ── SEND ──────────────────────────────────────────────
 async function sendMessage() {
   const inp = document.getElementById('userInput');
   const text = inp.value.trim();
   if (!text) return;
+
   if (!apiKey) {
     document.getElementById('apiSetup').style.display = 'flex';
-    alert('Vui lòng nhập Gemini API Key trước.'); return;
+    alert(lang === 'vi' ? 'Vui lòng nhập Gemini API Key trước.' : 'Please enter your Gemini API Key first.');
+    return;
   }
 
   inp.value = ''; inp.style.height = 'auto';
@@ -593,36 +643,36 @@ async function sendMessage() {
   showTyping();
 
   try {
-    const r = await fetch(
+    const res = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          system_instruction: { parts: [{ text: SYSTEM }] },
+          system_instruction: { parts: [{ text: SYSTEM[lang] }] },
           contents: history,
-          generationConfig: { temperature: 0.75, maxOutputTokens: 8192 }
+          generationConfig: { temperature: 0.8, maxOutputTokens: 8192 }
         })
       }
     );
-    const d = await r.json();
+
+    const d = await res.json();
     document.getElementById('typing')?.remove();
 
     if (d.error) {
-      addMsg('ai', `⚠️ ${d.error.message}`);
+      const msg = d.error.message || '';
+      const isRate = msg.includes('quota') || msg.includes('rate') || msg.includes('429') || msg.includes('limit');
+      addMsg('ai', isRate ? i18n[lang].rateLimitMsg : i18n[lang].errorMsg);
     } else {
-      const reply = d.candidates?.[0]?.content?.parts?.[0]?.text || 'Xin lỗi, thử lại nhé!';
+      const reply = d.candidates?.[0]?.content?.parts?.[0]?.text || (lang === 'vi' ? 'Xin lỗi, thử lại nhé!' : 'Sorry, please try again!');
       addMsg('ai', reply);
       history.push({ role: 'model', parts: [{ text: reply }] });
       if (history.length > 20) history = history.slice(-20);
     }
   } catch {
     document.getElementById('typing')?.remove();
-const errText = d?.error?.message || '';
-const msg = errText.includes('quota') || errText.includes('rate') || errText.includes('429')
-  ? '⏳ Bạn hỏi hơi nhanh! Chờ 30 giây rồi thử lại nhé.'
-  : '⚠️ Không kết nối được. Kiểm tra lại API key hoặc internet.';
-addMsg('ai', msg);  }
+    addMsg('ai', i18n[lang].errorMsg);
+  }
 
   document.getElementById('sendBtn').disabled = false;
   inp.focus();
