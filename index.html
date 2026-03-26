@@ -71,20 +71,35 @@
 
   /* Icon buttons */
   .icon-btn {
-    width: 32px; height: 32px;
-    border-radius: 7px;
-    background: var(--tag-bg);
-    border: 1px solid var(--border);
+    width: 34px; height: 34px;
+    border-radius: 8px;
     cursor: pointer;
     display: flex; align-items: center; justify-content: center;
-    transition: all 0.15s;
+    transition: all 0.18s;
     flex-shrink: 0;
     font-size: 14px;
     position: relative;
+    border: 1.5px solid transparent;
   }
-  .icon-btn:hover { background: var(--ink); border-color: var(--ink); }
-  .icon-btn svg { width: 15px; height: 15px; transition: fill 0.15s, stroke 0.15s; }
-  .icon-btn:hover svg { fill: white; stroke: white; }
+  .icon-btn svg { width: 15px; height: 15px; transition: stroke 0.18s; }
+
+  /* Nút xóa chat — đỏ nhạt */
+  #clearBtn {
+    background: #fff1f1;
+    border-color: #fca5a5;
+  }
+  #clearBtn svg { stroke: #ef4444; }
+  #clearBtn:hover { background: #ef4444; border-color: #ef4444; }
+  #clearBtn:hover svg { stroke: white; }
+
+  /* Nút đổi key — vàng nhạt */
+  #keyBtn {
+    background: #fffbeb;
+    border-color: #fcd34d;
+  }
+  #keyBtn svg { stroke: #d97706; }
+  #keyBtn:hover { background: #d97706; border-color: #d97706; }
+  #keyBtn:hover svg { stroke: white; }
 
   /* Tooltip */
   .icon-btn::after {
@@ -213,6 +228,17 @@
   .dot:nth-child(2) { animation-delay: 0.2s; }
   .dot:nth-child(3) { animation-delay: 0.4s; }
   @keyframes blink { 0%,80%,100% { opacity: 0.3; transform: scale(1); } 40% { opacity: 1; transform: scale(1.3); background: var(--ink); } }
+
+  /* Cursor nhấp nháy khi đang gõ */
+  .cursor {
+    display: inline-block;
+    font-size: 0.8em;
+    color: var(--muted);
+    animation: cursorBlink 0.6s infinite;
+    margin-left: 1px;
+    vertical-align: middle;
+  }
+  @keyframes cursorBlink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
 
   .api-notice {
     margin: 0.75rem 1.5rem 0;
@@ -604,6 +630,37 @@ function showTyping() {
   wrap.scrollTop = wrap.scrollHeight;
 }
 
+// Typewriter: hiện chữ dần dần
+function typewriterMsg(text) {
+  removeWelcome();
+  const wrap = document.getElementById('messages');
+  const el = document.createElement('div');
+  el.className = 'msg ai';
+  const av = document.createElement('div');
+  av.className = 'avatar'; av.textContent = '✦';
+  const b = document.createElement('div');
+  b.className = 'bubble';
+  el.appendChild(av); el.appendChild(b);
+  wrap.appendChild(el);
+
+  // Render markdown dần — hiện từng ký tự của raw text, parse markdown khi xong
+  let i = 0;
+  const speed = 12; // ms mỗi ký tự
+  function tick() {
+    if (i < text.length) {
+      i += Math.ceil(text.length / 300) || 1; // tốc độ tự động theo độ dài
+      if (i > text.length) i = text.length;
+      b.innerHTML = md(text.slice(0, i)) + '<span class="cursor">▋</span>';
+      wrap.scrollTop = wrap.scrollHeight;
+      setTimeout(tick, speed);
+    } else {
+      b.innerHTML = md(text); // render đầy đủ khi xong
+      wrap.scrollTop = wrap.scrollHeight;
+    }
+  }
+  tick();
+}
+
 // ── SEND ──────────────────────────────────────────────
 async function sendMessage() {
   const inp = document.getElementById('userInput');
@@ -640,7 +697,7 @@ async function sendMessage() {
       addMsg('ai', isRate ? i18n[lang].rateLimitMsg : i18n[lang].errorMsg);
     } else {
       const reply = d.candidates?.[0]?.content?.parts?.[0]?.text || (lang === 'vi' ? 'Xin lỗi, thử lại nhé!' : 'Sorry, please try again!');
-      addMsg('ai', reply);
+      typewriterMsg(reply);
       history.push({ role: 'model', parts: [{ text: reply }] });
       if (history.length > 20) history = history.slice(-20);
     }
