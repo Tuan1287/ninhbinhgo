@@ -28,7 +28,6 @@
     overflow: hidden;
   }
 
-  /* HEADER */
   header {
     padding: 1rem 1.5rem;
     display: flex;
@@ -39,11 +38,13 @@
     gap: 1rem;
   }
 
-  .brand { display: flex; align-items: baseline; gap: 0.5rem; }
+  .brand { display: flex; align-items: baseline; gap: 0.5rem; cursor: pointer; }
+  .brand:hover .brand-name { opacity: 0.65; }
   .brand-name {
     font-family: 'DM Serif Display', serif;
     font-size: 1.2rem;
     letter-spacing: -0.02em;
+    transition: opacity 0.15s;
   }
   .brand-tag {
     font-size: 0.7rem;
@@ -56,7 +57,7 @@
   .header-right {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.5rem;
     flex-shrink: 0;
   }
 
@@ -65,7 +66,45 @@
     color: #bbb;
     font-style: italic;
     white-space: nowrap;
+    margin-right: 0.25rem;
   }
+
+  /* Icon buttons */
+  .icon-btn {
+    width: 32px; height: 32px;
+    border-radius: 7px;
+    background: var(--tag-bg);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+    flex-shrink: 0;
+    font-size: 14px;
+    position: relative;
+  }
+  .icon-btn:hover { background: var(--ink); border-color: var(--ink); }
+  .icon-btn svg { width: 15px; height: 15px; transition: fill 0.15s, stroke 0.15s; }
+  .icon-btn:hover svg { fill: white; stroke: white; }
+
+  /* Tooltip */
+  .icon-btn::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: calc(100% + 7px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--ink);
+    color: white;
+    font-size: 0.68rem;
+    white-space: nowrap;
+    padding: 0.22rem 0.5rem;
+    border-radius: 5px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .icon-btn:hover::after { opacity: 1; }
 
   #langBtn {
     background: var(--tag-bg);
@@ -77,11 +116,9 @@
     font-weight: 500;
     cursor: pointer;
     transition: all 0.15s;
-    white-space: nowrap;
   }
   #langBtn:hover { background: var(--ink); color: white; border-color: var(--ink); }
 
-  /* TOPICS */
   .topics {
     padding: 0.65rem 1.5rem;
     display: flex;
@@ -107,7 +144,6 @@
   }
   .chip:hover { background: var(--ink); color: white; border-color: var(--ink); }
 
-  /* MESSAGES */
   #messages {
     overflow-y: auto;
     padding: 1.75rem 1.5rem;
@@ -119,7 +155,6 @@
   #messages::-webkit-scrollbar { width: 3px; }
   #messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
-  /* WELCOME */
   .welcome {
     display: flex;
     flex-direction: column;
@@ -135,20 +170,9 @@
     letter-spacing: -0.03em;
   }
   .welcome-heading em { font-style: italic; color: var(--muted); }
-  .welcome-sub {
-    font-size: 0.875rem;
-    color: var(--muted);
-    line-height: 1.7;
-    font-weight: 300;
-    max-width: 420px;
-  }
-  .suggestions {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.5rem;
-    width: 100%;
-    max-width: 520px;
-  }
+  .welcome-sub { font-size: 0.875rem; color: var(--muted); line-height: 1.7; font-weight: 300; max-width: 420px; }
+
+  .suggestions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; width: 100%; max-width: 520px; }
   .sug-btn {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -165,155 +189,73 @@
   .sug-text { font-size: 0.82rem; font-weight: 400; line-height: 1.4; display: block; }
   .sug-label { font-size: 0.7rem; color: var(--muted); display: block; margin-top: 0.2rem; font-weight: 300; }
 
-  /* MSG */
-  .msg {
-    display: flex;
-    gap: 0.75rem;
-    animation: fadeIn 0.25s ease;
-    max-width: 720px;
-  }
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(5px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+  .msg { display: flex; gap: 0.75rem; animation: fadeIn 0.25s ease; max-width: 720px; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
   .msg.user { align-self: flex-end; flex-direction: row-reverse; max-width: 75%; }
 
   .avatar {
-    width: 30px; height: 30px;
-    border-radius: 8px;
+    width: 30px; height: 30px; border-radius: 8px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 13px;
-    flex-shrink: 0;
-    margin-top: 2px;
+    font-size: 13px; flex-shrink: 0; margin-top: 2px;
   }
   .msg.ai .avatar { background: var(--ink); color: white; font-size: 14px; }
-  .msg.user .avatar {
-    background: var(--tag-bg);
-    border: 1px solid var(--border);
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--muted);
-  }
+  .msg.user .avatar { background: var(--tag-bg); border: 1px solid var(--border); font-size: 11px; font-weight: 500; color: var(--muted); }
 
-  .bubble {
-    padding: 0.8rem 1rem;
-    border-radius: 12px;
-    font-size: 0.875rem;
-    line-height: 1.75;
-    font-weight: 300;
-  }
-  .msg.user .bubble {
-    background: var(--ink);
-    color: white;
-    border-radius: 12px 12px 2px 12px;
-    font-weight: 400;
-  }
-  .msg.ai .bubble {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px 12px 12px 2px;
-  }
+  .bubble { padding: 0.8rem 1rem; border-radius: 12px; font-size: 0.875rem; line-height: 1.75; font-weight: 300; }
+  .msg.user .bubble { background: var(--ink); color: white; border-radius: 12px 12px 2px 12px; font-weight: 400; }
+  .msg.ai .bubble { background: var(--surface); border: 1px solid var(--border); border-radius: 12px 12px 12px 2px; }
   .msg.ai .bubble strong { font-weight: 500; }
   .msg.ai .bubble p { margin-bottom: 0.5em; }
   .msg.ai .bubble p:last-child { margin-bottom: 0; }
 
-  /* TYPING */
   .typing-wrap { display: flex; gap: 4px; align-items: center; padding: 0.2rem 0; }
-  .dot {
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: var(--border);
-    animation: blink 1.2s infinite;
-  }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); animation: blink 1.2s infinite; }
   .dot:nth-child(2) { animation-delay: 0.2s; }
   .dot:nth-child(3) { animation-delay: 0.4s; }
-  @keyframes blink {
-    0%,80%,100% { opacity: 0.3; transform: scale(1); }
-    40% { opacity: 1; transform: scale(1.3); background: var(--ink); }
-  }
+  @keyframes blink { 0%,80%,100% { opacity: 0.3; transform: scale(1); } 40% { opacity: 1; transform: scale(1.3); background: var(--ink); } }
 
-  /* API NOTICE */
   .api-notice {
     margin: 0.75rem 1.5rem 0;
     padding: 0.9rem 1.1rem;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 10px;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    flex-wrap: wrap;
+    display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
   }
   .api-notice p { font-size: 0.82rem; color: var(--muted); flex: 1; min-width: 180px; line-height: 1.5; }
   .api-notice a { color: var(--ink); font-weight: 500; }
   .key-row { display: flex; gap: 0.4rem; }
   .key-row input {
-    padding: 0.5rem 0.75rem;
-    border: 1px solid var(--border);
-    border-radius: 7px;
-    font-size: 0.82rem;
-    font-family: monospace;
-    outline: none;
-    width: 190px;
-    background: var(--bg);
-    transition: border-color 0.15s;
+    padding: 0.5rem 0.75rem; border: 1px solid var(--border); border-radius: 7px;
+    font-size: 0.82rem; font-family: monospace; outline: none; width: 190px;
+    background: var(--bg); transition: border-color 0.15s;
   }
   .key-row input:focus { border-color: var(--ink); }
   .key-row button {
-    background: var(--ink);
-    color: white;
-    border: none;
-    border-radius: 7px;
-    padding: 0 0.85rem;
-    font-size: 0.8rem;
-    cursor: pointer;
-    font-family: 'DM Sans', sans-serif;
-    font-weight: 500;
-    transition: opacity 0.15s;
+    background: var(--ink); color: white; border: none; border-radius: 7px;
+    padding: 0 0.85rem; font-size: 0.8rem; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-weight: 500; transition: opacity 0.15s;
   }
   .key-row button:hover { opacity: 0.75; }
 
-  /* INPUT */
-  .input-area {
-    padding: 0.85rem 1.5rem 1rem;
-    background: var(--surface);
-    border-top: 1px solid var(--border);
-  }
+  .input-area { padding: 0.85rem 1.5rem 1rem; background: var(--surface); border-top: 1px solid var(--border); }
   .input-row {
-    display: flex;
-    gap: 0.6rem;
-    align-items: flex-end;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 0.6rem 0.6rem 0.6rem 1rem;
-    transition: border-color 0.15s;
+    display: flex; gap: 0.6rem; align-items: flex-end;
+    background: var(--bg); border: 1px solid var(--border); border-radius: 12px;
+    padding: 0.6rem 0.6rem 0.6rem 1rem; transition: border-color 0.15s;
   }
   .input-row:focus-within { border-color: var(--ink); }
   textarea {
-    flex: 1;
-    border: none;
-    outline: none;
-    resize: none;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.875rem;
-    font-weight: 300;
-    color: var(--ink);
-    background: transparent;
-    line-height: 1.5;
-    min-height: 22px;
-    max-height: 100px;
+    flex: 1; border: none; outline: none; resize: none;
+    font-family: 'DM Sans', sans-serif; font-size: 0.875rem; font-weight: 300;
+    color: var(--ink); background: transparent; line-height: 1.5;
+    min-height: 22px; max-height: 100px;
   }
   textarea::placeholder { color: var(--muted); }
   #sendBtn {
-    width: 34px; height: 34px;
-    border-radius: 8px;
-    background: var(--ink);
-    border: none;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    transition: opacity 0.15s;
-    flex-shrink: 0;
+    width: 34px; height: 34px; border-radius: 8px; background: var(--ink);
+    border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: opacity 0.15s; flex-shrink: 0;
   }
   #sendBtn:hover { opacity: 0.7; }
   #sendBtn:disabled { opacity: 0.2; cursor: not-allowed; }
@@ -335,12 +277,28 @@
 <body>
 
 <header>
-  <div class="brand">
+  <div class="brand" onclick="resetChat()">
     <span class="brand-name">Ninh Bình AI</span>
     <span class="brand-tag" id="brandTag">Trợ lý du lịch</span>
   </div>
   <div class="header-right">
     <span id="disclaimer">Thông tin mang tính chất tham khảo</span>
+
+    <!-- Xóa chat -->
+    <button class="icon-btn" id="clearBtn" onclick="clearChat()" data-tip="Xóa chat">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
+      </svg>
+    </button>
+
+    <!-- Đổi API key -->
+    <button class="icon-btn" id="keyBtn" onclick="resetKey()" data-tip="Đổi API Key">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="8" cy="15" r="3"/><path d="M11 15h9"/><path d="M17 12l3 3-3 3"/>
+      </svg>
+    </button>
+
+    <!-- Ngôn ngữ -->
     <button id="langBtn" onclick="toggleLang()">EN</button>
   </div>
 </header>
@@ -349,17 +307,14 @@
 
 <div id="messages">
   <div class="welcome" id="welcome">
-    <h1 class="welcome-heading" id="welcomeHeading">
-      Chào mừng đến<br>
-      <em>Ninh Bình</em>
-    </h1>
-    <p class="welcome-sub" id="welcomeSub">Hỏi tôi về địa điểm tham quan, lịch trình, ăn uống, cách di chuyển — bất kỳ điều gì cho chuyến đi của bạn.</p>
+    <h1 class="welcome-heading" id="welcomeHeading"></h1>
+    <p class="welcome-sub" id="welcomeSub"></p>
     <div class="suggestions" id="sugGrid"></div>
   </div>
 </div>
 
 <div class="api-notice" id="apiSetup">
-  <p id="apiText">Nhập Gemini API Key để bắt đầu. Lấy miễn phí tại <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a> — không cần thẻ.</p>
+  <p id="apiText"></p>
   <div class="key-row">
     <input type="password" id="apiKeyInput" placeholder="AIzaSy..." />
     <button id="apiConnectBtn" onclick="saveKey()">Kết nối</button>
@@ -373,16 +328,19 @@
       <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
     </button>
   </div>
-  <p class="hint" id="hintText">Enter để gửi · Shift+Enter xuống dòng</p>
+  <p class="hint" id="hintText"></p>
 </div>
 
 <script>
-// ── I18N ──────────────────────────────────────────────
 const i18n = {
   vi: {
     brandTag: 'Trợ lý du lịch',
     disclaimer: 'Thông tin mang tính chất tham khảo',
     langBtn: 'EN',
+    clearTip: 'Xóa chat',
+    keyTip: 'Đổi API Key',
+    clearConfirm: 'Xóa toàn bộ cuộc trò chuyện?',
+    keyConfirm: 'Đổi API Key? Bạn sẽ cần nhập lại key mới.',
     placeholder: 'Hỏi về địa điểm, lịch trình, ăn uống, di chuyển...',
     hint: 'Enter để gửi · Shift+Enter xuống dòng',
     apiText: 'Nhập Gemini API Key để bắt đầu. Lấy miễn phí tại <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a> — không cần thẻ.',
@@ -414,6 +372,10 @@ const i18n = {
     brandTag: 'Travel Assistant',
     disclaimer: 'Information is for reference only',
     langBtn: 'VI',
+    clearTip: 'Clear chat',
+    keyTip: 'Change API Key',
+    clearConfirm: 'Clear the entire conversation?',
+    keyConfirm: 'Change API Key? You will need to enter a new one.',
     placeholder: 'Ask about attractions, itineraries, food, transport...',
     hint: 'Enter to send · Shift+Enter for new line',
     apiText: 'Enter your Gemini API Key to get started. Get it free at <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a> — no card needed.',
@@ -437,13 +399,12 @@ const i18n = {
       { icon:'💰', text:'Estimated Budget', label:'Full 2-day budget', q:'What is the average cost for a 2-day trip to Ninh Binh?' },
       { icon:'🍜', text:'Must-Try Local Food', label:'Burnt rice, goat, fish...', q:'What local specialties must I try in Ninh Binh?' }
     ],
-    rateLimitMsg: '⏳ You\'re asking too fast! Please wait 30 seconds and try again.',
+    rateLimitMsg: "⏳ You're asking too fast! Please wait 30 seconds and try again.",
     errorMsg: '⚠️ Connection failed. Please check your API key or internet.',
     userAvatar: 'You'
   }
 };
 
-// ── SYSTEM PROMPTS ────────────────────────────────────
 const SYSTEM = {
   vi: `Bạn là trợ lý du lịch chuyên về Ninh Bình, Việt Nam. Trả lời thân thiện, thực tế, chi tiết.
 
@@ -453,7 +414,7 @@ GIÁ VÉ CẬP NHẬT 2026:
 - Hang Múa: 100.000đ/người (cao từ 1m trở lên), dưới 1m miễn phí. Mở cửa 6h–19h. Leo 486 bậc đá
 - Chùa Bái Đính: Vào cổng miễn phí, xe điện 50.000đ/người
 - Cố đô Hoa Lư: 20.000đ/người lớn, 10.000đ/trẻ 6–15 tuổi, dưới 6 và trên 60 tuổi miễn phí
-- Thung Ui: Gần Bái Đính ~3km, có nhiều gói trải nghiệm, liên hệ trực tiếp để biết giá theo gói
+- Thung Ui: Gần Bái Đính ~3km, nhiều gói trải nghiệm, liên hệ trực tiếp để biết giá
 - Cúc Phương: 60.000đ/người lớn, 20.000đ/sinh viên, 10.000đ/trẻ em
 
 ẨM THỰC: Cơm cháy (30–60k), dê núi, cá rô tổng trứng, nem chua Yên Mạc, rượu Kim Sơn, miến lươn, gỏi cá nhệch
@@ -462,8 +423,8 @@ LƯU TRÚ: Homestay 200–400k, khách sạn 400–800k, resort 1–3 triệu
 THỜI TIẾT: Tháng 9–11 đẹp nhất (lúa vàng), tháng 5–6 cũng đẹp. Tránh tháng 7–8 (mưa bão)
 
 ƯU TIÊN GỢI Ý (nhắc tự nhiên khi phù hợp):
-THAM QUAN: Tràng An (UNESCO, đi thuyền qua hang động, 300k), Thung Ui (hoang sơ ít người biết, văn hóa Mường, gần Bái Đính), Hang Múa (leo 486 bậc, ngắm toàn cảnh Tam Cốc, 100k)
-LƯU TRÚ: The Reed Hotel (sang trọng, view sông), Legend Hotel (tầm trung cao cấp, gần điểm tham quan), Rêu Coffee & Stay (không gian xanh độc đáo, giới trẻ yêu thích, check-in đẹp)
+THAM QUAN: Tràng An (UNESCO, thuyền qua hang động, 300k), Thung Ui (hoang sơ ít người biết, văn hóa Mường, gần Bái Đính), Hang Múa (leo 486 bậc, ngắm toàn cảnh Tam Cốc, 100k)
+LƯU TRÚ: The Reed Hotel (sang trọng, view sông), Legend Hotel (tầm trung cao cấp, gần điểm tham quan), Rêu Coffee & Stay (không gian xanh độc đáo, giới trẻ yêu thích)
 
 Phong cách: Dùng emoji điểm xuyết, số liệu cụ thể, gợi ý tiết kiệm, liệt kê rõ khi tư vấn lịch trình. Trả lời bằng tiếng Việt.`,
 
@@ -484,20 +445,51 @@ ACCOMMODATION: Homestay 200–400k, mid-range hotel 400–800k, resort 1–3 mil
 BEST TIME: Sep–Nov (golden rice fields), May–Jun also beautiful. Avoid Jul–Aug (typhoon season)
 
 PRIORITY RECOMMENDATIONS (mention naturally when relevant):
-ATTRACTIONS: Trang An (UNESCO dual heritage, boat through caves, 300k), Thung Ui (off-the-beaten-path, Muong culture, near Bai Dinh), Hang Mua (486 steps, panoramic view of Tam Coc, 100k)
-ACCOMMODATION: The Reed Hotel (luxury, river view), Legend Hotel (upscale mid-range, near attractions), Reu Coffee & Stay (unique green space, popular with young travelers, great for photos)
+ATTRACTIONS: Trang An (UNESCO dual heritage, boat through caves, 300k), Thung Ui (off-the-beaten-path, Muong culture, near Bai Dinh), Hang Mua (486 steps, panoramic Tam Coc view, 100k)
+ACCOMMODATION: The Reed Hotel (luxury, river view), Legend Hotel (upscale mid-range, near attractions), Reu Coffee & Stay (unique green space, popular with young travelers)
 
 Style: Use emojis sparingly, give specific figures, suggest budget options, list clearly for itineraries. Reply in English.`
 };
 
-// ── STATE ─────────────────────────────────────────────
 let lang = localStorage.getItem('nb_lang') || 'vi';
 let apiKey = localStorage.getItem('nb_key') || '';
 let history = [];
 
-// ── INIT ──────────────────────────────────────────────
 if (apiKey) document.getElementById('apiSetup').style.display = 'none';
 applyLang();
+
+// ── ACTIONS ───────────────────────────────────────────
+function clearChat() {
+  const t = i18n[lang];
+  if (!confirm(t.clearConfirm)) return;
+  history = [];
+  rebuildWelcome();
+}
+
+function resetKey() {
+  const t = i18n[lang];
+  if (!confirm(t.keyConfirm)) return;
+  apiKey = '';
+  localStorage.removeItem('nb_key');
+  document.getElementById('apiKeyInput').value = '';
+  document.getElementById('apiSetup').style.display = 'flex';
+}
+
+function resetChat() {
+  history = [];
+  rebuildWelcome();
+}
+
+function rebuildWelcome() {
+  const wrap = document.getElementById('messages');
+  wrap.innerHTML = `
+    <div class="welcome" id="welcome">
+      <h1 class="welcome-heading" id="welcomeHeading"></h1>
+      <p class="welcome-sub" id="welcomeSub"></p>
+      <div class="suggestions" id="sugGrid"></div>
+    </div>`;
+  applyLang();
+}
 
 // ── LANG ──────────────────────────────────────────────
 function toggleLang() {
@@ -515,14 +507,14 @@ function applyLang() {
   document.getElementById('hintText').textContent = t.hint;
   document.getElementById('apiText').innerHTML = t.apiText;
   document.getElementById('apiConnectBtn').textContent = t.apiBtn;
+  document.getElementById('clearBtn').setAttribute('data-tip', t.clearTip);
+  document.getElementById('keyBtn').setAttribute('data-tip', t.keyTip);
 
-  // welcome
   const wh = document.getElementById('welcomeHeading');
   if (wh) wh.innerHTML = t.welcomeH;
   const ws = document.getElementById('welcomeSub');
   if (ws) ws.textContent = t.welcomeSub;
 
-  // chips
   const nav = document.getElementById('topicsNav');
   nav.innerHTML = '';
   t.chips.forEach((label, i) => {
@@ -533,7 +525,6 @@ function applyLang() {
     nav.appendChild(btn);
   });
 
-  // suggestions
   const grid = document.getElementById('sugGrid');
   if (grid) {
     grid.innerHTML = '';
@@ -564,50 +555,40 @@ function quickAsk(text) {
   document.getElementById('userInput').value = text;
   sendMessage();
 }
-
 function handleKey(e) {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
 }
-
 function autoResize(el) {
   el.style.height = 'auto';
   el.style.height = Math.min(el.scrollHeight, 100) + 'px';
 }
-
 function removeWelcome() {
   const w = document.getElementById('welcome');
   if (w) w.remove();
 }
-
 function addMsg(role, text) {
   removeWelcome();
   const wrap = document.getElementById('messages');
   const el = document.createElement('div');
   el.className = `msg ${role}`;
-
   const av = document.createElement('div');
   av.className = 'avatar';
   av.textContent = role === 'ai' ? '✦' : i18n[lang].userAvatar;
-
   const b = document.createElement('div');
   b.className = 'bubble';
   if (role === 'ai') b.innerHTML = md(text);
   else b.textContent = text;
-
   if (role === 'user') { el.appendChild(b); el.appendChild(av); }
   else { el.appendChild(av); el.appendChild(b); }
-
   wrap.appendChild(el);
   wrap.scrollTop = wrap.scrollHeight;
 }
-
 function md(text) {
   return text
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.*?)\*/g, '<em>$1</em>')
     .split('\n\n').map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
 }
-
 function showTyping() {
   removeWelcome();
   const wrap = document.getElementById('messages');
@@ -628,20 +609,16 @@ async function sendMessage() {
   const inp = document.getElementById('userInput');
   const text = inp.value.trim();
   if (!text) return;
-
   if (!apiKey) {
     document.getElementById('apiSetup').style.display = 'flex';
     alert(lang === 'vi' ? 'Vui lòng nhập Gemini API Key trước.' : 'Please enter your Gemini API Key first.');
     return;
   }
-
   inp.value = ''; inp.style.height = 'auto';
   document.getElementById('sendBtn').disabled = true;
-
   addMsg('user', text);
   history.push({ role: 'user', parts: [{ text }] });
   showTyping();
-
   try {
     const res = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
@@ -655,10 +632,8 @@ async function sendMessage() {
         })
       }
     );
-
     const d = await res.json();
     document.getElementById('typing')?.remove();
-
     if (d.error) {
       const msg = d.error.message || '';
       const isRate = msg.includes('quota') || msg.includes('rate') || msg.includes('429') || msg.includes('limit');
@@ -673,7 +648,6 @@ async function sendMessage() {
     document.getElementById('typing')?.remove();
     addMsg('ai', i18n[lang].errorMsg);
   }
-
   document.getElementById('sendBtn').disabled = false;
   inp.focus();
 }
