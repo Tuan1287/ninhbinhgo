@@ -609,35 +609,176 @@ function weatherInfo(code, lang) {
 }
 
 // ── MAP ───────────────────────────────────────────────
-function openMap() {
+let currentRouteLayer = null;
+let currentMarkers = [];
+
+function openMap(routePlaces) {
   document.getElementById('mapModal').classList.add('open');
   document.getElementById('mapTitle').textContent = i18n[lang].mapTitle;
+
   setTimeout(() => {
     if (!leafletMap) {
       leafletMap = L.map('map').setView([20.27, 105.93], 12);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
       }).addTo(leafletMap);
-
-      PLACES.forEach(p => {
-        const icon = L.divIcon({
-          className: '',
-          html: `<div style="width:14px;height:14px;border-radius:50%;background:${p.color};border:2.5px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3)"></div>`,
-          iconSize: [14, 14],
-          iconAnchor: [7, 7],
-        });
-        L.marker([p.lat, p.lng], { icon })
-          .addTo(leafletMap)
-          .bindPopup(`<strong>${p.name}</strong><br><span style="font-size:0.85em;color:#666">${p.note}</span>`);
-      });
     } else {
       leafletMap.invalidateSize();
     }
-  }, 100);
+
+    // Xóa markers & route cũ
+    currentMarkers.forEach(m => leafletMap.removeLayer(m));
+    currentMarkers = [];
+    if (currentRouteLayer) { leafletMap.removeLayer(currentRouteLayer); currentRouteLayer = null; }
+
+    // Nếu có lịch trình → chỉ hiện điểm trong route
+    const displayPlaces = (routePlaces && routePlaces.length > 0) ? routePlaces : PLACES;
+
+    displayPlaces.forEach((p, idx) => {
+      const isRoute = routePlaces && routePlaces.length > 0;
+      const label = isRoute ? `${idx + 1}` : '';
+      const size = isRoute ? 26 : 14;
+
+      const icon = L.divIcon({
+        className: '',
+        html: isRoute
+          ? `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${p.color};border:2.5px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;color:white;font-size:11px;font-weight:700;font-family:sans-serif">${label}</div>`
+          : `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${p.color};border:2.5px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3)"></div>`,
+        iconSize: [size, size],
+        iconAnchor: [size/2, size/2],
+      });
+
+      const marker = L.marker([p.lat, p.lng], { icon })
+        .addTo(leafletMap)
+        .bindPopup(`<strong>${isRoute ? `${idx+1}. ` : ''}${p.name}</strong><br><span style="font-size:0.85em;color:#666">${p.note}</span>`);
+      currentMarkers.push(marker);
+    });
+
+    // Fit bounds
+    if (displayPlaces.length > 0) {
+      const bounds = L.latLngBounds(displayPlaces.map(p => [p.lat, p.lng]));
+      leafletMap.fitBounds(bounds, { padding: [40, 40] });
+    }
+
+    // Nếu có route → gọi OSRM vẽ đường thực tế
+    if (routePlaces && routePlaces.length >= 2) {
+      drawOSRMRoute(routePlaces);
+    }
+  }, 150);
+}
+
+async function drawOSRMRoute(places) {
+  try {
+    // Tạo chuỗi tọa độ lng,lat cho OSRM
+    const coords = places.map(p => `${p.lng},${p.lat}`).join(';');
+    const url = `https://router.project-osrm.org/route/v1/driving/${coords}?overview=full&geometries=geojson`;
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (data.code !== 'Ok' || !data.routes[0]) return;
+
+    const geojson = data.routes[0].geometry;
+    const distance = (data.routes[0].distance / 1000).toFixed(1);
+    const duration = Math.round(data.routes[0].duration / 60);
+
+    // Vẽ đường route
+    currentRouteLayer = L.geoJSON(geojson, {
+      style: {
+        color: '#3b82f6',
+        weight: 4,
+        opacity: 0.8,
+        dashArray: null,
+      }
+    }).addTo(leafletMap);
+
+    // Cập nhật legend với thông tin tổng quãng đường
+    const legendEl = document.querySelector('.map-legend');
+    if (legendEl) {
+      const routeInfo = document.getElementById('routeInfo');
+      if (!routeInfo) {
+        const info = document.createElement('span');
+        info.id = 'routeInfo';
+        info.style.cssText = 'color:#3b82f6;font-weight:500;margin-left:auto';
+        info.textContent = lang === 'vi'
+          ? `🚗 ${distance} km · ~${duration} phút`
+          : `🚗 ${distance} km · ~${duration} min`;
+        legendEl.appendChild(info);
+      } else {
+        routeInfo.textContent = lang === 'vi'
+          ? `🚗 ${distance} km · ~${duration} phút`
+          : `🚗 ${distance} km · ~${duration} min`;
+      }
+    }
+
+    leafletMap.fitBounds(currentRouteLayer.getBounds(), { padding: [40, 40] });
+  } catch (e) {
+    console.warn('OSRM routing failed:', e);
+  }
+}
+
+// Phát hiện địa điểm từ nội dung AI trả lời
+function extractRoutePlaces(text) {
+  const matched = [];
+  const seen = new Set();
+  // Tìm theo thứ tự xuất hiện trong văn bản
+  const lower = text.toLowerCase();
+
+  // Danh sách ưu tiên theo lịch trình phổ biến
+  const routeOrder = [
+    'tràng an', 'hang múa', 'tam cốc', 'cố đô hoa lư', 'phố cổ hoa lư', 'hoa lư',
+    'chùa bái đính', 'bái đính', 'thung ui', 'chùa vàng',
+    'heo say xỉn', 'lẩu gà', 'đại long',
+    'legend hotel', 'the reed', 'milan hotel', 'rêu coffee',
+    // EN
+    'trang an', 'hang mua', 'tam coc', 'hoa lu', 'bai dinh', 'thung ui',
+    'golden pagoda', 'legend hotel', 'the reed', 'milan hotel'
+  ];
+
+  // Map tên → PLACES
+  const nameMap = {
+    'tràng an': 'Tràng An', 'trang an': 'Tràng An',
+    'hang múa': 'Hang Múa', 'hang mua': 'Hang Múa',
+    'tam cốc': 'Tam Cốc', 'tam coc': 'Tam Cốc',
+    'cố đô hoa lư': 'Cố đô Hoa Lư', 'phố cổ hoa lư': 'Cố đô Hoa Lư',
+    'hoa lư': 'Cố đô Hoa Lư', 'hoa lu': 'Cố đô Hoa Lư',
+    'chùa bái đính': 'Chùa Bái Đính', 'bái đính': 'Chùa Bái Đính', 'bai dinh': 'Chùa Bái Đính',
+    'thung ui': 'Thung Ui',
+    'chùa vàng': 'Chùa Vàng (Bái Đính cổ)', 'golden pagoda': 'Chùa Vàng (Bái Đính cổ)',
+    'heo say xỉn': 'Heo Say Xỉn (GC22-23)',
+    'lẩu gà': 'Lẩu Gà Lá É (GC57-58)',
+    'đại long': 'Đại Long Building — Cơm Cháy',
+    'legend hotel': 'Legend Hotel',
+    'the reed': 'The Reed Hotel',
+    'milan hotel': 'Milan Hotel',
+    'rêu coffee': 'Rêu Coffee & Stay',
+  };
+
+  // Tìm thứ tự xuất hiện trong text
+  const positions = [];
+  for (const [key, placeName] of Object.entries(nameMap)) {
+    const idx = lower.indexOf(key);
+    if (idx !== -1 && !seen.has(placeName)) {
+      positions.push({ idx, placeName });
+      seen.add(placeName);
+    }
+  }
+
+  // Sắp xếp theo vị trí xuất hiện trong văn bản
+  positions.sort((a, b) => a.idx - b.idx);
+
+  for (const { placeName } of positions) {
+    const place = PLACES.find(p => p.name === placeName);
+    if (place) matched.push(place);
+  }
+
+  return matched;
 }
 
 function closeMap() {
   document.getElementById('mapModal').classList.remove('open');
+  // Reset routeInfo khi đóng
+  const ri = document.getElementById('routeInfo');
+  if (ri) ri.remove();
 }
 
 document.getElementById('mapModal').addEventListener('click', function(e) {
@@ -798,12 +939,14 @@ function typewriterMsg(text, showMapBtn) {
       setTimeout(tick, 14);
     } else {
       b.innerHTML = md(text);
-      // Thêm nút bản đồ nếu là lịch trình
       if (showMapBtn) {
+        const routePlaces = extractRoutePlaces(text);
         const btn = document.createElement('button');
         btn.className = 'map-btn';
-        btn.textContent = i18n[lang].showMap;
-        btn.onclick = openMap;
+        btn.textContent = routePlaces.length >= 2
+          ? (lang === 'vi' ? `🗺️ Xem lộ trình ${routePlaces.length} điểm` : `🗺️ View route — ${routePlaces.length} stops`)
+          : i18n[lang].showMap;
+        btn.onclick = () => openMap(routePlaces);
         b.appendChild(document.createElement('br'));
         b.appendChild(btn);
       }
