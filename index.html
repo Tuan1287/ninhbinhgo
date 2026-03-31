@@ -10,33 +10,25 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
   :root {
-    --bg: #f8f8f6;
-    --surface: #ffffff;
-    --border: #e8e8e4;
-    --ink: #111110;
-    --muted: #888884;
-    --tag-bg: #f0f0ec;
+    --bg: #f8f8f6; --surface: #ffffff; --border: #e8e8e4;
+    --ink: #111110; --muted: #888884; --tag-bg: #f0f0ec;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
     font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--ink);
+    background: var(--bg); color: var(--ink);
     height: 100vh;
     display: grid;
     grid-template-rows: auto auto 1fr auto auto;
     overflow: hidden;
   }
 
-  /* ── HEADER ── */
+  /* HEADER */
   header {
     padding: 0.75rem 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    display: flex; align-items: center; justify-content: space-between;
     border-bottom: 1px solid var(--border);
-    background: var(--surface);
-    gap: 1rem;
+    background: var(--surface); gap: 1rem;
   }
   .header-left { display: flex; align-items: center; gap: 1rem; }
   .brand { display: flex; align-items: baseline; gap: 0.5rem; cursor: pointer; }
@@ -44,21 +36,12 @@
   .brand-name { font-family: 'DM Serif Display', serif; font-size: 1.2rem; letter-spacing: -0.02em; transition: opacity 0.15s; }
   .brand-tag { font-size: 0.7rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
 
-  /* Weather pill */
   #weatherPill {
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
-    background: var(--tag-bg);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 0.25rem 0.7rem;
-    font-size: 0.78rem;
-    color: var(--ink);
-    font-weight: 400;
-    white-space: nowrap;
-    cursor: default;
-    transition: all 0.2s;
+    display: flex; align-items: center; gap: 0.35rem;
+    background: var(--tag-bg); border: 1px solid var(--border);
+    border-radius: 20px; padding: 0.25rem 0.7rem;
+    font-size: 0.78rem; color: var(--ink); white-space: nowrap;
+    cursor: default; transition: all 0.2s;
   }
   #weatherPill:hover { border-color: #60a5fa; background: #eff6ff; }
   #weatherIcon { font-size: 1rem; line-height: 1; }
@@ -69,13 +52,9 @@
   #disclaimer { font-size: 0.7rem; color: #bbb; font-style: italic; white-space: nowrap; margin-right: 0.25rem; }
 
   .icon-btn {
-    width: 34px; height: 34px;
-    border-radius: 8px;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    transition: all 0.18s;
-    flex-shrink: 0;
-    position: relative;
+    width: 34px; height: 34px; border-radius: 8px;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: all 0.18s; flex-shrink: 0; position: relative;
     border: 1.5px solid transparent;
   }
   .icon-btn svg { width: 15px; height: 15px; transition: stroke 0.18s; }
@@ -87,46 +66,29 @@
   #keyBtn svg { stroke: #d97706; }
   #keyBtn:hover { background: #d97706; border-color: #d97706; }
   #keyBtn:hover svg { stroke: white; }
-
   .icon-btn::after {
-    content: attr(data-tip);
-    position: absolute;
-    bottom: calc(100% + 7px);
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--ink);
-    color: white;
-    font-size: 0.68rem;
-    white-space: nowrap;
-    padding: 0.22rem 0.5rem;
-    border-radius: 5px;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.15s;
+    content: attr(data-tip); position: absolute;
+    bottom: calc(100% + 7px); left: 50%; transform: translateX(-50%);
+    background: var(--ink); color: white; font-size: 0.68rem;
+    white-space: nowrap; padding: 0.22rem 0.5rem; border-radius: 5px;
+    opacity: 0; pointer-events: none; transition: opacity 0.15s;
     font-family: 'DM Sans', sans-serif;
   }
   .icon-btn:hover::after { opacity: 1; }
 
   #langBtn {
-    background: var(--tag-bg);
-    border: 1.5px solid var(--border);
-    border-radius: 6px;
-    padding: 0.28rem 0.65rem;
-    font-size: 0.75rem;
-    font-family: 'DM Sans', sans-serif;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.15s;
+    background: var(--tag-bg); border: 1.5px solid var(--border);
+    border-radius: 6px; padding: 0.28rem 0.65rem;
+    font-size: 0.75rem; font-family: 'DM Sans', sans-serif;
+    font-weight: 500; cursor: pointer; transition: all 0.15s;
   }
   #langBtn:hover { background: var(--ink); color: white; border-color: var(--ink); }
 
-  /* ── TOPICS ── */
+  /* TOPICS */
   .topics {
-    padding: 0.65rem 1.5rem;
-    display: flex; gap: 0.4rem;
+    padding: 0.65rem 1.5rem; display: flex; gap: 0.4rem;
     overflow-x: auto; scrollbar-width: none;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
+    background: var(--surface); border-bottom: 1px solid var(--border);
   }
   .topics::-webkit-scrollbar { display: none; }
   .chip {
@@ -137,7 +99,7 @@
   }
   .chip:hover { background: var(--ink); color: white; border-color: var(--ink); }
 
-  /* ── MESSAGES ── */
+  /* MESSAGES */
   #messages {
     overflow-y: auto; padding: 1.75rem 1.5rem;
     display: flex; flex-direction: column; gap: 1.25rem;
@@ -146,7 +108,7 @@
   #messages::-webkit-scrollbar { width: 3px; }
   #messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
-  /* ── WELCOME ── */
+  /* WELCOME */
   .welcome { display: flex; flex-direction: column; align-items: flex-start; gap: 1.5rem; padding: 0.5rem 0; max-width: 600px; }
   .welcome-heading { font-family: 'DM Serif Display', serif; font-size: clamp(1.8rem, 4vw, 2.5rem); line-height: 1.15; letter-spacing: -0.03em; }
   .welcome-heading em { font-style: italic; color: var(--muted); }
@@ -159,7 +121,7 @@
   .sug-text { font-size: 0.82rem; font-weight: 400; line-height: 1.4; display: block; }
   .sug-label { font-size: 0.7rem; color: var(--muted); display: block; margin-top: 0.2rem; font-weight: 300; }
 
-  /* ── MSG ── */
+  /* MSG */
   .msg { display: flex; gap: 0.75rem; animation: fadeIn 0.25s ease; max-width: 720px; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
   .msg.user { align-self: flex-end; flex-direction: row-reverse; max-width: 75%; }
@@ -173,7 +135,7 @@
   .msg.ai .bubble p { margin-bottom: 0.5em; }
   .msg.ai .bubble p:last-child { margin-bottom: 0; }
 
-  /* Typing dots */
+  /* TYPING */
   .typing-wrap { display: flex; gap: 4px; align-items: center; padding: 0.2rem 0; }
   .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); animation: blink 1.2s infinite; }
   .dot:nth-child(2) { animation-delay: 0.2s; }
@@ -182,106 +144,93 @@
   .cursor { display: inline-block; font-size: 0.8em; color: var(--muted); animation: cursorBlink 0.6s infinite; margin-left: 1px; vertical-align: middle; }
   @keyframes cursorBlink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
 
-  /* ── MAP BUTTON ── */
+  /* MAP BUTTON */
   .map-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    margin-top: 0.75rem;
-    background: #eff6ff;
-    border: 1.5px solid #93c5fd;
-    color: #1d4ed8;
-    border-radius: 8px;
-    padding: 0.45rem 0.9rem;
-    font-size: 0.8rem;
-    font-family: 'DM Sans', sans-serif;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.15s;
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    margin-top: 0.75rem; background: #eff6ff;
+    border: 1.5px solid #93c5fd; color: #1d4ed8;
+    border-radius: 8px; padding: 0.45rem 0.9rem;
+    font-size: 0.8rem; font-family: 'DM Sans', sans-serif;
+    font-weight: 500; cursor: pointer; transition: all 0.15s;
   }
   .map-btn:hover { background: #1d4ed8; color: white; border-color: #1d4ed8; }
 
-  /* ── MAP MODAL ── */
+  /* MAP MODAL */
   #mapModal {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.5);
-    z-index: 1000;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.5); z-index: 1000;
+    align-items: center; justify-content: center; padding: 1rem;
   }
   #mapModal.open { display: flex; }
   .map-panel {
-    background: white;
-    border-radius: 16px;
-    width: 100%;
-    max-width: 700px;
-    max-height: 85vh;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
+    background: white; border-radius: 16px;
+    width: 100%; max-width: 700px; max-height: 85vh;
+    overflow: hidden; display: flex; flex-direction: column;
     box-shadow: 0 20px 60px rgba(0,0,0,0.2);
   }
   .map-header {
-    padding: 1rem 1.25rem;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    padding: 1rem 1.25rem; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
   }
   .map-header h3 { font-family: 'DM Serif Display', serif; font-size: 1.1rem; letter-spacing: -0.02em; }
   .map-close {
-    width: 30px; height: 30px;
-    border-radius: 6px;
-    background: var(--tag-bg);
-    border: 1px solid var(--border);
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 16px; color: var(--muted);
-    transition: all 0.15s;
+    width: 30px; height: 30px; border-radius: 6px;
+    background: var(--tag-bg); border: 1px solid var(--border);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 16px; color: var(--muted); transition: all 0.15s;
   }
   .map-close:hover { background: var(--ink); color: white; border-color: var(--ink); }
   #map { flex: 1; min-height: 420px; }
-
-  /* Legend */
   .map-legend {
-    padding: 0.6rem 1.25rem;
-    border-top: 1px solid var(--border);
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-    font-size: 0.72rem;
-    color: var(--muted);
+    padding: 0.6rem 1.25rem; border-top: 1px solid var(--border);
+    display: flex; gap: 1rem; flex-wrap: wrap;
+    font-size: 0.72rem; color: var(--muted); align-items: center;
   }
   .legend-item { display: flex; align-items: center; gap: 0.3rem; }
   .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 
-  /* ── API NOTICE ── */
+  /* API NOTICE */
   .api-notice {
-    margin: 0.75rem 1.5rem 0;
-    padding: 0.9rem 1.1rem;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+    margin: 0.75rem 1.5rem 0; padding: 0.9rem 1.1rem;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
   }
   .api-notice p { font-size: 0.82rem; color: var(--muted); flex: 1; min-width: 180px; line-height: 1.5; }
   .api-notice a { color: var(--ink); font-weight: 500; }
   .key-row { display: flex; gap: 0.4rem; }
-  .key-row input { padding: 0.5rem 0.75rem; border: 1px solid var(--border); border-radius: 7px; font-size: 0.82rem; font-family: monospace; outline: none; width: 190px; background: var(--bg); transition: border-color 0.15s; }
+  .key-row input {
+    padding: 0.5rem 0.75rem; border: 1px solid var(--border); border-radius: 7px;
+    font-size: 0.82rem; font-family: monospace; outline: none; width: 190px;
+    background: var(--bg); transition: border-color 0.15s;
+  }
   .key-row input:focus { border-color: var(--ink); }
-  .key-row button { background: var(--ink); color: white; border: none; border-radius: 7px; padding: 0 0.85rem; font-size: 0.8rem; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; transition: opacity 0.15s; }
+  .key-row button {
+    background: var(--ink); color: white; border: none; border-radius: 7px;
+    padding: 0 0.85rem; font-size: 0.8rem; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-weight: 500; transition: opacity 0.15s;
+  }
   .key-row button:hover { opacity: 0.75; }
 
-  /* ── INPUT ── */
+  /* INPUT */
   .input-area { padding: 0.85rem 1.5rem 1rem; background: var(--surface); border-top: 1px solid var(--border); }
-  .input-row { display: flex; gap: 0.6rem; align-items: flex-end; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 0.6rem 0.6rem 0.6rem 1rem; transition: border-color 0.15s; }
+  .input-row {
+    display: flex; gap: 0.6rem; align-items: flex-end;
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 12px; padding: 0.6rem 0.6rem 0.6rem 1rem; transition: border-color 0.15s;
+  }
   .input-row:focus-within { border-color: var(--ink); }
-  textarea { flex: 1; border: none; outline: none; resize: none; font-family: 'DM Sans', sans-serif; font-size: 0.875rem; font-weight: 300; color: var(--ink); background: transparent; line-height: 1.5; min-height: 22px; max-height: 100px; }
+  textarea {
+    flex: 1; border: none; outline: none; resize: none;
+    font-family: 'DM Sans', sans-serif; font-size: 0.875rem; font-weight: 300;
+    color: var(--ink); background: transparent; line-height: 1.5;
+    min-height: 22px; max-height: 100px;
+  }
   textarea::placeholder { color: var(--muted); }
-  #sendBtn { width: 34px; height: 34px; border-radius: 8px; background: var(--ink); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: opacity 0.15s; flex-shrink: 0; }
+  #sendBtn {
+    width: 34px; height: 34px; border-radius: 8px; background: var(--ink);
+    border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: opacity 0.15s; flex-shrink: 0;
+  }
   #sendBtn:hover { opacity: 0.7; }
   #sendBtn:disabled { opacity: 0.2; cursor: not-allowed; }
   #sendBtn svg { width: 14px; height: 14px; fill: white; }
@@ -299,9 +248,8 @@
     #weatherDesc { display: none; }
   }
 </style>
-<script src="places.js"></script>
 </head>
-  <body>
+<body>
 
 <header>
   <div class="header-left">
@@ -309,14 +257,12 @@
       <span class="brand-name">Ninh Bình AI</span>
       <span class="brand-tag" id="brandTag">Trợ lý du lịch</span>
     </div>
-    <!-- Weather pill -->
     <div id="weatherPill" title="Thời tiết Ninh Bình hiện tại">
       <span id="weatherIcon">⏳</span>
       <span id="weatherTemp">--°C</span>
       <span id="weatherDesc">Đang tải...</span>
     </div>
   </div>
-
   <div class="header-right">
     <span id="disclaimer">Thông tin mang tính chất tham khảo</span>
     <button class="icon-btn" id="clearBtn" onclick="clearChat()" data-tip="Xóa chat">
@@ -373,10 +319,13 @@
       <span class="legend-item"><span class="legend-dot" style="background:#ef4444"></span> Tham quan</span>
       <span class="legend-item"><span class="legend-dot" style="background:#3b82f6"></span> Lưu trú</span>
       <span class="legend-item"><span class="legend-dot" style="background:#f59e0b"></span> Ăn uống</span>
-      <span class="legend-item"><span class="legend-dot" style="background:#10b981"></span> Mua sắm / Khác</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#10b981"></span> Mua sắm</span>
     </div>
   </div>
 </div>
+
+<!-- Load places.js TRƯỚC script chính -->
+<script src="places.js"></script>
 
 <script>
 // ── I18N ──────────────────────────────────────────────
@@ -414,9 +363,8 @@ const i18n = {
     rateLimitMsg: '⏳ Bạn hỏi hơi nhanh! Chờ 30 giây rồi thử lại nhé.',
     errorMsg: '⚠️ Không kết nối được. Kiểm tra lại API key hoặc internet.',
     userAvatar: 'Bạn',
-    showMap: '🗺️ Xem bản đồ các điểm này',
     mapTitle: '🗺️ Bản đồ Ninh Bình',
-    weatherLoading: 'Đang tải...'
+    showMap: '🗺️ Xem bản đồ các điểm này',
   },
   en: {
     brandTag: 'Travel Assistant',
@@ -451,18 +399,18 @@ const i18n = {
     rateLimitMsg: "⏳ You're asking too fast! Please wait 30 seconds and try again.",
     errorMsg: '⚠️ Connection failed. Please check your API key or internet.',
     userAvatar: 'You',
-    showMap: '🗺️ View map of these places',
     mapTitle: '🗺️ Ninh Binh Map',
-    weatherLoading: 'Loading...'
+    showMap: '🗺️ View map of these places',
   }
 };
 
-// ── SYSTEM PROMPTS ────────────────────────────────────
-const SYSTEM = {
-  vi: `Bạn là trợ lý du lịch chuyên về Ninh Bình, Việt Nam. Trả lời thân thiện, thực tế, chi tiết.
+// ── SYSTEM PROMPT — đọc dữ liệu từ places.js ─────────
+function getSystem(l) {
+  const isVi = l === 'vi';
+  const base = isVi ? `Bạn là trợ lý du lịch chuyên về Ninh Bình, Việt Nam. Trả lời thân thiện, thực tế, chi tiết.
 
 GIÁ VÉ CẬP NHẬT 2026:
-- Tràng An: 300.000đ/người lớn, 150.000đ/trẻ 1m–1m3, dưới 1m miễn phí. 3 tuyến, mỗi tuyến 2.5–3 giờ. Mở cửa 6h–16h45
+- Tràng An: 300.000đ/người lớn, 150.000đ/trẻ 1m–1m3, dưới 1m miễn phí. 3 tuyến, 2.5–3 giờ/tuyến. Mở cửa 6h–16h45
 - Hang Múa: 100.000đ/người (từ 1m), dưới 1m miễn phí. Mở cửa 6h–19h. Leo 486 bậc
 - Tam Cốc: 120.000đ/người lớn + 150.000đ/đò (tối đa 4 người). Mở cửa 7h–17h
 - Cố đô Hoa Lư: 20.000đ/người lớn, miễn phí trẻ dưới 6 và người trên 60 tuổi
@@ -476,13 +424,9 @@ Ngày 2: 6h30 leo Hang Múa (tránh nắng) → 9h30 Tam Cốc (nếu còn thờ
 
 ẨM THỰC KHÁC: Cơm cháy (30-60k), dê núi, cá rô tổng trứng, nem chua Yên Mạc, miến lươn
 DI CHUYỂN: Xe khách HN-NB (80-150k, 1-2h), Limousine (~200k), xe máy 100-150k/ngày
-THỜI TIẾT ĐẸP: Tháng 9-11 (lúa vàng), tháng 5-6. Tránh tháng 7-8 (mưa bão)
+THỜI TIẾT ĐẸP: Tháng 9-11 (lúa vàng), tháng 5-6. Tránh tháng 7-8 (mưa bão)` :
 
-${buildPriorityContext('vi')}
-
-Phong cách: Emoji điểm xuyết, số liệu cụ thể, khung giờ rõ ràng, luôn nhắc checkin 14h/checkout 12h. Trả lời bằng tiếng Việt.`,
-
-  en: `You are a travel assistant specializing in Ninh Binh, Vietnam. Reply in a friendly, practical, and detailed manner.
+`You are a travel assistant specializing in Ninh Binh, Vietnam. Reply in a friendly, practical, and detailed manner.
 
 TICKET PRICES 2026:
 - Trang An: 300,000 VND/adult, 150,000/child (1m-1.3m), under 1m free. 3 routes, 2.5-3hrs each. Open 6am-4:45pm
@@ -499,72 +443,60 @@ Day 2: 6:30am Hang Mua (avoid midday heat) → 9:30am Tam Coc (optional) → 12p
 
 OTHER FOOD: Burnt rice (30-60k), mountain goat, braised carp, eel vermicelli
 TRANSPORT: Bus Hanoi-NB (80-150k, 1-2hrs), Limousine (~200k), motorbike 100-150k/day
-BEST TIME: Sep-Nov (golden rice), May-Jun. Avoid Jul-Aug (typhoons)
+BEST TIME: Sep-Nov (golden rice), May-Jun. Avoid Jul-Aug (typhoons)`;
 
-${buildPriorityContext('en')}
+  // Ghép dữ liệu ưu tiên từ places.js
+  const priority = buildPriorityContext(l);
 
-Style: Use emojis, specific figures, clear hourly schedules, always note check-in 2pm/check-out 12pm. Reply in English.`
-};
+  const style = isVi
+    ? '\n\nPhong cách: Emoji điểm xuyết, số liệu cụ thể, khung giờ rõ ràng, luôn nhắc checkin 14h/checkout 12h. Trả lời bằng tiếng Việt.'
+    : '\n\nStyle: Use emojis, specific figures, clear hourly schedules, always note check-in 2pm/check-out 12pm. Reply in English.';
+
+  return base + priority + style;
+}
 
 // ── STATE ─────────────────────────────────────────────
 let lang = localStorage.getItem('nb_lang') || 'vi';
 let apiKey = localStorage.getItem('nb_key') || '';
 let history = [];
 let leafletMap = null;
+let currentRouteLayer = null;
+let currentMarkers = [];
 
 // ── INIT ──────────────────────────────────────────────
 if (apiKey) document.getElementById('apiSetup').style.display = 'none';
 applyLang();
 loadWeather();
 
-// ── WEATHER (OpenMeteo — miễn phí, không cần key) ────
+// ── WEATHER ───────────────────────────────────────────
 async function loadWeather() {
   try {
-    const res = await fetch(
-      'https://api.open-meteo.com/v1/forecast?latitude=20.2513&longitude=105.9745&current=temperature_2m,weather_code&timezone=Asia%2FBangkok'
-    );
+    const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=20.2513&longitude=105.9745&current=temperature_2m,weather_code&timezone=Asia%2FBangkok');
     const d = await res.json();
     const temp = Math.round(d.current.temperature_2m);
-    const code = d.current.weather_code;
-    const { icon, desc } = weatherInfo(code, lang);
+    const { icon, desc } = weatherInfo(d.current.weather_code, lang);
     document.getElementById('weatherIcon').textContent = icon;
     document.getElementById('weatherTemp').textContent = `${temp}°C`;
     document.getElementById('weatherDesc').textContent = desc;
   } catch {
-    document.getElementById('weatherDesc').textContent = '';
     document.getElementById('weatherIcon').textContent = '🌤️';
     document.getElementById('weatherTemp').textContent = '--°C';
+    document.getElementById('weatherDesc').textContent = '';
   }
 }
 
-function weatherInfo(code, lang) {
-  const vi = [
-    [0, '☀️', 'Trời quang'], [1, '🌤️', 'Ít mây'], [2, '⛅', 'Có mây'],
-    [3, '☁️', 'Nhiều mây'], [45, '🌫️', 'Sương mù'], [48, '🌫️', 'Sương giá'],
-    [51, '🌦️', 'Mưa phùn'], [53, '🌦️', 'Mưa phùn'], [55, '🌧️', 'Mưa phùn nặng'],
-    [61, '🌧️', 'Mưa nhẹ'], [63, '🌧️', 'Mưa vừa'], [65, '🌧️', 'Mưa to'],
-    [71, '🌨️', 'Tuyết nhẹ'], [80, '🌦️', 'Mưa rào'], [95, '⛈️', 'Giông bão'],
-  ];
-  const en = [
-    [0, '☀️', 'Clear'], [1, '🌤️', 'Mainly clear'], [2, '⛅', 'Partly cloudy'],
-    [3, '☁️', 'Overcast'], [45, '🌫️', 'Foggy'], [48, '🌫️', 'Icy fog'],
-    [51, '🌦️', 'Light drizzle'], [53, '🌦️', 'Drizzle'], [55, '🌧️', 'Heavy drizzle'],
-    [61, '🌧️', 'Light rain'], [63, '🌧️', 'Moderate rain'], [65, '🌧️', 'Heavy rain'],
-    [71, '🌨️', 'Light snow'], [80, '🌦️', 'Rain showers'], [95, '⛈️', 'Thunderstorm'],
-  ];
-  const list = lang === 'vi' ? vi : en;
+function weatherInfo(code, l) {
+  const vi = [[0,'☀️','Trời quang'],[1,'🌤️','Ít mây'],[2,'⛅','Có mây'],[3,'☁️','Nhiều mây'],[45,'🌫️','Sương mù'],[51,'🌦️','Mưa phùn'],[61,'🌧️','Mưa nhẹ'],[63,'🌧️','Mưa vừa'],[65,'🌧️','Mưa to'],[80,'🌦️','Mưa rào'],[95,'⛈️','Giông bão']];
+  const en = [[0,'☀️','Clear'],[1,'🌤️','Mainly clear'],[2,'⛅','Partly cloudy'],[3,'☁️','Overcast'],[45,'🌫️','Foggy'],[51,'🌦️','Light drizzle'],[61,'🌧️','Light rain'],[63,'🌧️','Moderate rain'],[65,'🌧️','Heavy rain'],[80,'🌦️','Showers'],[95,'⛈️','Thunderstorm']];
+  const list = l === 'vi' ? vi : en;
   const found = list.slice().reverse().find(([c]) => code >= c);
-  return found ? { icon: found[1], desc: found[2] } : { icon: '🌤️', desc: lang === 'vi' ? 'Tốt' : 'Good' };
+  return found ? { icon: found[1], desc: found[2] } : { icon: '🌤️', desc: 'OK' };
 }
 
 // ── MAP ───────────────────────────────────────────────
-let currentRouteLayer = null;
-let currentMarkers = [];
-
 function openMap(routePlaces) {
   document.getElementById('mapModal').classList.add('open');
   document.getElementById('mapTitle').textContent = i18n[lang].mapTitle;
-
   setTimeout(() => {
     if (!leafletMap) {
       leafletMap = L.map('map').setView([20.27, 105.93], 12);
@@ -575,115 +507,63 @@ function openMap(routePlaces) {
       leafletMap.invalidateSize();
     }
 
-    // Xóa markers & route cũ
     currentMarkers.forEach(m => leafletMap.removeLayer(m));
     currentMarkers = [];
     if (currentRouteLayer) { leafletMap.removeLayer(currentRouteLayer); currentRouteLayer = null; }
 
-    // Nếu có lịch trình → chỉ hiện điểm trong route
     const displayPlaces = (routePlaces && routePlaces.length > 0) ? routePlaces : PLACES;
+    const isRoute = routePlaces && routePlaces.length > 0;
 
     displayPlaces.forEach((p, idx) => {
-      const isRoute = routePlaces && routePlaces.length > 0;
-      const label = isRoute ? `${idx + 1}` : '';
       const size = isRoute ? 26 : 14;
-
       const icon = L.divIcon({
         className: '',
         html: isRoute
-          ? `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${p.color};border:2.5px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;color:white;font-size:11px;font-weight:700;font-family:sans-serif">${label}</div>`
+          ? `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${p.color};border:2.5px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;color:white;font-size:11px;font-weight:700;font-family:sans-serif">${idx+1}</div>`
           : `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${p.color};border:2.5px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3)"></div>`,
-        iconSize: [size, size],
-        iconAnchor: [size/2, size/2],
+        iconSize: [size, size], iconAnchor: [size/2, size/2],
       });
-
       const marker = L.marker([p.lat, p.lng], { icon })
         .addTo(leafletMap)
         .bindPopup(`<strong>${isRoute ? `${idx+1}. ` : ''}${p.name}</strong><br><span style="font-size:0.85em;color:#666">${p.note}</span>`);
       currentMarkers.push(marker);
     });
 
-    // Fit bounds
     if (displayPlaces.length > 0) {
-      const bounds = L.latLngBounds(displayPlaces.map(p => [p.lat, p.lng]));
-      leafletMap.fitBounds(bounds, { padding: [40, 40] });
+      leafletMap.fitBounds(L.latLngBounds(displayPlaces.map(p => [p.lat, p.lng])), { padding: [40, 40] });
     }
-
-    // Nếu có route → gọi OSRM vẽ đường thực tế
-    if (routePlaces && routePlaces.length >= 2) {
-      drawOSRMRoute(routePlaces);
-    }
+    if (isRoute && routePlaces.length >= 2) drawOSRMRoute(routePlaces);
   }, 150);
 }
 
 async function drawOSRMRoute(places) {
   try {
-    // Tạo chuỗi tọa độ lng,lat cho OSRM
     const coords = places.map(p => `${p.lng},${p.lat}`).join(';');
-    const url = `https://router.project-osrm.org/route/v1/driving/${coords}?overview=full&geometries=geojson`;
-    const res = await fetch(url);
+    const res = await fetch(`https://router.project-osrm.org/route/v1/driving/${coords}?overview=full&geometries=geojson`);
     const data = await res.json();
-
     if (data.code !== 'Ok' || !data.routes[0]) return;
-
-    const geojson = data.routes[0].geometry;
     const distance = (data.routes[0].distance / 1000).toFixed(1);
     const duration = Math.round(data.routes[0].duration / 60);
-
-    // Vẽ đường route
-    currentRouteLayer = L.geoJSON(geojson, {
-      style: {
-        color: '#3b82f6',
-        weight: 4,
-        opacity: 0.8,
-        dashArray: null,
-      }
+    currentRouteLayer = L.geoJSON(data.routes[0].geometry, {
+      style: { color: '#3b82f6', weight: 4, opacity: 0.8 }
     }).addTo(leafletMap);
-
-    // Cập nhật legend với thông tin tổng quãng đường
+    leafletMap.fitBounds(currentRouteLayer.getBounds(), { padding: [40, 40] });
     const legendEl = document.querySelector('.map-legend');
     if (legendEl) {
-      const routeInfo = document.getElementById('routeInfo');
-      if (!routeInfo) {
-        const info = document.createElement('span');
-        info.id = 'routeInfo';
-        info.style.cssText = 'color:#3b82f6;font-weight:500;margin-left:auto';
-        info.textContent = lang === 'vi'
-          ? `🚗 ${distance} km · ~${duration} phút`
-          : `🚗 ${distance} km · ~${duration} min`;
-        legendEl.appendChild(info);
-      } else {
-        routeInfo.textContent = lang === 'vi'
-          ? `🚗 ${distance} km · ~${duration} phút`
-          : `🚗 ${distance} km · ~${duration} min`;
+      let ri = document.getElementById('routeInfo');
+      if (!ri) {
+        ri = document.createElement('span');
+        ri.id = 'routeInfo';
+        ri.style.cssText = 'color:#3b82f6;font-weight:500;margin-left:auto';
+        legendEl.appendChild(ri);
       }
+      ri.textContent = lang === 'vi' ? `🚗 ${distance} km · ~${duration} phút` : `🚗 ${distance} km · ~${duration} min`;
     }
-
-    leafletMap.fitBounds(currentRouteLayer.getBounds(), { padding: [40, 40] });
-  } catch (e) {
-    console.warn('OSRM routing failed:', e);
-  }
+  } catch(e) { console.warn('OSRM failed:', e); }
 }
 
-// Phát hiện địa điểm từ nội dung AI trả lời
 function extractRoutePlaces(text) {
-  const matched = [];
-  const seen = new Set();
-  // Tìm theo thứ tự xuất hiện trong văn bản
   const lower = text.toLowerCase();
-
-  // Danh sách ưu tiên theo lịch trình phổ biến
-  const routeOrder = [
-    'tràng an', 'hang múa', 'tam cốc', 'cố đô hoa lư', 'phố cổ hoa lư', 'hoa lư',
-    'chùa bái đính', 'bái đính', 'thung ui', 'chùa vàng',
-    'heo say xỉn', 'lẩu gà', 'đại long',
-    'legend hotel', 'the reed', 'milan hotel', 'rêu coffee',
-    // EN
-    'trang an', 'hang mua', 'tam coc', 'hoa lu', 'bai dinh', 'thung ui',
-    'golden pagoda', 'legend hotel', 'the reed', 'milan hotel'
-  ];
-
-  // Map tên → PLACES
   const nameMap = {
     'tràng an': 'Tràng An', 'trang an': 'Tràng An',
     'hang múa': 'Hang Múa', 'hang mua': 'Hang Múa',
@@ -692,18 +572,16 @@ function extractRoutePlaces(text) {
     'hoa lư': 'Cố đô Hoa Lư', 'hoa lu': 'Cố đô Hoa Lư',
     'chùa bái đính': 'Chùa Bái Đính', 'bái đính': 'Chùa Bái Đính', 'bai dinh': 'Chùa Bái Đính',
     'thung ui': 'Thung Ui',
-    'chùa vàng': 'Chùa Vàng (Bái Đính cổ)', 'golden pagoda': 'Chùa Vàng (Bái Đính cổ)',
-    'heo say xỉn': 'Heo Say Xỉn (GC22-23)',
-    'lẩu gà': 'Lẩu Gà Lá É (GC57-58)',
-    'đại long': 'Đại Long Building — Cơm Cháy',
+    'heo say xỉn': 'Heo Say Xỉn (GC22-23)', 'heo say xin': 'Heo Say Xỉn (GC22-23)',
+    'lẩu gà': 'Lẩu Gà Lá É (GC57-58)', 'lau ga': 'Lẩu Gà Lá É (GC57-58)',
+    'đại long': 'Đại Long Building — Cơm Cháy', 'dai long': 'Đại Long Building — Cơm Cháy',
     'legend hotel': 'Legend Hotel',
     'the reed': 'The Reed Hotel',
     'milan hotel': 'Milan Hotel',
-    'rêu coffee': 'Rêu Coffee & Stay',
+    'rêu coffee': 'Rêu Coffee & Stay', 'reu coffee': 'Rêu Coffee & Stay',
   };
-
-  // Tìm thứ tự xuất hiện trong text
   const positions = [];
+  const seen = new Set();
   for (const [key, placeName] of Object.entries(nameMap)) {
     const idx = lower.indexOf(key);
     if (idx !== -1 && !seen.has(placeName)) {
@@ -711,25 +589,17 @@ function extractRoutePlaces(text) {
       seen.add(placeName);
     }
   }
-
-  // Sắp xếp theo vị trí xuất hiện trong văn bản
   positions.sort((a, b) => a.idx - b.idx);
-
-  for (const { placeName } of positions) {
-    const place = PLACES.find(p => p.name === placeName);
-    if (place) matched.push(place);
-  }
-
-  return matched;
+  return positions
+    .map(({ placeName }) => PLACES.find(p => p.name === placeName))
+    .filter(Boolean);
 }
 
 function closeMap() {
   document.getElementById('mapModal').classList.remove('open');
-  // Reset routeInfo khi đóng
   const ri = document.getElementById('routeInfo');
   if (ri) ri.remove();
 }
-
 document.getElementById('mapModal').addEventListener('click', function(e) {
   if (e.target === this) closeMap();
 });
@@ -737,23 +607,17 @@ document.getElementById('mapModal').addEventListener('click', function(e) {
 // ── ACTIONS ───────────────────────────────────────────
 function clearChat() {
   if (!confirm(i18n[lang].clearConfirm)) return;
-  history = [];
-  rebuildWelcome();
+  history = []; rebuildWelcome();
 }
 function resetKey() {
   if (!confirm(i18n[lang].keyConfirm)) return;
-  apiKey = '';
-  localStorage.removeItem('nb_key');
+  apiKey = ''; localStorage.removeItem('nb_key');
   document.getElementById('apiKeyInput').value = '';
   document.getElementById('apiSetup').style.display = 'flex';
 }
-function resetChat() {
-  history = [];
-  rebuildWelcome();
-}
+function resetChat() { history = []; rebuildWelcome(); }
 function rebuildWelcome() {
-  const wrap = document.getElementById('messages');
-  wrap.innerHTML = `<div class="welcome" id="welcome">
+  document.getElementById('messages').innerHTML = `<div class="welcome" id="welcome">
     <h1 class="welcome-heading" id="welcomeHeading"></h1>
     <p class="welcome-sub" id="welcomeSub"></p>
     <div class="suggestions" id="sugGrid"></div>
@@ -765,8 +629,7 @@ function rebuildWelcome() {
 function toggleLang() {
   lang = lang === 'vi' ? 'en' : 'vi';
   localStorage.setItem('nb_lang', lang);
-  applyLang();
-  loadWeather();
+  applyLang(); loadWeather();
 }
 function applyLang() {
   const t = i18n[lang];
@@ -820,64 +683,45 @@ function quickAsk(text) { document.getElementById('userInput').value = text; sen
 function handleKey(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
 function autoResize(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 100) + 'px'; }
 function removeWelcome() { const w = document.getElementById('welcome'); if (w) w.remove(); }
-
 function isItinerary(text) {
-  const kw = ['lịch trình','itinerary','ngày 1','ngày 2','day 1','day 2','checkin','check-in','tham quan','schedule'];
-  return kw.some(k => text.toLowerCase().includes(k));
+  return ['lịch trình','itinerary','ngày 1','ngày 2','day 1','day 2','checkin','check-in','tham quan','schedule']
+    .some(k => text.toLowerCase().includes(k));
 }
-
-function addMsg(role, text) {
-  removeWelcome();
-  const wrap = document.getElementById('messages');
-  const el = document.createElement('div');
-  el.className = `msg ${role}`;
-  const av = document.createElement('div');
-  av.className = 'avatar';
-  av.textContent = role === 'ai' ? '✦' : i18n[lang].userAvatar;
-  const b = document.createElement('div');
-  b.className = 'bubble';
-  if (role === 'ai') b.innerHTML = md(text);
-  else b.textContent = text;
-  if (role === 'user') { el.appendChild(b); el.appendChild(av); }
-  else { el.appendChild(av); el.appendChild(b); }
-  wrap.appendChild(el);
-  wrap.scrollTop = wrap.scrollHeight;
-}
-
 function md(text) {
   return text
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.*?)\*/g, '<em>$1</em>')
-    .split('\n\n').map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
+    .split('\n\n').map(p => `<p>${p.replace(/\n/g,'<br>')}</p>`).join('');
 }
-
+function addMsg(role, text) {
+  removeWelcome();
+  const wrap = document.getElementById('messages');
+  const el = document.createElement('div'); el.className = `msg ${role}`;
+  const av = document.createElement('div'); av.className = 'avatar';
+  av.textContent = role === 'ai' ? '✦' : i18n[lang].userAvatar;
+  const b = document.createElement('div'); b.className = 'bubble';
+  if (role === 'ai') b.innerHTML = md(text); else b.textContent = text;
+  if (role === 'user') { el.appendChild(b); el.appendChild(av); }
+  else { el.appendChild(av); el.appendChild(b); }
+  wrap.appendChild(el); wrap.scrollTop = wrap.scrollHeight;
+}
 function showTyping() {
   removeWelcome();
   const wrap = document.getElementById('messages');
-  const el = document.createElement('div');
-  el.className = 'msg ai'; el.id = 'typing';
-  const av = document.createElement('div');
-  av.className = 'avatar'; av.textContent = '✦';
-  const b = document.createElement('div');
-  b.className = 'bubble';
+  const el = document.createElement('div'); el.className = 'msg ai'; el.id = 'typing';
+  const av = document.createElement('div'); av.className = 'avatar'; av.textContent = '✦';
+  const b = document.createElement('div'); b.className = 'bubble';
   b.innerHTML = '<div class="typing-wrap"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>';
   el.appendChild(av); el.appendChild(b);
-  wrap.appendChild(el);
-  wrap.scrollTop = wrap.scrollHeight;
+  wrap.appendChild(el); wrap.scrollTop = wrap.scrollHeight;
 }
-
 function typewriterMsg(text, showMapBtn) {
   removeWelcome();
   const wrap = document.getElementById('messages');
-  const el = document.createElement('div');
-  el.className = 'msg ai';
-  const av = document.createElement('div');
-  av.className = 'avatar'; av.textContent = '✦';
-  const b = document.createElement('div');
-  b.className = 'bubble';
-  el.appendChild(av); el.appendChild(b);
-  wrap.appendChild(el);
-
+  const el = document.createElement('div'); el.className = 'msg ai';
+  const av = document.createElement('div'); av.className = 'avatar'; av.textContent = '✦';
+  const b = document.createElement('div'); b.className = 'bubble';
+  el.appendChild(av); el.appendChild(b); wrap.appendChild(el);
   let i = 0;
   const step = Math.max(1, Math.ceil(text.length / 280));
   function tick() {
@@ -927,7 +771,7 @@ async function sendMessage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          system_instruction: { parts: [{ text: SYSTEM[lang] }] },
+          system_instruction: { parts: [{ text: getSystem(lang) }] },
           contents: history,
           generationConfig: { temperature: 0.8, maxOutputTokens: 8192 }
         })
