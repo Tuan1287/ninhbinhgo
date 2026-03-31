@@ -299,8 +299,9 @@
     #weatherDesc { display: none; }
   }
 </style>
+<script src="places.js"></script>
 </head>
-<body>
+  <body>
 
 <header>
   <div class="header-left">
@@ -456,28 +457,6 @@ const i18n = {
   }
 };
 
-// ── PLACES DATA ───────────────────────────────────────
-const PLACES = [
-  // Tham quan (đỏ)
-  { name: 'Tràng An', lat: 20.2521, lng: 105.8728, type: 'attraction', color: '#ef4444', note: 'Di sản UNESCO — 300k/người' },
-  { name: 'Hang Múa', lat: 20.2268, lng: 105.9143, type: 'attraction', color: '#ef4444', note: 'Leo 486 bậc — 100k/người' },
-  { name: 'Tam Cốc', lat: 20.2282, lng: 105.9104, type: 'attraction', color: '#ef4444', note: 'Đi thuyền — 120k+150k/đò' },
-  { name: 'Cố đô Hoa Lư', lat: 20.2803, lng: 105.9057, type: 'attraction', color: '#ef4444', note: 'Kinh đô cổ — 20k/người' },
-  { name: 'Chùa Bái Đính', lat: 20.3527, lng: 105.8708, type: 'attraction', color: '#ef4444', note: 'Miễn phí vào cổng' },
-  { name: 'Chùa Vàng (Bái Đính cổ)', lat: 20.3490, lng: 105.8672, type: 'attraction', color: '#ef4444', note: 'MIỄN PHÍ — ít người biết' },
-  { name: 'Thung Ui', lat: 20.3380, lng: 105.8810, type: 'attraction', color: '#ef4444', note: 'Văn hóa Mường — gần Bái Đính' },
-  // Lưu trú (xanh dương)
-  { name: 'Legend Hotel', lat: 20.2526, lng: 105.9735, type: 'hotel', color: '#3b82f6', note: '4 sao — từ 1.2tr/đêm' },
-  { name: 'The Reed Hotel', lat: 20.2525, lng: 105.9745, type: 'hotel', color: '#3b82f6', note: '4 sao — từ 1.09tr/đêm' },
-  { name: 'Milan Hotel', lat: 20.2489, lng: 105.9772, type: 'hotel', color: '#3b82f6', note: '3 sao — từ 700k/đêm' },
-  { name: 'Rêu Coffee & Stay', lat: 20.2320, lng: 105.9200, type: 'hotel', color: '#3b82f6', note: 'Check-in đẹp, gần Tam Cốc' },
-  // Ăn uống (vàng)
-  { name: 'Heo Say Xỉn (GC22-23)', lat: 20.2491, lng: 105.9768, type: 'food', color: '#f59e0b', note: 'Phố cổ Hoa Lư — Heo đặc sản' },
-  { name: 'Lẩu Gà Lá É (GC57-58)', lat: 20.2488, lng: 105.9771, type: 'food', color: '#f59e0b', note: 'Phố cổ Hoa Lư — 300-500k/nồi' },
-  // Mua sắm (xanh lá)
-  { name: 'Đại Long Building — Cơm Cháy', lat: 20.2540, lng: 105.9720, type: 'shop', color: '#10b981', note: '325A Lê Thái Tổ — Quà cơm cháy' },
-];
-
 // ── SYSTEM PROMPTS ────────────────────────────────────
 const SYSTEM = {
   vi: `Bạn là trợ lý du lịch chuyên về Ninh Bình, Việt Nam. Trả lời thân thiện, thực tế, chi tiết.
@@ -488,7 +467,6 @@ GIÁ VÉ CẬP NHẬT 2026:
 - Tam Cốc: 120.000đ/người lớn + 150.000đ/đò (tối đa 4 người). Mở cửa 7h–17h
 - Cố đô Hoa Lư: 20.000đ/người lớn, miễn phí trẻ dưới 6 và người trên 60 tuổi
 - Chùa Bái Đính: Vào cổng miễn phí, xe điện 50.000đ/người
-- Chùa Vàng (Bái Đính cổ): MIỄN PHÍ hoàn toàn, linh thiêng, ít người
 
 CHECKIN/CHECKOUT: Hầu hết khách sạn checkin 14h, checkout 12h trưa. Luôn tính đến điều này khi lập lịch trình.
 
@@ -496,25 +474,11 @@ LỊCH TRÌNH MẪU 2N1Đ:
 Ngày 1: Đến sáng → gửi hành lý → 8h Tràng An (đặt vé trước) → 12h ăn trưa → 14h nhận phòng → 15h Phố cổ Hoa Lư → 18h ăn tối Heo Say Xỉn hoặc Lẩu gà lá é → tối dạo phố cổ
 Ngày 2: 6h30 leo Hang Múa (tránh nắng) → 9h30 Tam Cốc (nếu còn thời gian) → 12h trả phòng → chiều về hoặc ghé Bái Đính
 
-ẨM THỰC buổi tối ưu tiên:
-- 🐷 Heo Say Xỉn: GC22-23, Phố cổ Hoa Lư. Heo nuôi bằng rượu & thảo dược, da giòn thịt mềm, đặc sản độc đáo
-- 🍲 Lẩu Gà Lá É: GC57-58, Phố cổ Hoa Lư. Lẩu gà thảo mộc, 300-500k/nồi (2-3 người)
-Khác: Cơm cháy (30-60k), dê núi, cá rô tổng trứng, nem chua Yên Mạc, miến lươn
-
-MUA QUÀ: Cơm cháy → Đại Long Building, 325A Đường Lê Thái Tổ
-
-THAM QUAN MIỄN PHÍ: Chùa Vàng (Bái Đính cổ) — linh thiêng, thanh tịnh, gần Bái Đính mới ~3km
-
+ẨM THỰC KHÁC: Cơm cháy (30-60k), dê núi, cá rô tổng trứng, nem chua Yên Mạc, miến lươn
 DI CHUYỂN: Xe khách HN-NB (80-150k, 1-2h), Limousine (~200k), xe máy 100-150k/ngày
 THỜI TIẾT ĐẸP: Tháng 9-11 (lúa vàng), tháng 5-6. Tránh tháng 7-8 (mưa bão)
 
-LƯU TRÚ ƯU TIÊN (checkin 14h, checkout 12h):
-- Legend Hotel 4★: 3 hồ bơi, buffet sáng, 1.2-2.5tr/đêm
-- The Reed Hotel 4★: Trung tâm TP, hồ bơi, spa, 1.09-2tr/đêm  
-- Milan Hotel 3★: 33 Trần Hưng Đạo, đối diện Phố cổ, view phố cổ, 700k-1.1tr/đêm
-- Rêu Coffee & Stay: Không gian xanh, check-in đẹp, giới trẻ yêu thích
-
-THAM QUAN ƯU TIÊN: 1) Tràng An 2) Hang Múa 3) Phố cổ Hoa Lư
+${buildPriorityContext('vi')}
 
 Phong cách: Emoji điểm xuyết, số liệu cụ thể, khung giờ rõ ràng, luôn nhắc checkin 14h/checkout 12h. Trả lời bằng tiếng Việt.`,
 
@@ -526,7 +490,6 @@ TICKET PRICES 2026:
 - Tam Coc: 120,000/adult + 150,000/boat (max 4). Open 7am-5pm
 - Hoa Lu Ancient Capital: 20,000/adult, free under 6 & over 60
 - Bai Dinh Pagoda: Free entry, electric cart 50,000/person
-- Golden Pagoda (Ancient Bai Dinh): Completely FREE, sacred & peaceful
 
 CHECK-IN/OUT: Most hotels check-in 2pm, check-out 12pm noon. Always factor this into itinerary planning.
 
@@ -534,25 +497,11 @@ SAMPLE 2D1N ITINERARY:
 Day 1: Arrive morning → drop luggage → 8am Trang An (book ahead) → 12pm lunch → 2pm check-in → 3pm Hoa Lu Old Quarter → 6pm dinner at Heo Say Xin or Lau Ga La E → evening stroll
 Day 2: 6:30am Hang Mua (avoid midday heat) → 9:30am Tam Coc (optional) → 12pm check-out → afternoon head home or visit Bai Dinh
 
-EVENING FOOD PRIORITY:
-- 🐷 Heo Say Xin: Stall GC22-23, Hoa Lu Old Quarter. Wine & herb-raised pork, crispy skin
-- 🍲 Lau Ga La E: Stall GC57-58, Hoa Lu Old Quarter. Herb chicken hotpot, 300-500k/pot
-Other: Burnt rice (30-60k), mountain goat, braised carp, eel vermicelli
-
-SOUVENIRS: Burnt rice → Dai Long Building, 325A Le Thai To Street
-
-FREE ATTRACTION: Golden Pagoda (Ancient Bai Dinh) — free, sacred, quiet, ~3km from new Bai Dinh
-
+OTHER FOOD: Burnt rice (30-60k), mountain goat, braised carp, eel vermicelli
 TRANSPORT: Bus Hanoi-NB (80-150k, 1-2hrs), Limousine (~200k), motorbike 100-150k/day
 BEST TIME: Sep-Nov (golden rice), May-Jun. Avoid Jul-Aug (typhoons)
 
-PRIORITY ACCOMMODATION (check-in 2pm, check-out 12pm):
-- Legend Hotel 4★: 3 pools, breakfast buffet, 1.2-2.5M VND/night
-- The Reed Hotel 4★: City center, pool, spa, 1.09-2M VND/night
-- Milan Hotel 3★: 33 Tran Hung Dao, opposite Old Quarter, balcony view, 700k-1.1M/night
-- Reu Coffee & Stay: Green space, photogenic, popular with young travelers
-
-PRIORITY ATTRACTIONS: 1) Trang An 2) Hang Mua 3) Hoa Lu Old Quarter
+${buildPriorityContext('en')}
 
 Style: Use emojis, specific figures, clear hourly schedules, always note check-in 2pm/check-out 12pm. Reply in English.`
 };
