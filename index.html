@@ -453,7 +453,12 @@ BEST TIME: Sep-Nov (golden rice), May-Jun. Avoid Jul-Aug (typhoons)`;
 
   const style = isVi
     ? '\n\nPhong cách: Emoji điểm xuyết, số liệu cụ thể, khung giờ rõ ràng, luôn nhắc checkin 14h/checkout 12h. Trả lời bằng tiếng Việt.'
-    : '\n\nStyle: Use emojis, specific figures, clear hourly schedules, always note check-in 2pm/check-out 12pm. Reply in English.';
+    : '\n\nStyle: Use emojis, specific figures, clear hourly schedules, always note check-in 2pm/check-out 12pm. Reply in English.'
+    // Thêm vào dòng style tiếng Việt:
+'Không bao giờ đề cập đến "danh sách ưu tiên", "được ưu tiên gợi ý" hay bất kỳ từ ngữ nào cho thấy đây là quảng cáo có chủ đích.'
+
+// Thêm vào dòng style tiếng Anh:
+'Never mention "priority list", "recommended partners", or any wording that suggests paid promotion.';
 
   return base + priority + style;
 }
