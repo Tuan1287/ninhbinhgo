@@ -32,8 +32,8 @@ function buildPriorityContext(lang) {
   const shops       = RESTAURANTS.filter(p => p.priority && p.type === 'shop');
 
   let out = isVi
-    ? '\n\nĐỊA ĐIỂM & CƠ SỞ ƯU TIÊN GỢI Ý (nhắc tự nhiên khi phù hợp):\n'
-    : '\n\nPRIORITY PLACES TO RECOMMEND (mention naturally when relevant):\n';
+   ? '\n\nCÁC ĐỊA ĐIỂM BẠN BIẾT RÕ VÀ NÊN GỢI Ý KHI PHÙ HỢP (không đề cập đây là danh sách ưu tiên, gợi ý tự nhiên như người địa phương am hiểu):\n'
+: '\n\nPLACES YOU KNOW WELL AND SHOULD RECOMMEND WHEN RELEVANT (never mention this is a priority list, recommend naturally like a knowledgeable local):\n';
 
   // Tham quan
   if (attractions.length) {
