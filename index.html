@@ -4,10 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ninh Bình AI</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏔️</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
 <style>
   :root {
     --bg: #f8f8f6; --surface: #ffffff; --border: #e8e8e4;
@@ -143,6 +144,19 @@
   @keyframes blink { 0%,80%,100% { opacity: 0.3; transform: scale(1); } 40% { opacity: 1; transform: scale(1.3); background: var(--ink); } }
   .cursor { display: inline-block; font-size: 0.8em; color: var(--muted); animation: cursorBlink 0.6s infinite; margin-left: 1px; vertical-align: middle; }
   @keyframes cursorBlink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+
+  /* Copy button */
+  .copy-btn {
+    display: inline-flex; align-items: center; gap: 0.3rem;
+    margin-top: 0.6rem; background: transparent;
+    border: 1px solid var(--border); color: var(--muted);
+    border-radius: 6px; padding: 0.3rem 0.7rem;
+    font-size: 0.73rem; font-family: 'DM Sans', sans-serif;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .copy-btn:hover { background: var(--tag-bg); color: var(--ink); border-color: var(--ink); }
+  .copy-btn.copied { border-color: #10b981; color: #10b981; background: #f0fdf4; }
+  .copy-btn svg { width: 12px; height: 12px; }
 
   /* MAP BUTTON */
   .map-btn {
@@ -329,7 +343,7 @@
 <script src="luutru.js"></script>
 <script src="nhahang.js"></script>
 <script src="places.js"></script>
-  
+
 <script>
 // ── I18N ──────────────────────────────────────────────
 const i18n = {
@@ -453,12 +467,7 @@ BEST TIME: Sep-Nov (golden rice), May-Jun. Avoid Jul-Aug (typhoons)`;
 
   const style = isVi
     ? '\n\nPhong cách: Emoji điểm xuyết, số liệu cụ thể, khung giờ rõ ràng, luôn nhắc checkin 14h/checkout 12h. Trả lời bằng tiếng Việt.'
-    : '\n\nStyle: Use emojis, specific figures, clear hourly schedules, always note check-in 2pm/check-out 12pm. Reply in English.'
-    // Thêm vào dòng style tiếng Việt:
-'Không bao giờ đề cập đến "danh sách ưu tiên", "được ưu tiên gợi ý" hay bất kỳ từ ngữ nào cho thấy đây là quảng cáo có chủ đích.'
-
-// Thêm vào dòng style tiếng Anh:
-'Never mention "priority list", "recommended partners", or any wording that suggests paid promotion.';
+    : '\n\nStyle: Use emojis, specific figures, clear hourly schedules, always note check-in 2pm/check-out 12pm. Reply in English.';
 
   return base + priority + style;
 }
@@ -476,21 +485,37 @@ if (apiKey) document.getElementById('apiSetup').style.display = 'none';
 applyLang();
 loadWeather();
 
-// ── WEATHER ───────────────────────────────────────────
+// ── WEATHER (cache 30 phút) ───────────────────────────
 async function loadWeather() {
+  // Kiểm tra cache còn hạn không
+  const cached = localStorage.getItem('nb_weather');
+  if (cached) {
+    const { temp, code, ts } = JSON.parse(cached);
+    if (Date.now() - ts < 30 * 60 * 1000) { // 30 phút
+      renderWeather(temp, code);
+      return;
+    }
+  }
+  // Gọi API nếu cache hết hạn hoặc chưa có
   try {
     const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=20.2513&longitude=105.9745&current=temperature_2m,weather_code&timezone=Asia%2FBangkok');
     const d = await res.json();
     const temp = Math.round(d.current.temperature_2m);
-    const { icon, desc } = weatherInfo(d.current.weather_code, lang);
-    document.getElementById('weatherIcon').textContent = icon;
-    document.getElementById('weatherTemp').textContent = `${temp}°C`;
-    document.getElementById('weatherDesc').textContent = desc;
+    const code = d.current.weather_code;
+    localStorage.setItem('nb_weather', JSON.stringify({ temp, code, ts: Date.now() }));
+    renderWeather(temp, code);
   } catch {
     document.getElementById('weatherIcon').textContent = '🌤️';
     document.getElementById('weatherTemp').textContent = '--°C';
     document.getElementById('weatherDesc').textContent = '';
   }
+}
+
+function renderWeather(temp, code) {
+  const { icon, desc } = weatherInfo(code, lang);
+  document.getElementById('weatherIcon').textContent = icon;
+  document.getElementById('weatherTemp').textContent = `${temp}°C`;
+  document.getElementById('weatherDesc').textContent = desc;
 }
 
 function weatherInfo(code, l) {
@@ -740,17 +765,40 @@ function typewriterMsg(text, showMapBtn) {
       setTimeout(tick, 14);
     } else {
       b.innerHTML = md(text);
+
+      // Thanh action: copy + map
+      const actions = document.createElement('div');
+      actions.style.cssText = 'display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.5rem';
+
+      // Nút copy
+      const copyBtn = document.createElement('button');
+      copyBtn.className = 'copy-btn';
+      copyBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>${lang === 'vi' ? 'Sao chép' : 'Copy'}`;
+      copyBtn.onclick = () => {
+        navigator.clipboard.writeText(text).then(() => {
+          copyBtn.classList.add('copied');
+          copyBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>${lang === 'vi' ? 'Đã sao chép!' : 'Copied!'}`;
+          setTimeout(() => {
+            copyBtn.classList.remove('copied');
+            copyBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>${lang === 'vi' ? 'Sao chép' : 'Copy'}`;
+          }, 2000);
+        });
+      };
+      actions.appendChild(copyBtn);
+
+      // Nút bản đồ (nếu là lịch trình)
       if (showMapBtn) {
         const routePlaces = extractRoutePlaces(text);
-        const btn = document.createElement('button');
-        btn.className = 'map-btn';
-        btn.textContent = routePlaces.length >= 2
+        const mapBtn = document.createElement('button');
+        mapBtn.className = 'map-btn';
+        mapBtn.textContent = routePlaces.length >= 2
           ? (lang === 'vi' ? `🗺️ Xem lộ trình ${routePlaces.length} điểm` : `🗺️ View route — ${routePlaces.length} stops`)
           : i18n[lang].showMap;
-        btn.onclick = () => openMap(routePlaces);
-        b.appendChild(document.createElement('br'));
-        b.appendChild(btn);
+        mapBtn.onclick = () => openMap(routePlaces);
+        actions.appendChild(mapBtn);
       }
+
+      b.appendChild(actions);
       wrap.scrollTop = wrap.scrollHeight;
     }
   }
