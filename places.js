@@ -31,13 +31,15 @@ function buildPriorityContext(lang) {
   const foods       = RESTAURANTS.filter(p => p.priority && p.type === 'food');
   const shops       = RESTAURANTS.filter(p => p.priority && p.type === 'shop');
 
+  // Lưu ý: tiêu đề các section chỉ là hướng dẫn nội bộ cho AI,
+  // AI không được nhắc lại những tiêu đề này với người dùng.
   let out = isVi
-   ? '\n\nCÁC ĐỊA ĐIỂM BẠN BIẾT RÕ VÀ NÊN GỢI Ý KHI PHÙ HỢP (không đề cập đây là danh sách ưu tiên, gợi ý tự nhiên như người địa phương am hiểu):\n'
-: '\n\nPLACES YOU KNOW WELL AND SHOULD RECOMMEND WHEN RELEVANT (never mention this is a priority list, recommend naturally like a knowledgeable local):\n';
+    ? '\n\nCÁC ĐỊA ĐIỂM BẠN AM HIỂU VÀ NÊN GỢI Ý KHI PHÙ HỢP:\n(Quan trọng: Gợi ý tự nhiên như người địa phương có kinh nghiệm, KHÔNG đề cập đây là "danh sách ưu tiên", "được ưu tiên gợi ý", "đối tác" hay bất kỳ từ nào cho thấy đây là quảng cáo có chủ đích)\n'
+    : '\n\nPLACES YOU KNOW WELL AND SHOULD RECOMMEND WHEN RELEVANT:\n(Important: Recommend naturally like a knowledgeable local. NEVER mention "priority list", "recommended partners", "sponsored" or any wording suggesting paid promotion)\n';
 
   // Tham quan
   if (attractions.length) {
-    out += isVi ? '\nTHAM QUAN:\n' : '\nATTRACTIONS:\n';
+    out += isVi ? '\nĐịa điểm tham quan:\n' : '\nAttractions:\n';
     attractions.forEach(p => {
       const name   = isVi ? p.name   : p.nameEn;
       const note   = isVi ? p.note   : p.noteEn;
@@ -49,8 +51,8 @@ function buildPriorityContext(lang) {
   // Lưu trú
   if (hotels.length) {
     out += isVi
-      ? '\nLƯU TRÚ (checkin 14h, checkout 12h):\n'
-      : '\nACCOMMODATION (check-in 2pm, check-out 12pm):\n';
+      ? '\nLưu trú (checkin 14h, checkout 12h):\n'
+      : '\nAccommodation (check-in 2pm, check-out 12pm):\n';
     hotels.forEach(p => {
       const name  = isVi ? p.name  : p.nameEn;
       const note  = isVi ? p.note  : p.noteEn;
@@ -63,8 +65,8 @@ function buildPriorityContext(lang) {
   // Ăn uống
   if (foods.length) {
     out += isVi
-      ? '\nĂN UỐNG (ưu tiên buổi tối):\n'
-      : '\nFOOD (priority for dinner):\n';
+      ? '\nĂn uống gợi ý buổi tối:\n'
+      : '\nFood recommendations for dinner:\n';
     foods.forEach(p => {
       const name  = isVi ? p.name     : p.nameEn;
       const note  = isVi ? p.note     : p.noteEn;
@@ -77,8 +79,8 @@ function buildPriorityContext(lang) {
   // Mua sắm
   if (shops.length) {
     out += isVi
-      ? '\nMUA SẮM / QUÀ LƯU NIỆM:\n'
-      : '\nSOUVENIRS / SHOPPING:\n';
+      ? '\nMua sắm & quà lưu niệm:\n'
+      : '\nSouvenirs & shopping:\n';
     shops.forEach(p => {
       const name = isVi ? p.name     : p.nameEn;
       const note = isVi ? p.note     : p.noteEn;
