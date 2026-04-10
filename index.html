@@ -491,7 +491,7 @@ async function loadWeather() {
   const cached = localStorage.getItem('nb_weather');
   if (cached) {
     const { temp, code, ts } = JSON.parse(cached);
-    if (Date.now() - ts < 30 * 60 * 1000) { // 30 phút
+    if (Date.now() - ts < 24 * 60 * 60 * 1000) { // 24 giờ
       renderWeather(temp, code);
       return;
     }
@@ -806,6 +806,27 @@ function typewriterMsg(text, showMapBtn) {
 }
 
 // ── SEND ──────────────────────────────────────────────
+async function callGemini(retries = 2) {
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        system_instruction: { parts: [{ text: getSystem(lang) }] },
+        contents: history,
+        generationConfig: { temperature: 0.8, maxOutputTokens: 8192 }
+      })
+    }
+  );
+  // Nếu 503 hoặc 429 → đợi rồi thử lại
+  if ((res.status === 503 || res.status === 429) && retries > 0) {
+    await new Promise(r => setTimeout(r, 3000));
+    return callGemini(retries - 1);
+  }
+  return res;
+}
+
 async function sendMessage() {
   const inp = document.getElementById('userInput');
   const text = inp.value.trim();
@@ -821,18 +842,7 @@ async function sendMessage() {
   history.push({ role: 'user', parts: [{ text }] });
   showTyping();
   try {
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          system_instruction: { parts: [{ text: getSystem(lang) }] },
-          contents: history,
-          generationConfig: { temperature: 0.8, maxOutputTokens: 8192 }
-        })
-      }
-    );
+    const res = await callGemini();
     const d = await res.json();
     document.getElementById('typing')?.remove();
     if (d.error) {
