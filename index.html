@@ -340,6 +340,7 @@
 
 <!-- Load dữ liệu TRƯỚC script chính — đúng thứ tự -->
 <script src="khudiem.js"></script>
+  <script src="khoangcach.js"></script>
 <script src="luutru.js"></script>
 <script src="nhahang.js"></script>
 <script src="places.js"></script>
@@ -464,12 +465,13 @@ BEST TIME: Sep-Nov (golden rice), May-Jun. Avoid Jul-Aug (typhoons)`;
 
   // Ghép dữ liệu ưu tiên từ places.js
   const priority = buildPriorityContext(l);
+  const distances = buildDistanceContext(l);
 
   const style = isVi
     ? '\n\nPhong cách: Emoji điểm xuyết, số liệu cụ thể, khung giờ rõ ràng, luôn nhắc checkin 14h/checkout 12h. Trả lời bằng tiếng Việt.'
     : '\n\nStyle: Use emojis, specific figures, clear hourly schedules, always note check-in 2pm/check-out 12pm. Reply in English.';
 
-  return base + priority + style;
+return base + priority + distances + style;
 }
 
 // ── STATE ─────────────────────────────────────────────
