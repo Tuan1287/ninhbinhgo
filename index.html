@@ -375,6 +375,8 @@ const i18n = {
     sug: [
   { icon:'📅', text:'Lịch trình 2 ngày 1 đêm', label:'Cho cặp đôi / gia đình', q:'Gợi ý lịch trình 2 ngày 1 đêm ở Ninh Bình cho cặp đôi' },
   { icon:'💸', text:'Lịch trình 2 triệu', label:'Tiết kiệm, đủ trải nghiệm', q:'Gợi ý lịch trình du lịch Ninh Bình 2 ngày 1 đêm với ngân sách 2 triệu đồng' },
+  { icon:'🏍️', text:'Trốn phố bằng xe máy', label:'Tự lái, tự do, thoải mái', q:'Gợi ý lịch trình du lịch Ninh Bình tự lái xe máy, đi và về trong ngày hoặc 2 ngày 1 đêm' },
+  { icon:'⏱️', text:'Trốn phố 12 tiếng', label:'14h hôm trước → 12h hôm sau', q:'Gợi ý lịch trình Ninh Bình 12 tiếng: checkin 14h hôm nay, checkout 12h ngày mai, tận dụng tối đa thời gian' },
   { icon:'🍜', text:'Đặc sản không bỏ qua', label:'Cơm cháy, dê núi, cá rô...', q:'Đặc sản Ninh Bình nào nhất định phải thử?' },
   { icon:'🛏️', text:'Gợi ý chỗ ở', label:'Theo ngân sách của bạn', q:'Gợi ý chỗ ở ở Ninh Bình phù hợp nhiều ngân sách khác nhau' }
 ],
@@ -408,9 +410,11 @@ const i18n = {
       '2-day 1-night itinerary for Ninh Binh',
       'Accommodation in Ninh Binh under 800k VND/night'
     ],
-    sug: [
+   sug: [
   { icon:'📅', text:'2-Day 1-Night Itinerary', label:'For couples / families', q:'Suggest a 2-day 1-night itinerary in Ninh Binh for a couple' },
   { icon:'💸', text:'2M VND Itinerary', label:'Budget-friendly, full experience', q:'Suggest a 2-day 1-night itinerary in Ninh Binh with a budget of 2 million VND' },
+  { icon:'🏍️', text:'Escape by Motorbike', label:'Self-ride, freedom, flexibility', q:'Suggest a self-ride motorbike itinerary in Ninh Binh, day trip or 2 days 1 night' },
+  { icon:'⏱️', text:'12-Hour Escape', label:'2pm today → 12pm tomorrow', q:'Suggest a 12-hour Ninh Binh itinerary: check-in 2pm today, check-out 12pm tomorrow, maximize every moment' },
   { icon:'🍜', text:'Must-Try Local Food', label:'Burnt rice, goat, fish...', q:'What local specialties must I try in Ninh Binh?' },
   { icon:'🛏️', text:'Find Accommodation', label:'By your budget', q:'Suggest accommodation in Ninh Binh for different budgets' }
 ],
@@ -429,10 +433,10 @@ function getSystem(l) {
 
 GIÁ VÉ CẬP NHẬT 2026:
 - Tràng An: 300.000đ/người lớn, 150.000đ/trẻ 1m–1m3, dưới 1m miễn phí. 3 tuyến, 2.5–3 giờ/tuyến. Mở cửa 6h–16h45
-- Hang Múa: 100.000đ/người (từ 1m), dưới 1m miễn phí. Mở cửa 6h–19h. Leo 486 bậc
-- Tam Cốc: 120.000đ/người lớn + 150.000đ/đò (tối đa 4 người). Mở cửa 7h–17h
+- Hang Múa: 150.000đ/người (từ 1m), dưới 1m miễn phí. Mở cửa 6h–19h. Leo 486 bậc
+- Tam Cốc: 250.000đ/người. Mở cửa 7h–17h
 - Cố đô Hoa Lư: 20.000đ/người lớn, miễn phí trẻ dưới 6 và người trên 60 tuổi
-- Chùa Bái Đính: Vào cổng miễn phí, xe điện 50.000đ/người
+- Chùa Bái Đính: Vào cổng miễn phí, xe điện 150.000đ/người
 
 CHECKIN/CHECKOUT: Hầu hết khách sạn checkin 14h, checkout 12h trưa. Luôn tính đến điều này khi lập lịch trình.
 
@@ -442,16 +446,22 @@ Ngày 2: 6h30 leo Hang Múa (tránh nắng) → 9h30 Tam Cốc (nếu còn thờ
 
 ẨM THỰC KHÁC: Cơm cháy (30-60k), dê núi, cá rô tổng trứng, nem chua Yên Mạc, miến lươn
 DI CHUYỂN: Xe khách HN-NB (80-150k, 1-2h), Limousine (~200k), xe máy 100-150k/ngày
-THỜI TIẾT ĐẸP: Tháng 9-11 (lúa vàng), tháng 5-6. Tránh tháng 7-8 (mưa bão)` :
+THỜI TIẾT ĐẸP: Tháng 9-11 (lúa vàng), tháng 5-6. Tránh tháng 7-8 (mưa bão)
+QUY TẮC LẬP LỊCH TRÌNH THÔNG MINH:
+- Luôn tính thời gian di chuyển thực tế giữa các điểm (xem file khoangcach.js)
+- Khách đến sớm trước 14h: GỢI Ý GỬI HÀNH LÝ tại cơ sở lưu trú, nhận phòng lúc 14h
+- Lịch trình xe máy: ưu tiên các điểm gần nhau, tránh đi lại quá nhiều, gợi ý thuê xe máy 100-150k/ngày
+- Lịch trình 12 tiếng (14h→12h): Chiều hôm trước checkin + ăn tối phố cổ, Sáng hôm sau dậy sớm tham quan 1-2 điểm chính, trả phòng 12h. Sau đó GỢI Ý THÊM lịch trình bonus từ 12h-17h trước khi về (ghé Bái Đính, mua cơm cháy, ăn trưa đặc sản)
+- Không nhồi quá nhiều điểm vào 1 buổi — tối đa 2-3 điểm/buổi để có trải nghiệm thoải mái` :
 
 `You are a travel assistant specializing in Ninh Binh, Vietnam. Reply in a friendly, practical, and detailed manner.
 
 TICKET PRICES 2026:
 - Trang An: 300,000 VND/adult, 150,000/child (1m-1.3m), under 1m free. 3 routes, 2.5-3hrs each. Open 6am-4:45pm
-- Hang Mua: 100,000 VND/person (over 1m), under 1m free. Open 6am-7pm. 486 stone steps
-- Tam Coc: 120,000/adult + 150,000/boat (max 4). Open 7am-5pm
+- Hang Mua: 150,000 VND/person (over 1m), under 1m free. Open 6am-7pm. 486 stone steps
+- Tam Coc: 250,000 VND/person. Open 7am-5pm
 - Hoa Lu Ancient Capital: 20,000/adult, free under 6 & over 60
-- Bai Dinh Pagoda: Free entry, electric cart 50,000/person
+- Bai Dinh Pagoda: Free entry, electric cart 150,000/person
 
 CHECK-IN/OUT: Most hotels check-in 2pm, check-out 12pm noon. Always factor this into itinerary planning.
 
@@ -461,7 +471,13 @@ Day 2: 6:30am Hang Mua (avoid midday heat) → 9:30am Tam Coc (optional) → 12p
 
 OTHER FOOD: Burnt rice (30-60k), mountain goat, braised carp, eel vermicelli
 TRANSPORT: Bus Hanoi-NB (80-150k, 1-2hrs), Limousine (~200k), motorbike 100-150k/day
-BEST TIME: Sep-Nov (golden rice), May-Jun. Avoid Jul-Aug (typhoons)`;
+BEST TIME: Sep-Nov (golden rice), May-Jun. Avoid Jul-Aug (typhoons)
+SMART ITINERARY RULES:
+- Always factor in realistic travel time between places
+- Guests arriving before 2pm: SUGGEST LUGGAGE DROP at accommodation, room available at 2pm
+- Motorbike itinerary: prioritize nearby clusters, minimize backtracking, suggest motorbike rental 100-150k/day
+- 12-hour itinerary (2pm→12pm): Afternoon check-in + Old Quarter dinner, Early morning visit 1-2 main sites, Check-out at 12pm. Then SUGGEST BONUS itinerary 12pm-5pm before heading home (Bai Dinh, burnt rice shopping, specialty lunch)
+- Never overpack — max 2-3 attractions per half-day for a relaxed experience`;
 
   // Ghép dữ liệu ưu tiên từ places.js
   const priority = buildPriorityContext(l);
