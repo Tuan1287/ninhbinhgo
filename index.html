@@ -680,7 +680,6 @@ function toggleLang() {
   lang = lang === 'vi' ? 'en' : 'vi';
   localStorage.setItem('nb_lang', lang);
   applyLang(); loadWeather();
-  initDistances(); // Tính khoảng cách OSRM, cache 7 ngày
 }
 function applyLang() {
   const t = i18n[lang];
