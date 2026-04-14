@@ -6,8 +6,7 @@
 <title>Ninh Bình AI</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏔️</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
 <style>
   :root {
@@ -16,7 +15,7 @@
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Nunito', sans-serif;
     background: var(--bg); color: var(--ink);
     height: 100vh;
     display: grid;
@@ -34,7 +33,7 @@
   .header-left { display: flex; align-items: center; gap: 1rem; }
   .brand { display: flex; align-items: baseline; gap: 0.5rem; cursor: pointer; }
   .brand:hover .brand-name { opacity: 0.65; }
-  .brand-name { font-family: 'DM Serif Display', serif; font-size: 1.2rem; letter-spacing: -0.02em; transition: opacity 0.15s; }
+  .brand-name { font-family: 'Playfair Display', serif; font-size: 1.2rem; letter-spacing: -0.02em; transition: opacity 0.15s; }
   .brand-tag { font-size: 0.7rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
 
   #weatherPill {
@@ -73,14 +72,14 @@
     background: var(--ink); color: white; font-size: 0.68rem;
     white-space: nowrap; padding: 0.22rem 0.5rem; border-radius: 5px;
     opacity: 0; pointer-events: none; transition: opacity 0.15s;
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Nunito', sans-serif;
   }
   .icon-btn:hover::after { opacity: 1; }
 
   #langBtn {
     background: var(--tag-bg); border: 1.5px solid var(--border);
     border-radius: 6px; padding: 0.28rem 0.65rem;
-    font-size: 0.75rem; font-family: 'DM Sans', sans-serif;
+    font-size: 0.75rem; font-family: 'Nunito', sans-serif;
     font-weight: 500; cursor: pointer; transition: all 0.15s;
   }
   #langBtn:hover { background: var(--ink); color: white; border-color: var(--ink); }
@@ -95,7 +94,7 @@
   .chip {
     background: var(--tag-bg); border: 1px solid var(--border);
     color: var(--ink); padding: 0.3rem 0.8rem; border-radius: 6px;
-    font-size: 0.78rem; font-family: 'DM Sans', sans-serif;
+    font-size: 0.78rem; font-family: 'Nunito', sans-serif;
     cursor: pointer; white-space: nowrap; transition: all 0.15s;
   }
   .chip:hover { background: var(--ink); color: white; border-color: var(--ink); }
@@ -111,11 +110,11 @@
 
   /* WELCOME */
   .welcome { display: flex; flex-direction: column; align-items: flex-start; gap: 1.5rem; padding: 0.5rem 0; max-width: 600px; }
-  .welcome-heading { font-family: 'DM Serif Display', serif; font-size: clamp(1.8rem, 4vw, 2.5rem); line-height: 1.15; letter-spacing: -0.03em; }
+  .welcome-heading { font-family: 'Playfair Display', serif; font-size: clamp(1.8rem, 4vw, 2.5rem); line-height: 1.15; letter-spacing: -0.03em; }
   .welcome-heading em { font-style: italic; color: var(--muted); }
   .welcome-sub { font-size: 0.875rem; color: var(--muted); line-height: 1.7; font-weight: 300; max-width: 420px; }
   .suggestions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; width: 100%; max-width: 520px; }
-  .sug-btn { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 0.85rem 1rem; text-align: left; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
+  .sug-btn { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 0.85rem 1rem; text-align: left; cursor: pointer; font-family: 'Nunito', sans-serif; transition: all 0.15s; }
   .sug-btn:hover { border-color: var(--ink); background: var(--ink); color: white; }
   .sug-btn:hover .sug-label { color: rgba(255,255,255,0.5); }
   .sug-icon { font-size: 1rem; margin-bottom: 0.35rem; display: block; }
@@ -151,7 +150,7 @@
     margin-top: 0.6rem; background: transparent;
     border: 1px solid var(--border); color: var(--muted);
     border-radius: 6px; padding: 0.3rem 0.7rem;
-    font-size: 0.73rem; font-family: 'DM Sans', sans-serif;
+    font-size: 0.73rem; font-family: 'Nunito', sans-serif;
     cursor: pointer; transition: all 0.15s;
   }
   .copy-btn:hover { background: var(--tag-bg); color: var(--ink); border-color: var(--ink); }
@@ -164,7 +163,7 @@
     margin-top: 0.75rem; background: #eff6ff;
     border: 1.5px solid #93c5fd; color: #1d4ed8;
     border-radius: 8px; padding: 0.45rem 0.9rem;
-    font-size: 0.8rem; font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem; font-family: 'Nunito', sans-serif;
     font-weight: 500; cursor: pointer; transition: all 0.15s;
   }
   .map-btn:hover { background: #1d4ed8; color: white; border-color: #1d4ed8; }
@@ -186,7 +185,7 @@
     padding: 1rem 1.25rem; border-bottom: 1px solid var(--border);
     display: flex; align-items: center; justify-content: space-between;
   }
-  .map-header h3 { font-family: 'DM Serif Display', serif; font-size: 1.1rem; letter-spacing: -0.02em; }
+  .map-header h3 { font-family: 'Playfair Display', serif; font-size: 1.1rem; letter-spacing: -0.02em; }
   .map-close {
     width: 30px; height: 30px; border-radius: 6px;
     background: var(--tag-bg); border: 1px solid var(--border);
@@ -221,7 +220,7 @@
   .key-row button {
     background: var(--ink); color: white; border: none; border-radius: 7px;
     padding: 0 0.85rem; font-size: 0.8rem; cursor: pointer;
-    font-family: 'DM Sans', sans-serif; font-weight: 500; transition: opacity 0.15s;
+    font-family: 'Nunito', sans-serif; font-weight: 500; transition: opacity 0.15s;
   }
   .key-row button:hover { opacity: 0.75; }
 
@@ -235,7 +234,7 @@
   .input-row:focus-within { border-color: var(--ink); }
   textarea {
     flex: 1; border: none; outline: none; resize: none;
-    font-family: 'DM Sans', sans-serif; font-size: 0.875rem; font-weight: 300;
+    font-family: 'Nunito', sans-serif; font-size: 0.875rem; font-weight: 300;
     color: var(--ink); background: transparent; line-height: 1.5;
     min-height: 22px; max-height: 100px;
   }
@@ -496,7 +495,13 @@ let history = [];
 let leafletMap = null;
 let currentRouteLayer = null;
 let currentMarkers = [];
-
+// Cache system prompt — build 1 lần, dùng lại
+let _systemCache = {};
+function getSystemCached(l) {
+  if (!_systemCache[l]) _systemCache[l] = getSystem(l);
+  return _systemCache[l];
+}
+  
 // ── INIT ──────────────────────────────────────────────
 if (apiKey) document.getElementById('apiSetup').style.display = 'none';
 applyLang();
@@ -823,14 +828,21 @@ function typewriterMsg(text, showMapBtn) {
 }
 
 // ── SEND ──────────────────────────────────────────────
-async function callGemini(retries = 2) {
+async function callGemini(retries = 1) {
+  const res = await fetch(...);
+  if ((res.status === 503 || res.status === 429) && retries > 0) {
+    await new Promise(r => setTimeout(r, 5000));
+    return callGemini(retries - 1);
+  }
+  return res;
+}
   const res = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        system_instruction: { parts: [{ text: getSystem(lang) }] },
+system_instruction: { parts: [{ text: getSystemCached(lang) }] },
         contents: history,
         generationConfig: { temperature: 0.8, maxOutputTokens: 8192 }
       })
