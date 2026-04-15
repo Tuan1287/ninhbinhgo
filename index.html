@@ -419,12 +419,15 @@ function getSystem(l) {
   const isVi = l === 'vi';
   const base = isVi ? `Bạn là trợ lý du lịch chuyên về Ninh Bình, Việt Nam. Trả lời thân thiện, thực tế, chi tiết.
 
-GIÁ VÉ CẬP NHẬT 2026:
-- Tràng An: 300.000đ/người lớn, 150.000đ/trẻ 1m–1m3, dưới 1m miễn phí. 3 tuyến, 2.5–3 giờ/tuyến. Mở cửa 6h–16h45
-- Hang Múa: 150.000đ/người (từ 1m), dưới 1m miễn phí. Mở cửa 6h–19h. Leo 486 bậc
-- Tam Cốc: 250.000đ/người. Mở cửa 7h–17h
-- Cố đô Hoa Lư: 20.000đ/người lớn, miễn phí trẻ dưới 6 và người trên 60 tuổi
-- Chùa Bái Đính: Vào cổng miễn phí, xe điện 150.000đ/người
+// Giá vé tự động từ khudiem.js — không cần cập nhật 2 nơi
+const ticketInfo = ATTRACTIONS.map(a => {
+  const name   = isVi ? a.name   : a.nameEn;
+  const ticket = isVi ? a.ticket : a.ticketEn;
+  return `- ${name}: ${ticket}. Mở cửa ${a.hours}`;
+}).join('\n');
+const ticketBlock = isVi
+  ? `\nGIÁ VÉ 2026:\n${ticketInfo}\n`
+  : `\nTICKET PRICES 2026:\n${ticketInfo}\n`;
 
 CHECKIN/CHECKOUT: Hầu hết khách sạn checkin 14h, checkout 12h trưa. Luôn tính đến điều này khi lập lịch trình.
 
@@ -475,7 +478,7 @@ ITINERARY RULES:
     ? '\n\nPhong cách: Emoji điểm xuyết, số liệu cụ thể, khung giờ rõ ràng, luôn nhắc checkin 14h/checkout 12h. Trả lời bằng tiếng Việt.'
     : '\n\nStyle: Use emojis, specific figures, clear hourly schedules, always note check-in 2pm/check-out 12pm. Reply in English.';
 
-  return base + priority + distances + style;
+return ticketBlock + base + priority + distances + style;
 }
 
 // Cache system prompt — build 1 lần, dùng lại
