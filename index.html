@@ -112,7 +112,7 @@
   .welcome-heading em { font-style: italic; color: var(--muted); }
   .welcome-sub { font-size: 0.875rem; color: var(--muted); line-height: 1.7; font-weight: 300; max-width: 420px; }
   .suggestions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; width: 100%; max-width: 520px; }
-  .sug-btn { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 0.85rem 1rem; text-align: left; cursor: pointer; font-family: 'Nunito', sans-serif; transition: all 0.15s; }
+  .sug-btn { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 0.85rem 1rem; text-align: left; cursor: pointer; font-family: 'Nunito', sans-serif; transit[...]
   .sug-btn:hover { border-color: var(--ink); background: var(--ink); color: white; }
   .sug-btn:hover .sug-label { color: rgba(255,255,255,0.5); }
   .sug-icon { font-size: 1rem; margin-bottom: 0.35rem; display: block; }
@@ -139,6 +139,12 @@
   @keyframes blink { 0%,80%,100% { opacity: 0.3; transform: scale(1); } 40% { opacity: 1; transform: scale(1.3); background: var(--ink); } }
   .cursor { display: inline-block; font-size: 0.8em; color: var(--muted); animation: cursorBlink 0.6s infinite; margin-left: 1px; vertical-align: middle; }
   @keyframes cursorBlink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+  .typing-text {
+    color: var(--muted);
+    font-weight: 500;
+    font-size: 0.95rem;
+    margin-left: 6px;
+  }
 
   .copy-btn {
     display: inline-flex; align-items: center; gap: 0.3rem;
@@ -384,101 +390,8 @@ function renderWeather(temp, code) {
   document.getElementById('weatherDesc').textContent = desc;
 }
 function weatherInfo(code, l) {
-  const vi = [[0,'☀️','Trời quang'],[1,'🌤️','Ít mây'],[2,'⛅','Có mây'],[3,'☁️','Nhiều mây'],[45,'🌫️','Sương mù'],[51,'🌦️','Mưa phùn'],[61,'🌧️','Mưa nhẹ'],[63,'🌧️','Mưa vừa'],[65,'🌧️','Mưa to'],[80,'🌦️','Mưa rào'],[95,'⛈️','Giông bão']];
-  const en = [[0,'☀️','Clear'],[1,'🌤️','Mainly clear'],[2,'⛅','Partly cloudy'],[3,'☁️','Overcast'],[45,'🌫️','Foggy'],[51,'🌦️','Light drizzle'],[61,'🌧️','Light rain'],[63,'🌧️','Moderate rain'],[65,'🌧️','Heavy rain'],[80,'🌦️','Showers'],[95,'⛈️','Thunderstorm']];
-  const list  = l === 'vi' ? vi : en;
-  const found = list.slice().reverse().find(([c]) => code >= c);
-  return found ? { icon: found[1], desc: found[2] } : { icon: '🌤️', desc: 'OK' };
-}
-
-// ── MAP ───────────────────────────────────────────────
-function openMap(routePlaces) {
-  document.getElementById('mapModal').classList.add('open');
-  document.getElementById('mapTitle').textContent = i18n[lang].mapTitle;
-  setTimeout(() => {
-    if (!leafletMap) {
-      leafletMap = L.map('map').setView([20.27, 105.93], 12);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
-      }).addTo(leafletMap);
-    } else {
-      leafletMap.invalidateSize();
-    }
-    currentMarkers.forEach(m => leafletMap.removeLayer(m));
-    currentMarkers = [];
-    if (currentRouteLayer) { leafletMap.removeLayer(currentRouteLayer); currentRouteLayer = null; }
-
-    const displayPlaces = (routePlaces && routePlaces.length > 0) ? routePlaces : PLACES;
-    const isRoute = routePlaces && routePlaces.length > 0;
-
-    displayPlaces.forEach((p, idx) => {
-      const size = isRoute ? 26 : 14;
-      const icon = L.divIcon({
-        className: '',
-        html: isRoute
-          ? `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${p.color};border:2.5px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;color:white;font-size:11px;font-weight:700;font-family:sans-serif">${idx+1}</div>`
-          : `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${p.color};border:2.5px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3)"></div>`,
-        iconSize: [size, size], iconAnchor: [size/2, size/2],
-      });
-      const marker = L.marker([p.lat, p.lng], { icon })
-        .addTo(leafletMap)
-        .bindPopup(`<strong>${isRoute ? `${idx+1}. ` : ''}${p.name}</strong><br><span style="font-size:0.85em;color:#666">${p.note}</span>`);
-      currentMarkers.push(marker);
-    });
-
-    if (displayPlaces.length > 0) {
-      leafletMap.fitBounds(L.latLngBounds(displayPlaces.map(p => [p.lat, p.lng])), { padding: [40, 40] });
-    }
-    if (isRoute && routePlaces.length >= 2) drawOSRMRoute(routePlaces);
-  }, 150);
-}
-
-async function drawOSRMRoute(places) {
-  try {
-    const coords = places.map(p => `${p.lng},${p.lat}`).join(';');
-    const res    = await fetch(`https://router.project-osrm.org/route/v1/driving/${coords}?overview=full&geometries=geojson`);
-    const data   = await res.json();
-    if (data.code !== 'Ok' || !data.routes[0]) return;
-    const distance = (data.routes[0].distance / 1000).toFixed(1);
-    const duration = Math.round(data.routes[0].duration / 60);
-    currentRouteLayer = L.geoJSON(data.routes[0].geometry, {
-      style: { color: '#3b82f6', weight: 4, opacity: 0.8 }
-    }).addTo(leafletMap);
-    leafletMap.fitBounds(currentRouteLayer.getBounds(), { padding: [40, 40] });
-    const legendEl = document.querySelector('.map-legend');
-    if (legendEl) {
-      let ri = document.getElementById('routeInfo');
-      if (!ri) { ri = document.createElement('span'); ri.id = 'routeInfo'; ri.style.cssText = 'color:#3b82f6;font-weight:500;margin-left:auto'; legendEl.appendChild(ri); }
-      ri.textContent = lang === 'vi' ? `🚗 ${distance} km · ~${duration} phút` : `🚗 ${distance} km · ~${duration} min`;
-    }
-  } catch(e) { console.warn('OSRM failed:', e); }
-}
-
-function extractRoutePlaces(text) {
-  const lower = text.toLowerCase();
-  const nameMap = {
-    'tràng an': 'Tràng An', 'trang an': 'Tràng An',
-    'hang múa': 'Hang Múa', 'hang mua': 'Hang Múa',
-    'tam cốc': 'Tam Cốc', 'tam coc': 'Tam Cốc',
-    'cố đô hoa lư': 'Cố đô Hoa Lư', 'phố cổ hoa lư': 'Cố đô Hoa Lư',
-    'hoa lư': 'Cố đô Hoa Lư', 'hoa lu': 'Cố đô Hoa Lư',
-    'chùa bái đính': 'Chùa Bái Đính', 'bái đính': 'Chùa Bái Đính', 'bai dinh': 'Chùa Bái Đính',
-    'thung ui': 'Thung Ui',
-    'heo say xỉn': 'Heo Say Xỉn (GC22-23)', 'heo say xin': 'Heo Say Xỉn (GC22-23)',
-    'lẩu gà': 'Lẩu Gà Lá É (GC57-58)', 'lau ga': 'Lẩu Gà Lá É (GC57-58)',
-    'đại long': 'Đại Long Building — Cơm Cháy', 'dai long': 'Đại Long Building — Cơm Cháy',
-    'legend hotel': 'Legend Hotel', 'the reed': 'The Reed Hotel',
-    'milan hotel': 'Milan Hotel', 'rêu coffee': 'Rêu Coffee & Stay', 'reu coffee': 'Rêu Coffee & Stay',
-  };
-  const positions = [];
-  const seen = new Set();
-  for (const [key, placeName] of Object.entries(nameMap)) {
-    const idx = lower.indexOf(key);
-    if (idx !== -1 && !seen.has(placeName)) { positions.push({ idx, placeName }); seen.add(placeName); }
+  const vi = [[0,'☀️','Trời quang'],[1,'🌤️','Ít mây'],[2,'⛅','Có mây'],[3,'☁️','Nhiều mây'],[45,'🌫️','Sương mù'],[51,'🌦️','Mưa phùn'],[61,'🌧️','Mưa nh[...]  
   }
-  positions.sort((a, b) => a.idx - b.idx);
-  return positions.map(({ placeName }) => PLACES.find(p => p.name === placeName)).filter(Boolean);
-}
 
 function closeMap() {
   document.getElementById('mapModal').classList.remove('open');
@@ -566,7 +479,7 @@ function showTyping() {
   const el = document.createElement('div'); el.className = 'msg ai'; el.id = 'typing';
   const av = document.createElement('div'); av.className = 'avatar'; av.textContent = '✦';
   const b  = document.createElement('div'); b.className  = 'bubble';
-  b.innerHTML = '<div class="typing-wrap"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>';
+  b.innerHTML = '<div class="typing-wrap"><span class="typing-text">đang lên chương trình</span></div>';
   el.appendChild(av); el.appendChild(b); wrap.appendChild(el); wrap.scrollTop = wrap.scrollHeight;
 }
 function typewriterMsg(text, showMapBtn) {
@@ -581,7 +494,7 @@ function typewriterMsg(text, showMapBtn) {
   function tick() {
     if (i < text.length) {
       i = Math.min(i + step, text.length);
-      b.innerHTML = md(text.slice(0, i)) + '<span class="cursor">▋</span>';
+      b.innerHTML = md(text.slice(0, i)) + '<span class="typing-text">đang lên chương trình</span>';
       wrap.scrollTop = wrap.scrollHeight;
       setTimeout(tick, 14);
     } else {
@@ -590,14 +503,14 @@ function typewriterMsg(text, showMapBtn) {
       actions.style.cssText = 'display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.5rem';
       // Nút copy
       const copyBtn = document.createElement('button'); copyBtn.className = 'copy-btn';
-      copyBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>${lang === 'vi' ? 'Sao chép' : 'Copy'}`;
+      copyBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> ${i18n[lang].copy || ''}`;
       copyBtn.onclick = () => {
         navigator.clipboard.writeText(text).then(() => {
           copyBtn.classList.add('copied');
-          copyBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>${lang === 'vi' ? 'Đã sao chép!' : 'Copied!'}`;
+          copyBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> ${i18n[lang].copied || ''}`;
           setTimeout(() => {
             copyBtn.classList.remove('copied');
-            copyBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>${lang === 'vi' ? 'Sao chép' : 'Copy'}`;
+            copyBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> ${i18n[lang].copy || ''}`;
           }, 2000);
         });
       };
