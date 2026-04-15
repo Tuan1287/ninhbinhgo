@@ -6,7 +6,8 @@
 <title>Ninh Bình AI</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏔️</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
 <style>
   :root {
@@ -84,7 +85,6 @@
   }
   #langBtn:hover { background: var(--ink); color: white; border-color: var(--ink); }
 
-  /* TOPICS */
   .topics {
     padding: 0.65rem 1.5rem; display: flex; gap: 0.4rem;
     overflow-x: auto; scrollbar-width: none;
@@ -99,7 +99,6 @@
   }
   .chip:hover { background: var(--ink); color: white; border-color: var(--ink); }
 
-  /* MESSAGES */
   #messages {
     overflow-y: auto; padding: 1.75rem 1.5rem;
     display: flex; flex-direction: column; gap: 1.25rem;
@@ -108,7 +107,6 @@
   #messages::-webkit-scrollbar { width: 3px; }
   #messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
-  /* WELCOME */
   .welcome { display: flex; flex-direction: column; align-items: flex-start; gap: 1.5rem; padding: 0.5rem 0; max-width: 600px; }
   .welcome-heading { font-family: 'Playfair Display', serif; font-size: clamp(1.8rem, 4vw, 2.5rem); line-height: 1.15; letter-spacing: -0.03em; }
   .welcome-heading em { font-style: italic; color: var(--muted); }
@@ -121,7 +119,6 @@
   .sug-text { font-size: 0.82rem; font-weight: 400; line-height: 1.4; display: block; }
   .sug-label { font-size: 0.7rem; color: var(--muted); display: block; margin-top: 0.2rem; font-weight: 300; }
 
-  /* MSG */
   .msg { display: flex; gap: 0.75rem; animation: fadeIn 0.25s ease; max-width: 720px; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
   .msg.user { align-self: flex-end; flex-direction: row-reverse; max-width: 75%; }
@@ -135,7 +132,6 @@
   .msg.ai .bubble p { margin-bottom: 0.5em; }
   .msg.ai .bubble p:last-child { margin-bottom: 0; }
 
-  /* TYPING */
   .typing-wrap { display: flex; gap: 4px; align-items: center; padding: 0.2rem 0; }
   .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); animation: blink 1.2s infinite; }
   .dot:nth-child(2) { animation-delay: 0.2s; }
@@ -144,7 +140,6 @@
   .cursor { display: inline-block; font-size: 0.8em; color: var(--muted); animation: cursorBlink 0.6s infinite; margin-left: 1px; vertical-align: middle; }
   @keyframes cursorBlink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
 
-  /* Copy button */
   .copy-btn {
     display: inline-flex; align-items: center; gap: 0.3rem;
     margin-top: 0.6rem; background: transparent;
@@ -157,7 +152,6 @@
   .copy-btn.copied { border-color: #10b981; color: #10b981; background: #f0fdf4; }
   .copy-btn svg { width: 12px; height: 12px; }
 
-  /* MAP BUTTON */
   .map-btn {
     display: inline-flex; align-items: center; gap: 0.4rem;
     margin-top: 0.75rem; background: #eff6ff;
@@ -168,7 +162,6 @@
   }
   .map-btn:hover { background: #1d4ed8; color: white; border-color: #1d4ed8; }
 
-  /* MAP MODAL */
   #mapModal {
     display: none; position: fixed; inset: 0;
     background: rgba(0,0,0,0.5); z-index: 1000;
@@ -185,7 +178,7 @@
     padding: 1rem 1.25rem; border-bottom: 1px solid var(--border);
     display: flex; align-items: center; justify-content: space-between;
   }
-  .map-header h3 { font-family: 'Playfair Display', serif; font-size: 1.1rem; letter-spacing: -0.02em; }
+  .map-header h3 { font-family: 'Playfair Display', serif; font-size: 1.1rem; }
   .map-close {
     width: 30px; height: 30px; border-radius: 6px;
     background: var(--tag-bg); border: 1px solid var(--border);
@@ -202,7 +195,6 @@
   .legend-item { display: flex; align-items: center; gap: 0.3rem; }
   .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 
-  /* API NOTICE */
   .api-notice {
     margin: 0.75rem 1.5rem 0; padding: 0.9rem 1.1rem;
     background: var(--surface); border: 1px solid var(--border);
@@ -224,7 +216,6 @@
   }
   .key-row button:hover { opacity: 0.75; }
 
-  /* INPUT */
   .input-area { padding: 0.85rem 1.5rem 1rem; background: var(--surface); border-top: 1px solid var(--border); }
   .input-row {
     display: flex; gap: 0.6rem; align-items: flex-end;
@@ -320,7 +311,6 @@
   <p class="hint" id="hintText"></p>
 </div>
 
-<!-- MAP MODAL -->
 <div id="mapModal">
   <div class="map-panel">
     <div class="map-header">
@@ -337,9 +327,8 @@
   </div>
 </div>
 
-<!-- Load dữ liệu TRƯỚC script chính — đúng thứ tự -->
 <script src="khudiem.js"></script>
-  <script src="khoangcach.js"></script>
+<script src="khoangcach.js"></script>
 <script src="luutru.js"></script>
 <script src="nhahang.js"></script>
 <script src="places.js"></script>
@@ -372,12 +361,13 @@ const i18n = {
       'Chỗ ở Ninh Bình dưới 800k/đêm'
     ],
     sug: [
-  { icon:'📅', text:'Lịch trình 2 ngày 1 đêm', label:'Cho cặp đôi / gia đình', q:'Gợi ý lịch trình 2 ngày 1 đêm ở Ninh Bình cho cặp đôi' },
-  { icon:'💸', text:'Lịch trình 2 triệu', label:'Tiết kiệm, đủ trải nghiệm', q:'Gợi ý lịch trình du lịch Ninh Bình 2 ngày 1 đêm với ngân sách 2 triệu đồng' },
-{ icon:'🏍️', text:'Trốn phố bằng xe máy', label:'Tự lái xe từ nhà xuống Ninh Bình', q:'Tôi sẽ tự lái xe máy từ Hà Nội xuống Ninh Bình. Gợi ý lịch trình phù hợp, bao gồm cả phương án đi về trong ngày và phương án 2 ngày 1 đêm có gợi ý cụ thể chỗ ở phù hợp với khách đi xe máy' },  { icon:'⏱️', text:'Trốn phố 12 tiếng', label:'14h hôm trước → 12h hôm sau', q:'Gợi ý lịch trình Ninh Bình 12 tiếng: checkin 14h hôm nay, checkout 12h ngày mai, tận dụng tối đa thời gian' },
-  { icon:'🍜', text:'Đặc sản không bỏ qua', label:'Cơm cháy, dê núi, cá rô...', q:'Đặc sản Ninh Bình nào nhất định phải thử?' },
-  { icon:'🛏️', text:'Gợi ý chỗ ở', label:'Theo ngân sách của bạn', q:'Gợi ý chỗ ở ở Ninh Bình phù hợp nhiều ngân sách khác nhau' }
-],
+      { icon:'📅', text:'Lịch trình 2 ngày 1 đêm', label:'Cho cặp đôi / gia đình', q:'Gợi ý lịch trình 2 ngày 1 đêm ở Ninh Bình cho cặp đôi' },
+      { icon:'💸', text:'Lịch trình 2 triệu', label:'Tiết kiệm, đủ trải nghiệm', q:'Gợi ý lịch trình du lịch Ninh Bình 2 ngày 1 đêm với ngân sách 2 triệu đồng' },
+      { icon:'🏍️', text:'Trốn phố bằng xe máy', label:'Tự lái xe từ nhà xuống Ninh Bình', q:'Tôi sẽ tự lái xe máy từ Hà Nội xuống Ninh Bình. Gợi ý lịch trình phù hợp, bao gồm cả phương án đi về trong ngày và phương án 2 ngày 1 đêm có gợi ý cụ thể chỗ ở phù hợp với khách đi xe máy' },
+      { icon:'⏱️', text:'Trốn phố 12 tiếng', label:'14h hôm trước → 12h hôm sau', q:'Gợi ý lịch trình Ninh Bình 12 tiếng: checkin 14h hôm nay, checkout 12h ngày mai, tận dụng tối đa thời gian' },
+      { icon:'🍜', text:'Đặc sản không bỏ qua', label:'Cơm cháy, dê núi, cá rô...', q:'Đặc sản Ninh Bình nào nhất định phải thử?' },
+      { icon:'🛏️', text:'Gợi ý chỗ ở', label:'Theo ngân sách của bạn', q:'Gợi ý chỗ ở ở Ninh Bình phù hợp nhiều ngân sách khác nhau' }
+    ],
     rateLimitMsg: '⏳ Bạn hỏi hơi nhanh! Chờ 30 giây rồi thử lại nhé.',
     errorMsg: '⚠️ Không kết nối được. Kiểm tra lại API key hoặc internet.',
     userAvatar: 'Bạn',
@@ -408,13 +398,14 @@ const i18n = {
       '2-day 1-night itinerary for Ninh Binh',
       'Accommodation in Ninh Binh under 800k VND/night'
     ],
-   sug: [
-  { icon:'📅', text:'2-Day 1-Night Itinerary', label:'For couples / families', q:'Suggest a 2-day 1-night itinerary in Ninh Binh for a couple' },
-  { icon:'💸', text:'2M VND Itinerary', label:'Budget-friendly, full experience', q:'Suggest a 2-day 1-night itinerary in Ninh Binh with a budget of 2 million VND' },
-{ icon:'🏍️', text:'Escape by Motorbike', label:'Self-ride from home to Ninh Binh', q:'I will ride my own motorbike from Hanoi to Ninh Binh. Suggest suitable itineraries including a day-trip option and a 2-day 1-night option with specific accommodation recommendations for motorbike travelers' },  { icon:'⏱️', text:'12-Hour Escape', label:'2pm today → 12pm tomorrow', q:'Suggest a 12-hour Ninh Binh itinerary: check-in 2pm today, check-out 12pm tomorrow, maximize every moment' },
-  { icon:'🍜', text:'Must-Try Local Food', label:'Burnt rice, goat, fish...', q:'What local specialties must I try in Ninh Binh?' },
-  { icon:'🛏️', text:'Find Accommodation', label:'By your budget', q:'Suggest accommodation in Ninh Binh for different budgets' }
-],
+    sug: [
+      { icon:'📅', text:'2-Day 1-Night Itinerary', label:'For couples / families', q:'Suggest a 2-day 1-night itinerary in Ninh Binh for a couple' },
+      { icon:'💸', text:'2M VND Itinerary', label:'Budget-friendly, full experience', q:'Suggest a 2-day 1-night itinerary in Ninh Binh with a budget of 2 million VND' },
+      { icon:'🏍️', text:'Escape by Motorbike', label:'Self-ride from home to Ninh Binh', q:'I will ride my own motorbike from Hanoi to Ninh Binh. Suggest suitable itineraries including a day-trip option and a 2-day 1-night option with specific accommodation recommendations for motorbike travelers' },
+      { icon:'⏱️', text:'12-Hour Escape', label:'2pm today → 12pm tomorrow', q:'Suggest a 12-hour Ninh Binh itinerary: check-in 2pm today, check-out 12pm tomorrow, maximize every moment' },
+      { icon:'🍜', text:'Must-Try Local Food', label:'Burnt rice, goat, fish...', q:'What local specialties must I try in Ninh Binh?' },
+      { icon:'🛏️', text:'Find Accommodation', label:'By your budget', q:'Suggest accommodation in Ninh Binh for different budgets' }
+    ],
     rateLimitMsg: "⏳ You're asking too fast! Please wait 30 seconds and try again.",
     errorMsg: '⚠️ Connection failed. Please check your API key or internet.',
     userAvatar: 'You',
@@ -423,7 +414,7 @@ const i18n = {
   }
 };
 
-// ── SYSTEM PROMPT — đọc dữ liệu từ places.js ─────────
+// ── SYSTEM PROMPT ─────────────────────────────────────
 function getSystem(l) {
   const isVi = l === 'vi';
   const base = isVi ? `Bạn là trợ lý du lịch chuyên về Ninh Bình, Việt Nam. Trả lời thân thiện, thực tế, chi tiết.
@@ -438,19 +429,19 @@ GIÁ VÉ CẬP NHẬT 2026:
 CHECKIN/CHECKOUT: Hầu hết khách sạn checkin 14h, checkout 12h trưa. Luôn tính đến điều này khi lập lịch trình.
 
 LỊCH TRÌNH MẪU 2N1Đ:
-Ngày 1: Đến sáng → gửi hành lý → 8h Tràng An (đặt vé trước) → 12h ăn trưa → 14h nhận phòng → 15h Phố cổ Hoa Lư → 18h ăn tối Heo Say Xỉn hoặc Lẩu gà lá é → tối dạo phố cổ
-Ngày 2: 6h30 leo Hang Múa (tránh nắng) → 9h30 Tam Cốc (nếu còn thời gian) → 12h trả phòng → chiều về hoặc ghé Bái Đính
+Ngày 1: Đến sáng → gửi hành lý → 8h Tràng An → 12h ăn trưa → 14h nhận phòng → 15h Phố cổ Hoa Lư → 18h ăn tối Heo Say Xỉn hoặc Lẩu gà lá é → tối dạo phố cổ
+Ngày 2: 6h30 leo Hang Múa → 9h30 Tam Cốc → 12h trả phòng → chiều về hoặc ghé Bái Đính
 
 ẨM THỰC KHÁC: Cơm cháy (30-60k), dê núi, cá rô tổng trứng, nem chua Yên Mạc, miến lươn
-DI CHUYỂN: Xe khách HN-NB (80-150k, 1-2h), Limousine (~200k), xe máy 100-150k/ngày
+DI CHUYỂN: Xe khách HN-NB (80-150k, 1-2h), Limousine (~200k)
 THỜI TIẾT ĐẸP: Tháng 9-11 (lúa vàng), tháng 5-6. Tránh tháng 7-8 (mưa bão)
-QUY TẮC LẬP LỊCH TRÌNH THÔNG MINH:
-- Luôn tính thời gian di chuyển thực tế giữa các điểm (xem file khoangcach.js)
-- Khách đến sớm trước 14h: GỢI Ý GỬI HÀNH LÝ tại cơ sở lưu trú, nhận phòng lúc 14h
-- Lịch trình xe máy: ưu tiên các điểm gần nhau, tránh đi lại quá nhiều, gợi ý thuê xe máy 100-150k/ngày
-- Lịch trình 12 tiếng (14h→12h): Chiều hôm trước checkin + ăn tối phố cổ, Sáng hôm sau dậy sớm tham quan 1-2 điểm chính, trả phòng 12h. Sau đó GỢI Ý THÊM lịch trình bonus từ 12h-17h trước khi về (ghé Bái Đính, mua cơm cháy, ăn trưa đặc sản)
-- Không nhồi quá nhiều điểm vào 1 buổi — tối đa 2-3 điểm/buổi để có trải nghiệm thoải mái
-- Lịch trình xe máy 2N1Đ: khách tự lái xe từ Hà Nội, quãng đường ~90km mất ~2-2.5h. GỢI Ý CỤ THỂ cơ sở lưu trú phù hợp (ưu tiên có bãi đỗ xe, gần điểm tham quan): Milan Hotel (đối diện phố cổ, có chỗ gửi xe), Hang Mua Ecolodge (gửi xe trong khuôn viên, leo núi sớm), Tràng An Retreat (gần bến thuyền, bãi xe rộng), các homestay gần Tam Cốc` :
+
+QUY TẮC LẬP LỊCH TRÌNH:
+- Tính thời gian di chuyển thực tế giữa các điểm
+- Khách đến sớm trước 14h: GỢI Ý GỬI HÀNH LÝ tại cơ sở lưu trú
+- Lịch trình xe máy tự lái từ HN: ~93km, ~130 phút. Khách tự lái xe của họ, KHÔNG phải thuê xe tại Ninh Bình. Gợi ý chỗ ở có bãi đỗ xe: Milan Hotel, Hang Mua Ecolodge, Tràng An Retreat
+- Lịch trình 12 tiếng (14h→12h): Chiều checkin + ăn tối phố cổ, Sáng dậy sớm tham quan 1-2 điểm, 12h trả phòng. Sau đó gợi ý thêm 12h-17h (Bái Đính, mua cơm cháy, ăn trưa đặc sản)
+- Tối đa 2-3 điểm/buổi, không nhồi lịch trình` :
 
 `You are a travel assistant specializing in Ninh Binh, Vietnam. Reply in a friendly, practical, and detailed manner.
 
@@ -464,64 +455,59 @@ TICKET PRICES 2026:
 CHECK-IN/OUT: Most hotels check-in 2pm, check-out 12pm noon. Always factor this into itinerary planning.
 
 SAMPLE 2D1N ITINERARY:
-Day 1: Arrive morning → drop luggage → 8am Trang An (book ahead) → 12pm lunch → 2pm check-in → 3pm Hoa Lu Old Quarter → 6pm dinner at Heo Say Xin or Lau Ga La E → evening stroll
-Day 2: 6:30am Hang Mua (avoid midday heat) → 9:30am Tam Coc (optional) → 12pm check-out → afternoon head home or visit Bai Dinh
+Day 1: Arrive morning → drop luggage → 8am Trang An → 12pm lunch → 2pm check-in → 3pm Hoa Lu Old Quarter → 6pm dinner → evening stroll
+Day 2: 6:30am Hang Mua → 9:30am Tam Coc → 12pm check-out → afternoon head home or visit Bai Dinh
 
 OTHER FOOD: Burnt rice (30-60k), mountain goat, braised carp, eel vermicelli
-TRANSPORT: Bus Hanoi-NB (80-150k, 1-2hrs), Limousine (~200k), motorbike 100-150k/day
+TRANSPORT: Bus Hanoi-NB (80-150k, 1-2hrs), Limousine (~200k)
 BEST TIME: Sep-Nov (golden rice), May-Jun. Avoid Jul-Aug (typhoons)
-SMART ITINERARY RULES:
-- Always factor in realistic travel time between places
-- Guests arriving before 2pm: SUGGEST LUGGAGE DROP at accommodation, room available at 2pm
-- Motorbike itinerary: prioritize nearby clusters, minimize backtracking, suggest motorbike rental 100-150k/day
-- 12-hour itinerary (2pm→12pm): Afternoon check-in + Old Quarter dinner, Early morning visit 1-2 main sites, Check-out at 12pm. Then SUGGEST BONUS itinerary 12pm-5pm before heading home (Bai Dinh, burnt rice shopping, specialty lunch)
-- Never overpack — max 2-3 attractions per half-day for a relaxed experience`;
 
-  // Ghép dữ liệu ưu tiên từ places.js
-  const priority = buildPriorityContext(l);
+ITINERARY RULES:
+- Factor in realistic travel time between places
+- Guests arriving before 2pm: SUGGEST LUGGAGE DROP at accommodation
+- Motorbike itinerary: guests ride their OWN bike from Hanoi (~93km, ~130min). Do NOT suggest renting a motorbike in Ninh Binh. Suggest accommodation with parking: Milan Hotel, Hang Mua Ecolodge, Trang An Retreat
+- 12-hour itinerary (2pm→12pm): Check-in + Old Quarter dinner, Early morning 1-2 sites, Check-out at 12pm. Then suggest bonus 12pm-5pm (Bai Dinh, burnt rice shopping, specialty lunch)
+- Max 2-3 attractions per half-day, never overpack`;
+
+  const priority  = buildPriorityContext(l);
   const distances = buildDistanceContext(l);
-
   const style = isVi
     ? '\n\nPhong cách: Emoji điểm xuyết, số liệu cụ thể, khung giờ rõ ràng, luôn nhắc checkin 14h/checkout 12h. Trả lời bằng tiếng Việt.'
     : '\n\nStyle: Use emojis, specific figures, clear hourly schedules, always note check-in 2pm/check-out 12pm. Reply in English.';
 
-return base + priority + distances + style;
+  return base + priority + distances + style;
 }
 
-// ── STATE ─────────────────────────────────────────────
-let lang = localStorage.getItem('nb_lang') || 'vi';
-let apiKey = localStorage.getItem('nb_key') || '';
-let history = [];
-let leafletMap = null;
-let currentRouteLayer = null;
-let currentMarkers = [];
 // Cache system prompt — build 1 lần, dùng lại
 let _systemCache = {};
 function getSystemCached(l) {
   if (!_systemCache[l]) _systemCache[l] = getSystem(l);
   return _systemCache[l];
 }
-  
+
+// ── STATE ─────────────────────────────────────────────
+let lang    = localStorage.getItem('nb_lang') || 'vi';
+let apiKey  = localStorage.getItem('nb_key')  || '';
+let history = [];
+let leafletMap = null;
+let currentRouteLayer = null;
+let currentMarkers    = [];
+
 // ── INIT ──────────────────────────────────────────────
 if (apiKey) document.getElementById('apiSetup').style.display = 'none';
 applyLang();
 loadWeather();
 
-// ── WEATHER (cache 30 phút) ───────────────────────────
+// ── WEATHER (cache 24h) ───────────────────────────────
 async function loadWeather() {
-  // Kiểm tra cache còn hạn không
-  const cached = localStorage.getItem('nb_weather');
-  if (cached) {
-    const { temp, code, ts } = JSON.parse(cached);
-    if (Date.now() - ts < 24 * 60 * 60 * 1000) { // 24 giờ
-      renderWeather(temp, code);
-      return;
-    }
-  }
-  // Gọi API nếu cache hết hạn hoặc chưa có
   try {
+    const cached = localStorage.getItem('nb_weather');
+    if (cached) {
+      const { temp, code, ts } = JSON.parse(cached);
+      if (Date.now() - ts < 24 * 60 * 60 * 1000) { renderWeather(temp, code); return; }
+    }
     const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=20.2513&longitude=105.9745&current=temperature_2m,weather_code&timezone=Asia%2FBangkok');
-    const d = await res.json();
+    const d   = await res.json();
     const temp = Math.round(d.current.temperature_2m);
     const code = d.current.weather_code;
     localStorage.setItem('nb_weather', JSON.stringify({ temp, code, ts: Date.now() }));
@@ -532,18 +518,16 @@ async function loadWeather() {
     document.getElementById('weatherDesc').textContent = '';
   }
 }
-
 function renderWeather(temp, code) {
   const { icon, desc } = weatherInfo(code, lang);
   document.getElementById('weatherIcon').textContent = icon;
   document.getElementById('weatherTemp').textContent = `${temp}°C`;
   document.getElementById('weatherDesc').textContent = desc;
 }
-
 function weatherInfo(code, l) {
   const vi = [[0,'☀️','Trời quang'],[1,'🌤️','Ít mây'],[2,'⛅','Có mây'],[3,'☁️','Nhiều mây'],[45,'🌫️','Sương mù'],[51,'🌦️','Mưa phùn'],[61,'🌧️','Mưa nhẹ'],[63,'🌧️','Mưa vừa'],[65,'🌧️','Mưa to'],[80,'🌦️','Mưa rào'],[95,'⛈️','Giông bão']];
   const en = [[0,'☀️','Clear'],[1,'🌤️','Mainly clear'],[2,'⛅','Partly cloudy'],[3,'☁️','Overcast'],[45,'🌫️','Foggy'],[51,'🌦️','Light drizzle'],[61,'🌧️','Light rain'],[63,'🌧️','Moderate rain'],[65,'🌧️','Heavy rain'],[80,'🌦️','Showers'],[95,'⛈️','Thunderstorm']];
-  const list = l === 'vi' ? vi : en;
+  const list  = l === 'vi' ? vi : en;
   const found = list.slice().reverse().find(([c]) => code >= c);
   return found ? { icon: found[1], desc: found[2] } : { icon: '🌤️', desc: 'OK' };
 }
@@ -561,7 +545,6 @@ function openMap(routePlaces) {
     } else {
       leafletMap.invalidateSize();
     }
-
     currentMarkers.forEach(m => leafletMap.removeLayer(m));
     currentMarkers = [];
     if (currentRouteLayer) { leafletMap.removeLayer(currentRouteLayer); currentRouteLayer = null; }
@@ -594,8 +577,8 @@ function openMap(routePlaces) {
 async function drawOSRMRoute(places) {
   try {
     const coords = places.map(p => `${p.lng},${p.lat}`).join(';');
-    const res = await fetch(`https://router.project-osrm.org/route/v1/driving/${coords}?overview=full&geometries=geojson`);
-    const data = await res.json();
+    const res    = await fetch(`https://router.project-osrm.org/route/v1/driving/${coords}?overview=full&geometries=geojson`);
+    const data   = await res.json();
     if (data.code !== 'Ok' || !data.routes[0]) return;
     const distance = (data.routes[0].distance / 1000).toFixed(1);
     const duration = Math.round(data.routes[0].duration / 60);
@@ -606,12 +589,7 @@ async function drawOSRMRoute(places) {
     const legendEl = document.querySelector('.map-legend');
     if (legendEl) {
       let ri = document.getElementById('routeInfo');
-      if (!ri) {
-        ri = document.createElement('span');
-        ri.id = 'routeInfo';
-        ri.style.cssText = 'color:#3b82f6;font-weight:500;margin-left:auto';
-        legendEl.appendChild(ri);
-      }
+      if (!ri) { ri = document.createElement('span'); ri.id = 'routeInfo'; ri.style.cssText = 'color:#3b82f6;font-weight:500;margin-left:auto'; legendEl.appendChild(ri); }
       ri.textContent = lang === 'vi' ? `🚗 ${distance} km · ~${duration} phút` : `🚗 ${distance} km · ~${duration} min`;
     }
   } catch(e) { console.warn('OSRM failed:', e); }
@@ -630,24 +608,17 @@ function extractRoutePlaces(text) {
     'heo say xỉn': 'Heo Say Xỉn (GC22-23)', 'heo say xin': 'Heo Say Xỉn (GC22-23)',
     'lẩu gà': 'Lẩu Gà Lá É (GC57-58)', 'lau ga': 'Lẩu Gà Lá É (GC57-58)',
     'đại long': 'Đại Long Building — Cơm Cháy', 'dai long': 'Đại Long Building — Cơm Cháy',
-    'legend hotel': 'Legend Hotel',
-    'the reed': 'The Reed Hotel',
-    'milan hotel': 'Milan Hotel',
-    'rêu coffee': 'Rêu Coffee & Stay', 'reu coffee': 'Rêu Coffee & Stay',
+    'legend hotel': 'Legend Hotel', 'the reed': 'The Reed Hotel',
+    'milan hotel': 'Milan Hotel', 'rêu coffee': 'Rêu Coffee & Stay', 'reu coffee': 'Rêu Coffee & Stay',
   };
   const positions = [];
   const seen = new Set();
   for (const [key, placeName] of Object.entries(nameMap)) {
     const idx = lower.indexOf(key);
-    if (idx !== -1 && !seen.has(placeName)) {
-      positions.push({ idx, placeName });
-      seen.add(placeName);
-    }
+    if (idx !== -1 && !seen.has(placeName)) { positions.push({ idx, placeName }); seen.add(placeName); }
   }
   positions.sort((a, b) => a.idx - b.idx);
-  return positions
-    .map(({ placeName }) => PLACES.find(p => p.name === placeName))
-    .filter(Boolean);
+  return positions.map(({ placeName }) => PLACES.find(p => p.name === placeName)).filter(Boolean);
 }
 
 function closeMap() {
@@ -655,69 +626,44 @@ function closeMap() {
   const ri = document.getElementById('routeInfo');
   if (ri) ri.remove();
 }
-document.getElementById('mapModal').addEventListener('click', function(e) {
-  if (e.target === this) closeMap();
-});
+document.getElementById('mapModal').addEventListener('click', function(e) { if (e.target === this) closeMap(); });
 
 // ── ACTIONS ───────────────────────────────────────────
-function clearChat() {
-  if (!confirm(i18n[lang].clearConfirm)) return;
-  history = []; rebuildWelcome();
-}
-function resetKey() {
-  if (!confirm(i18n[lang].keyConfirm)) return;
-  apiKey = ''; localStorage.removeItem('nb_key');
-  document.getElementById('apiKeyInput').value = '';
-  document.getElementById('apiSetup').style.display = 'flex';
-}
-function resetChat() { history = []; rebuildWelcome(); }
+function clearChat()  { if (!confirm(i18n[lang].clearConfirm)) return; history = []; rebuildWelcome(); }
+function resetKey()   { if (!confirm(i18n[lang].keyConfirm)) return; apiKey = ''; localStorage.removeItem('nb_key'); document.getElementById('apiKeyInput').value = ''; document.getElementById('apiSetup').style.display = 'flex'; }
+function resetChat()  { history = []; rebuildWelcome(); }
 function rebuildWelcome() {
-  document.getElementById('messages').innerHTML = `<div class="welcome" id="welcome">
-    <h1 class="welcome-heading" id="welcomeHeading"></h1>
-    <p class="welcome-sub" id="welcomeSub"></p>
-    <div class="suggestions" id="sugGrid"></div>
-  </div>`;
+  document.getElementById('messages').innerHTML = `<div class="welcome" id="welcome"><h1 class="welcome-heading" id="welcomeHeading"></h1><p class="welcome-sub" id="welcomeSub"></p><div class="suggestions" id="sugGrid"></div></div>`;
   applyLang();
 }
 
 // ── LANG ──────────────────────────────────────────────
-function toggleLang() {
-  lang = lang === 'vi' ? 'en' : 'vi';
-  localStorage.setItem('nb_lang', lang);
-  applyLang(); loadWeather();
-}
+function toggleLang() { lang = lang === 'vi' ? 'en' : 'vi'; localStorage.setItem('nb_lang', lang); applyLang(); loadWeather(); }
 function applyLang() {
   const t = i18n[lang];
-  document.getElementById('brandTag').textContent = t.brandTag;
-  document.getElementById('disclaimer').textContent = t.disclaimer;
-  document.getElementById('langBtn').textContent = t.langBtn;
-  document.getElementById('userInput').placeholder = t.placeholder;
-  document.getElementById('hintText').textContent = t.hint;
-  document.getElementById('apiText').innerHTML = t.apiText;
+  document.getElementById('brandTag').textContent     = t.brandTag;
+  document.getElementById('disclaimer').textContent   = t.disclaimer;
+  document.getElementById('langBtn').textContent      = t.langBtn;
+  document.getElementById('userInput').placeholder    = t.placeholder;
+  document.getElementById('hintText').textContent     = t.hint;
+  document.getElementById('apiText').innerHTML        = t.apiText;
   document.getElementById('apiConnectBtn').textContent = t.apiBtn;
   document.getElementById('clearBtn').setAttribute('data-tip', t.clearTip);
   document.getElementById('keyBtn').setAttribute('data-tip', t.keyTip);
-  const wh = document.getElementById('welcomeHeading');
-  if (wh) wh.innerHTML = t.welcomeH;
-  const ws = document.getElementById('welcomeSub');
-  if (ws) ws.textContent = t.welcomeSub;
-  const nav = document.getElementById('topicsNav');
-  nav.innerHTML = '';
+  const wh = document.getElementById('welcomeHeading'); if (wh) wh.innerHTML = t.welcomeH;
+  const ws = document.getElementById('welcomeSub');     if (ws) ws.textContent = t.welcomeSub;
+  const nav = document.getElementById('topicsNav'); nav.innerHTML = '';
   t.chips.forEach((label, i) => {
-    const btn = document.createElement('button');
-    btn.className = 'chip'; btn.textContent = label;
-    btn.onclick = () => quickAsk(t.chipQ[i]);
-    nav.appendChild(btn);
+    const btn = document.createElement('button'); btn.className = 'chip'; btn.textContent = label;
+    btn.onclick = () => quickAsk(t.chipQ[i]); nav.appendChild(btn);
   });
   const grid = document.getElementById('sugGrid');
   if (grid) {
     grid.innerHTML = '';
     t.sug.forEach(s => {
-      const btn = document.createElement('button');
-      btn.className = 'sug-btn';
+      const btn = document.createElement('button'); btn.className = 'sug-btn';
       btn.innerHTML = `<span class="sug-icon">${s.icon}</span><span class="sug-text">${s.text}</span><span class="sug-label">${s.label}</span>`;
-      btn.onclick = () => quickAsk(s.q);
-      grid.appendChild(btn);
+      btn.onclick = () => quickAsk(s.q); grid.appendChild(btn);
     });
   }
 }
@@ -725,21 +671,18 @@ function applyLang() {
 // ── API KEY ───────────────────────────────────────────
 function saveKey() {
   const v = document.getElementById('apiKeyInput').value.trim();
-  if (!v.startsWith('AIza')) {
-    alert(lang === 'vi' ? 'Key không hợp lệ (phải bắt đầu bằng AIza...)' : 'Invalid key (must start with AIza...)');
-    return;
-  }
+  if (!v.startsWith('AIza')) { alert(lang === 'vi' ? 'Key không hợp lệ (phải bắt đầu bằng AIza...)' : 'Invalid key (must start with AIza...)'); return; }
   apiKey = v; localStorage.setItem('nb_key', v);
   document.getElementById('apiSetup').style.display = 'none';
 }
 
 // ── HELPERS ───────────────────────────────────────────
 function quickAsk(text) { document.getElementById('userInput').value = text; sendMessage(); }
-function handleKey(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
+function handleKey(e)   { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
 function autoResize(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 100) + 'px'; }
 function removeWelcome() { const w = document.getElementById('welcome'); if (w) w.remove(); }
 function isItinerary(text) {
-  return ['lịch trình','itinerary','ngày 1','ngày 2','day 1','day 2','checkin','check-in','tham quan','schedule']
+  return ['lịch trình','itinerary','ngày 1','ngày 2','day 1','day 2','checkin','check-in','tham quan','schedule','trốn phố','escape']
     .some(k => text.toLowerCase().includes(k));
 }
 function md(text) {
@@ -752,12 +695,10 @@ function addMsg(role, text) {
   removeWelcome();
   const wrap = document.getElementById('messages');
   const el = document.createElement('div'); el.className = `msg ${role}`;
-  const av = document.createElement('div'); av.className = 'avatar';
-  av.textContent = role === 'ai' ? '✦' : i18n[lang].userAvatar;
-  const b = document.createElement('div'); b.className = 'bubble';
+  const av = document.createElement('div'); av.className = 'avatar'; av.textContent = role === 'ai' ? '✦' : i18n[lang].userAvatar;
+  const b  = document.createElement('div'); b.className  = 'bubble';
   if (role === 'ai') b.innerHTML = md(text); else b.textContent = text;
-  if (role === 'user') { el.appendChild(b); el.appendChild(av); }
-  else { el.appendChild(av); el.appendChild(b); }
+  if (role === 'user') { el.appendChild(b); el.appendChild(av); } else { el.appendChild(av); el.appendChild(b); }
   wrap.appendChild(el); wrap.scrollTop = wrap.scrollHeight;
 }
 function showTyping() {
@@ -765,17 +706,16 @@ function showTyping() {
   const wrap = document.getElementById('messages');
   const el = document.createElement('div'); el.className = 'msg ai'; el.id = 'typing';
   const av = document.createElement('div'); av.className = 'avatar'; av.textContent = '✦';
-  const b = document.createElement('div'); b.className = 'bubble';
+  const b  = document.createElement('div'); b.className  = 'bubble';
   b.innerHTML = '<div class="typing-wrap"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>';
-  el.appendChild(av); el.appendChild(b);
-  wrap.appendChild(el); wrap.scrollTop = wrap.scrollHeight;
+  el.appendChild(av); el.appendChild(b); wrap.appendChild(el); wrap.scrollTop = wrap.scrollHeight;
 }
 function typewriterMsg(text, showMapBtn) {
   removeWelcome();
   const wrap = document.getElementById('messages');
   const el = document.createElement('div'); el.className = 'msg ai';
   const av = document.createElement('div'); av.className = 'avatar'; av.textContent = '✦';
-  const b = document.createElement('div'); b.className = 'bubble';
+  const b  = document.createElement('div'); b.className  = 'bubble';
   el.appendChild(av); el.appendChild(b); wrap.appendChild(el);
   let i = 0;
   const step = Math.max(1, Math.ceil(text.length / 280));
@@ -787,14 +727,10 @@ function typewriterMsg(text, showMapBtn) {
       setTimeout(tick, 14);
     } else {
       b.innerHTML = md(text);
-
-      // Thanh action: copy + map
       const actions = document.createElement('div');
       actions.style.cssText = 'display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.5rem';
-
       // Nút copy
-      const copyBtn = document.createElement('button');
-      copyBtn.className = 'copy-btn';
+      const copyBtn = document.createElement('button'); copyBtn.className = 'copy-btn';
       copyBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>${lang === 'vi' ? 'Sao chép' : 'Copy'}`;
       copyBtn.onclick = () => {
         navigator.clipboard.writeText(text).then(() => {
@@ -807,19 +743,16 @@ function typewriterMsg(text, showMapBtn) {
         });
       };
       actions.appendChild(copyBtn);
-
-      // Nút bản đồ (nếu là lịch trình)
+      // Nút bản đồ
       if (showMapBtn) {
         const routePlaces = extractRoutePlaces(text);
-        const mapBtn = document.createElement('button');
-        mapBtn.className = 'map-btn';
+        const mapBtn = document.createElement('button'); mapBtn.className = 'map-btn';
         mapBtn.textContent = routePlaces.length >= 2
           ? (lang === 'vi' ? `🗺️ Xem lộ trình ${routePlaces.length} điểm` : `🗺️ View route — ${routePlaces.length} stops`)
           : i18n[lang].showMap;
         mapBtn.onclick = () => openMap(routePlaces);
         actions.appendChild(mapBtn);
       }
-
       b.appendChild(actions);
       wrap.scrollTop = wrap.scrollHeight;
     }
@@ -829,35 +762,27 @@ function typewriterMsg(text, showMapBtn) {
 
 // ── SEND ──────────────────────────────────────────────
 async function callGemini(retries = 1) {
-  const res = await fetch(...);
-  if ((res.status === 503 || res.status === 429) && retries > 0) {
-    await new Promise(r => setTimeout(r, 5000));
-    return callGemini(retries - 1);
-  }
-  return res;
-}
   const res = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-system_instruction: { parts: [{ text: getSystemCached(lang) }] },
+        system_instruction: { parts: [{ text: getSystemCached(lang) }] },
         contents: history,
         generationConfig: { temperature: 0.8, maxOutputTokens: 8192 }
       })
     }
   );
-  // Nếu 503 hoặc 429 → đợi rồi thử lại
   if ((res.status === 503 || res.status === 429) && retries > 0) {
-    await new Promise(r => setTimeout(r, 3000));
+    await new Promise(r => setTimeout(r, 5000));
     return callGemini(retries - 1);
   }
   return res;
 }
 
 async function sendMessage() {
-  const inp = document.getElementById('userInput');
+  const inp  = document.getElementById('userInput');
   const text = inp.value.trim();
   if (!text) return;
   if (!apiKey) {
@@ -872,14 +797,14 @@ async function sendMessage() {
   showTyping();
   try {
     const res = await callGemini();
-    const d = await res.json();
+    const d   = await res.json();
     document.getElementById('typing')?.remove();
     if (d.error) {
-      const msg = d.error.message || '';
+      const msg    = d.error.message || '';
       const isRate = msg.includes('quota') || msg.includes('rate') || msg.includes('429') || msg.includes('limit');
       addMsg('ai', isRate ? i18n[lang].rateLimitMsg : i18n[lang].errorMsg);
     } else {
-      const reply = d.candidates?.[0]?.content?.parts?.[0]?.text || (lang === 'vi' ? 'Xin lỗi, thử lại nhé!' : 'Sorry, please try again!');
+      const reply   = d.candidates?.[0]?.content?.parts?.[0]?.text || (lang === 'vi' ? 'Xin lỗi, thử lại nhé!' : 'Sorry, please try again!');
       const showMap = isItinerary(text) || isItinerary(reply);
       typewriterMsg(reply, showMap);
       history.push({ role: 'model', parts: [{ text: reply }] });
