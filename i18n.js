@@ -1,3 +1,7 @@
+// ============================================================
+//  NINH BÌNH AI — Chuỗi giao diện song ngữ
+//  File: i18n.js
+// ============================================================
 const i18n = {
   vi: {
     brandTag: 'Trợ lý du lịch',
@@ -21,7 +25,7 @@ const i18n = {
       'Ăn gì ngon và đặc sản ở Ninh Bình?',
       'Từ Hà Nội đi Ninh Bình bằng phương tiện gì rẻ nhất?',
       'Lịch trình 2 ngày 1 đêm Ninh Bình',
-      'Chỗ ở Ninh Bình dưới 800k/đêm'
+      'Chỗ ở Ninh Bình dưới 800k/đêm',
     ],
     sug: [
       { icon:'📅', text:'Lịch trình 2 ngày 1 đêm', label:'Cho cặp đôi / gia đình', q:'Gợi ý lịch trình 2 ngày 1 đêm ở Ninh Bình cho cặp đôi' },
@@ -29,13 +33,14 @@ const i18n = {
       { icon:'🏍️', text:'Trốn phố bằng xe máy', label:'Tự lái xe từ nhà xuống Ninh Bình', q:'Tôi sẽ tự lái xe máy từ Hà Nội xuống Ninh Bình. Gợi ý lịch trình phù hợp, bao gồm cả phương án đi về trong ngày và phương án 2 ngày 1 đêm có gợi ý cụ thể chỗ ở phù hợp với khách đi xe máy' },
       { icon:'⏱️', text:'Trốn phố 12 tiếng', label:'14h hôm trước → 12h hôm sau', q:'Gợi ý lịch trình Ninh Bình 12 tiếng: checkin 14h hôm nay, checkout 12h ngày mai, tận dụng tối đa thời gian' },
       { icon:'🍜', text:'Đặc sản không bỏ qua', label:'Cơm cháy, dê núi, cá rô...', q:'Đặc sản Ninh Bình nào nhất định phải thử?' },
-      { icon:'🛏️', text:'Gợi ý chỗ ở', label:'Theo ngân sách của bạn', q:'Gợi ý chỗ ở ở Ninh Bình phù hợp nhiều ngân sách khác nhau' }
+      { icon:'🛏️', text:'Gợi ý chỗ ở', label:'Theo ngân sách của bạn', q:'Gợi ý chỗ ở ở Ninh Bình phù hợp nhiều ngân sách khác nhau' },
     ],
     rateLimitMsg: '⏳ Bạn hỏi hơi nhanh! Chờ 30 giây rồi thử lại nhé.',
     errorMsg: '⚠️ Không kết nối được. Kiểm tra lại API key hoặc internet.',
     userAvatar: 'Bạn',
     mapTitle: '🗺️ Bản đồ Ninh Bình',
     showMap: '🗺️ Xem bản đồ các điểm này',
+    typingText: 'đang lên chương trình...',
   },
   en: {
     brandTag: 'Travel Assistant',
@@ -59,7 +64,7 @@ const i18n = {
       'What are the best local foods in Ninh Binh?',
       'What is the cheapest way to get from Hanoi to Ninh Binh?',
       '2-day 1-night itinerary for Ninh Binh',
-      'Accommodation in Ninh Binh under 800k VND/night'
+      'Accommodation in Ninh Binh under 800k VND/night',
     ],
     sug: [
       { icon:'📅', text:'2-Day 1-Night Itinerary', label:'For couples / families', q:'Suggest a 2-day 1-night itinerary in Ninh Binh for a couple' },
@@ -67,12 +72,13 @@ const i18n = {
       { icon:'🏍️', text:'Escape by Motorbike', label:'Self-ride from home to Ninh Binh', q:'I will ride my own motorbike from Hanoi to Ninh Binh. Suggest suitable itineraries including a day-trip option and a 2-day 1-night option with specific accommodation recommendations for motorbike travelers' },
       { icon:'⏱️', text:'12-Hour Escape', label:'2pm today → 12pm tomorrow', q:'Suggest a 12-hour Ninh Binh itinerary: check-in 2pm today, check-out 12pm tomorrow, maximize every moment' },
       { icon:'🍜', text:'Must-Try Local Food', label:'Burnt rice, goat, fish...', q:'What local specialties must I try in Ninh Binh?' },
-      { icon:'🛏️', text:'Find Accommodation', label:'By your budget', q:'Suggest accommodation in Ninh Binh for different budgets' }
+      { icon:'🛏️', text:'Find Accommodation', label:'By your budget', q:'Suggest accommodation in Ninh Binh for different budgets' },
     ],
     rateLimitMsg: "⏳ You're asking too fast! Please wait 30 seconds and try again.",
     errorMsg: '⚠️ Connection failed. Please check your API key or internet.',
     userAvatar: 'You',
     mapTitle: '🗺️ Ninh Binh Map',
     showMap: '🗺️ View map of these places',
-  }
-}
+    typingText: 'planning your trip...',
+  },
+};
