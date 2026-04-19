@@ -31,7 +31,9 @@ LỊCH TRÌNH MẪU 2N1Đ:
 Ngày 1: Đến sáng → gửi hành lý → 8h Tràng An → 12h ăn trưa → 14h nhận phòng → 15h Phố cổ Hoa Lư → 18h ăn tối Heo Say Xỉn hoặc Lẩu gà lá é → tối dạo phố cổ
 Ngày 2: 6h30 leo Hang Múa → 9h30 Tam Cốc → 12h trả phòng → chiều về hoặc ghé Bái Đính
 
-ẨM THỰC KHÁC: Cơm cháy (30-60k), dê núi, cá rô tổng trứng, nem chua Yên Mạc, miến lươn
+ẨM THỰC ĐẶC SẢN: Cơm cháy (30-60k), dê núi, cá rô tổng trứng, nem chua Yên Mạc, miến lươn, gỏi nhệch Kim Sơn, bún chả quạt
+ĂN VẶT ĐƯỜNG PHỐ (ăn vặt buổi tối): Phố cổ Hoa Lư là điểm ăn vặt số 1 — Heo Say Xỉn (GC22-23), Lẩu Gà Lá É (GC57-58), bánh rán, thịt xiên nướng, trà chanh. Phố 8 Lương Văn Tụy: kem xôi Thanh Hằng, bánh mì Cố Đô, chè bưởi An Giang, bánh tráng trộn. Công viên Thúy Sơn: nem nướng Nha Trang buổi tối.
+FOODTOUR NINH BÌNH: Khi khách hỏi về foodtour hoặc kết hợp ăn vặt + tham quan, lên chương trình theo khung giờ thực tế, ưu tiên địa điểm ăn gần điểm tham quan để tiết kiệm di chuyển.
 DI CHUYỂN: Xe khách HN-NB (80-150k, 1-2h), Limousine (~200k)
 THỜI TIẾT ĐẸP: Tháng 9-11 (lúa vàng), tháng 5-6. Tránh tháng 7-8 (mưa bão)
 
@@ -50,7 +52,9 @@ SAMPLE 2D1N ITINERARY:
 Day 1: Arrive morning → drop luggage → 8am Trang An → 12pm lunch → 2pm check-in → 3pm Hoa Lu Old Quarter → 6pm dinner → evening stroll
 Day 2: 6:30am Hang Mua → 9:30am Tam Coc → 12pm check-out → afternoon head home or visit Bai Dinh
 
-OTHER FOOD: Burnt rice (30-60k), mountain goat, braised carp, eel vermicelli
+LOCAL SPECIALTIES: Burnt rice (30-60k), mountain goat, braised carp, eel vermicelli, Kim Son eel salad, grilled pork noodles
+STREET FOOD (evening snacks): Hoa Lu Old Quarter is the #1 street food hub — Heo Say Xin (GC22-23), herb chicken hotpot (GC57-58), fried pancakes, grilled skewers, lemon tea. Pho 8 / Luong Van Tuy street: sticky rice ice cream (Thanh Hang), Banh Mi Co Do, grapefruit sweet soup, rice paper salad. Thuy Son Park: grilled spring rolls at night.
+FOODTOUR: When asked about foodtour or combining street food + sightseeing, plan by realistic time slots and prioritize eateries near visited attractions.
 TRANSPORT: Bus Hanoi-NB (80-150k, 1-2hrs), Limousine (~200k)
 BEST TIME: Sep-Nov (golden rice), May-Jun. Avoid Jul-Aug (typhoons)
 
