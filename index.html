@@ -260,6 +260,7 @@
 <script src="khoangcach.js"></script>
 <script src="luutru.js"></script>
 <script src="nhahang.js"></script>
+<script src="anvat.js"></script>
 <script src="places.js"></script>
 <script src="system.js"></script>
 
@@ -413,18 +414,36 @@ async function drawRoute(places) {
 function extractRoutePlaces(text) {
   const lower = text.toLowerCase();
   const map = {
+    // Tham quan
     'tràng an':'Tràng An','trang an':'Tràng An',
     'hang múa':'Hang Múa','hang mua':'Hang Múa',
     'tam cốc':'Tam Cốc','tam coc':'Tam Cốc',
     'cố đô hoa lư':'Cố đô Hoa Lư','phố cổ hoa lư':'Cố đô Hoa Lư',
     'hoa lư':'Cố đô Hoa Lư','hoa lu':'Cố đô Hoa Lư',
     'chùa bái đính':'Chùa Bái Đính','bái đính':'Chùa Bái Đính','bai dinh':'Chùa Bái Đính',
-    'thung ui':'Thung Ui',
+    'thung ui':'Thung Ui','thung nham':'Khu du lịch sinh thái Thung Nham',
+    // Nhà hàng
     'heo say xỉn':'Heo Say Xỉn (GC22-23)','heo say xin':'Heo Say Xỉn (GC22-23)',
     'lẩu gà':'Lẩu Gà Lá É (GC57-58)','lau ga':'Lẩu Gà Lá É (GC57-58)',
     'đại long':'Đại Long Building — Cơm Cháy','dai long':'Đại Long Building — Cơm Cháy',
+    'dê chính thư':'Dê Chính Thư (Tràng An)','chính thư':'Dê Chính Thư (Tràng An)',
+    'ba cửa':'Nhà hàng Ba Cửa','ba cua':'Nhà hàng Ba Cửa',
+    'dũng phố núi':'Dũng Phố Núi','hoàng giang':'Nhà hàng Hoàng Giang',
+    'chookie':"Chookie's Beer Garden",
+    'mona lisa':'Mona Lisa Tam Coc',
+    'heli coffee':'Tầng 6 Heli Coffee',
+    'the aria':'The Aria Cafe','aria cafe':'The Aria Cafe',
+    // Ăn vặt
+    'kem xôi thanh hằng':'Kem Xôi Thanh Hằng','kem xôi':'Kem Xôi Thanh Hằng',
+    'bánh mì cố đô':'Bánh Mì Cố Đô',
+    'đức trọc':'Thịt Xiên Nướng Đức Trọc','xiên nướng':'Thịt Xiên Nướng Đức Trọc',
+    'chè bưởi an giang':'Chè Bưởi An Giang',
+    'bánh rán phố cổ':'Bánh Rán Phố Cổ',
+    'nem nướng nha trang':'Nem Nướng Nha Trang',
+    // Khách sạn
     'legend hotel':'Legend Hotel','the reed':'The Reed Hotel',
     'milan hotel':'Milan Hotel','rêu coffee':'Rêu Coffee & Stay','reu coffee':'Rêu Coffee & Stay',
+    'hang mua ecolodge':'Hang Mua Ecolodge','tràng an retreat':'Tràng An Retreat',
   };
   const pos = [], seen = new Set();
   for (const [key, name] of Object.entries(map)) {
@@ -525,7 +544,7 @@ function autoResize(el)  { el.style.height = 'auto'; el.style.height = Math.min(
 function removeWelcome() { document.getElementById('welcome')?.remove(); }
 function isItinerary(t)  {
   return ['lịch trình','itinerary','ngày 1','ngày 2','day 1','day 2','checkin','check-in',
-          'tham quan','schedule','trốn phố','escape']
+          'tham quan','schedule','trốn phố','escape','foodtour','food tour','ăn vặt','đặc sản']
     .some(k => t.toLowerCase().includes(k));
 }
 function md(text) {
