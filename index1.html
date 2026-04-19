@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ninh Bình AI</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏔️</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
+<style>
+  :root {
+    --bg:#f8f8f6; --surface:#fff; --border:#e8e8e4;
+    --ink:#111110; --muted:#888884; --tag-bg:#f0f0ec;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--ink);height:100vh;display:grid;grid-template-rows:auto auto 1fr auto auto;overflow:hidden}
+
+  /* ── HEADER ── */
+  header{padding:.75rem 1.5rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:var(--surface);gap:1rem}
+  .header-left{display:flex;align-items:center;gap:1rem}
+  .brand{display:flex;align-items:baseline;gap:.5rem;cursor:pointer}
+  .brand:hover .brand-name{opacity:.65}
+  .brand-name{font-family:'Playfair Display',serif;font-size:1.2rem;letter-spacing:-.02em;transition:opacity .15s}
+  .brand-tag{font-size:.7rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  #weatherPill{display:flex;align-items:center;gap:.35rem;background:var(--tag-bg);border:1px solid var(--border);border-radius:20px;padding:.25rem .7rem;font-size:.78rem;white-space:nowrap;cursor:default;transition:all .2s}
+  #weatherPill:hover{border-color:#60a5fa;background:#eff6ff}
+  #weatherIcon{font-size:1rem;line-height:1}
+  #weatherTemp{font-weight:500}
+  #weatherDesc{color:var(--muted);font-size:.72rem}
+  .header-right{display:flex;align-items:center;gap:.5rem;flex-shrink:0}
+  #disclaimer{font-size:.7rem;color:#bbb;font-style:italic;white-space:nowrap;margin-right:.25rem}
+  .icon-btn{width:34px;height:34px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .18s;flex-shrink:0;position:relative;border:1.5px solid transparent}
+  .icon-btn svg{width:15px;height:15px;transition:stroke .18s}
+  #clearBtn{background:#fff1f1;border-color:#fca5a5}
+  #clearBtn svg{stroke:#ef4444}
+  #clearBtn:hover{background:#ef4444;border-color:#ef4444}
+  #clearBtn:hover svg{stroke:white}
+  #keyBtn{background:#fffbeb;border-color:#fcd34d}
+  #keyBtn svg{stroke:#d97706}
+  #keyBtn:hover{background:#d97706;border-color:#d97706}
+  #keyBtn:hover svg{stroke:white}
+  .icon-btn::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 7px);left:50%;transform:translateX(-50%);background:var(--ink);color:white;font-size:.68rem;white-space:nowrap;padding:.22rem .5rem;border-radius:5px;opacity:0;pointer-events:none;transition:opacity .15s;font-family:'Nunito',sans-serif}
+  .icon-btn:hover::after{opacity:1}
+  #langBtn{background:var(--tag-bg);border:1.5px solid var(--border);border-radius:6px;padding:.28rem .65rem;font-size:.75rem;font-family:'Nunito',sans-serif;font-weight:500;cursor:pointer;transition:all .15s}
+  #langBtn:hover{background:var(--ink);color:white;border-color:var(--ink)}
+
+  /* ── TOPICS ── */
+  .topics{padding:.65rem 1.5rem;display:flex;gap:.4rem;overflow-x:auto;scrollbar-width:none;background:var(--surface);border-bottom:1px solid var(--border)}
+  .topics::-webkit-scrollbar{display:none}
+  .chip{background:var(--tag-bg);border:1px solid var(--border);color:var(--ink);padding:.3rem .8rem;border-radius:6px;font-size:.78rem;font-family:'Nunito',sans-serif;cursor:pointer;white-space:nowrap;transition:all .15s}
+  .chip:hover{background:var(--ink);color:white;border-color:var(--ink)}
+
+  /* ── MESSAGES ── */
+  #messages{overflow-y:auto;padding:1.75rem 1.5rem;display:flex;flex-direction:column;gap:1.25rem;scroll-behavior:smooth}
+  #messages::-webkit-scrollbar{width:3px}
+  #messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+
+  /* ── WELCOME ── */
+  .welcome{display:flex;flex-direction:column;align-items:flex-start;gap:1.5rem;padding:.5rem 0;max-width:600px}
+  .welcome-heading{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,4vw,2.5rem);line-height:1.15;letter-spacing:-.03em}
+  .welcome-heading em{font-style:italic;color:var(--muted)}
+  .welcome-sub{font-size:.875rem;color:var(--muted);line-height:1.7;font-weight:300;max-width:420px}
+  .suggestions{display:grid;grid-template-columns:repeat(2,1fr);gap:.5rem;width:100%;max-width:520px}
+  .sug-btn{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.85rem 1rem;text-align:left;cursor:pointer;font-family:'Nunito',sans-serif;transition:all .15s}
+  .sug-btn:hover{border-color:var(--ink);background:var(--ink);color:white}
+  .sug-btn:hover .sug-label{color:rgba(255,255,255,.5)}
+  .sug-icon{font-size:1rem;margin-bottom:.35rem;display:block}
+  .sug-text{font-size:.82rem;font-weight:400;line-height:1.4;display:block}
+  .sug-label{font-size:.7rem;color:var(--muted);display:block;margin-top:.2rem;font-weight:300}
+
+  /* ── MSG ── */
+  .msg{display:flex;gap:.75rem;animation:fadeIn .25s ease;max-width:720px}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+  .msg.user{align-self:flex-end;flex-direction:row-reverse;max-width:75%}
+  .avatar{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;margin-top:2px}
+  .msg.ai .avatar{background:var(--ink);color:white;font-size:14px}
+  .msg.user .avatar{background:var(--tag-bg);border:1px solid var(--border);font-size:11px;font-weight:500;color:var(--muted)}
+  .bubble{padding:.8rem 1rem;border-radius:12px;font-size:.875rem;line-height:1.75;font-weight:300}
+  .msg.user .bubble{background:var(--ink);color:white;border-radius:12px 12px 2px 12px;font-weight:400}
+  .msg.ai .bubble{background:var(--surface);border:1px solid var(--border);border-radius:12px 12px 12px 2px}
+  .msg.ai .bubble strong{font-weight:500}
+  .msg.ai .bubble p{margin-bottom:.5em}
+  .msg.ai .bubble p:last-child{margin-bottom:0}
+
+  /* ── TYPING ── */
+  .typing-indicator{display:flex;align-items:center;gap:.5rem;padding:.1rem 0}
+  .typing-indicator span{color:var(--muted);font-size:.85rem;font-weight:400;font-style:italic}
+  .typing-dots{display:flex;gap:3px;align-items:center}
+  .typing-dots i{width:5px;height:5px;border-radius:50%;background:var(--muted);display:block;animation:dotBlink 1.2s infinite}
+  .typing-dots i:nth-child(2){animation-delay:.2s}
+  .typing-dots i:nth-child(3){animation-delay:.4s}
+  @keyframes dotBlink{0%,80%,100%{opacity:.3;transform:scale(1)}40%{opacity:1;transform:scale(1.3);background:var(--ink)}}
+  /* con trỏ typewriter — CSS class, không dùng inline text */
+  .tw-cursor{display:inline-block;font-size:.8em;color:var(--muted);animation:cursorBlink .6s infinite;margin-left:1px;vertical-align:middle}
+  @keyframes cursorBlink{0%,100%{opacity:1}50%{opacity:0}}
+
+  /* ── COPY BTN ── */
+  .copy-btn{display:inline-flex;align-items:center;gap:.3rem;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:.3rem .7rem;font-size:.73rem;font-family:'Nunito',sans-serif;cursor:pointer;transition:all .15s}
+  .copy-btn:hover{background:var(--tag-bg);color:var(--ink);border-color:var(--ink)}
+  .copy-btn.copied{border-color:#10b981;color:#10b981;background:#f0fdf4}
+  .copy-btn svg{width:12px;height:12px}
+
+  /* ── MAP BTN ── */
+  .map-btn{display:inline-flex;align-items:center;gap:.4rem;background:#eff6ff;border:1.5px solid #93c5fd;color:#1d4ed8;border-radius:8px;padding:.45rem .9rem;font-size:.8rem;font-family:'Nunito',sans-serif;font-weight:500;cursor:pointer;transition:all .15s}
+  .map-btn:hover{background:#1d4ed8;color:white;border-color:#1d4ed8}
+  .msg-actions{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.6rem}
+
+  /* ── MAP MODAL ── */
+  #mapModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center;padding:1rem}
+  #mapModal.open{display:flex}
+  .map-panel{background:white;border-radius:16px;width:100%;max-width:700px;max-height:85vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+  .map-header{padding:1rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+  .map-header h3{font-family:'Playfair Display',serif;font-size:1.1rem}
+  .map-close{width:30px;height:30px;border-radius:6px;background:var(--tag-bg);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--muted);transition:all .15s}
+  .map-close:hover{background:var(--ink);color:white;border-color:var(--ink)}
+  #map{flex:1;min-height:420px}
+  .map-legend{padding:.6rem 1.25rem;border-top:1px solid var(--border);display:flex;gap:1rem;flex-wrap:wrap;font-size:.72rem;color:var(--muted);align-items:center}
+  .legend-item{display:flex;align-items:center;gap:.3rem}
+  .legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+
+  /* ── API NOTICE ── */
+  .api-notice{margin:.75rem 1.5rem 0;padding:.9rem 1.1rem;background:var(--surface);border:1px solid var(--border);border-radius:10px;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+  .api-notice p{font-size:.82rem;color:var(--muted);flex:1;min-width:180px;line-height:1.5}
+  .api-notice a{color:var(--ink);font-weight:500}
+  .key-row{display:flex;gap:.4rem}
+  .key-row input{padding:.5rem .75rem;border:1px solid var(--border);border-radius:7px;font-size:.82rem;font-family:monospace;outline:none;width:190px;background:var(--bg);transition:border-color .15s}
+  .key-row input:focus{border-color:var(--ink)}
+  .key-row button{background:var(--ink);color:white;border:none;border-radius:7px;padding:0 .85rem;font-size:.8rem;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:500;transition:opacity .15s}
+  .key-row button:hover{opacity:.75}
+
+  /* ── INPUT ── */
+  .input-area{padding:.85rem 1.5rem 1rem;background:var(--surface);border-top:1px solid var(--border)}
+  .input-row{display:flex;gap:.6rem;align-items:flex-end;background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:.6rem .6rem .6rem 1rem;transition:border-color .15s}
+  .input-row:focus-within{border-color:var(--ink)}
+  textarea{flex:1;border:none;outline:none;resize:none;font-family:'Nunito',sans-serif;font-size:.875rem;font-weight:300;color:var(--ink);background:transparent;line-height:1.5;min-height:22px;max-height:100px}
+  textarea::placeholder{color:var(--muted)}
+  #sendBtn{width:34px;height:34px;border-radius:8px;background:var(--ink);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity .15s;flex-shrink:0}
+  #sendBtn:hover{opacity:.7}
+  #sendBtn:disabled{opacity:.2;cursor:not-allowed}
+  #sendBtn svg{width:14px;height:14px;fill:white}
+  .hint{font-size:.7rem;color:var(--muted);margin-top:.45rem;text-align:center;font-weight:300}
+
+  /* ── RESPONSIVE ── */
+  @media(max-width:540px){
+    header{padding:.75rem 1rem}
+    #disclaimer{display:none}
+    .topics{padding:.6rem 1rem}
+    #messages{padding:1.25rem 1rem}
+    .input-area{padding:.75rem 1rem .9rem}
+    .api-notice{margin:.75rem 1rem 0}
+    .suggestions{grid-template-columns:1fr}
+    .msg.user{max-width:85%}
+    #weatherDesc{display:none}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="brand" onclick="resetChat()">
+      <span class="brand-name">Ninh Bình AI</span>
+      <span class="brand-tag" id="brandTag"></span>
+    </div>
+    <div id="weatherPill" title="Thời tiết Ninh Bình hiện tại">
+      <span id="weatherIcon">⏳</span>
+      <span id="weatherTemp">--°C</span>
+      <span id="weatherDesc"></span>
+    </div>
+  </div>
+  <div class="header-right">
+    <span id="disclaimer"></span>
+    <button class="icon-btn" id="clearBtn" onclick="clearChat()">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
+      </svg>
+    </button>
+    <button class="icon-btn" id="keyBtn" onclick="resetKey()">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="8" cy="15" r="3"/><path d="M11 15h9"/><path d="M17 12l3 3-3 3"/>
+      </svg>
+    </button>
+    <button id="langBtn" onclick="toggleLang()">EN</button>
+  </div>
+</header>
+
+<nav class="topics" id="topicsNav"></nav>
+
+<div id="messages">
+  <div class="welcome" id="welcome">
+    <h1 class="welcome-heading" id="welcomeHeading"></h1>
+    <p class="welcome-sub" id="welcomeSub"></p>
+    <div class="suggestions" id="sugGrid"></div>
+  </div>
+</div>
+
+<div class="api-notice" id="apiSetup">
+  <p id="apiText"></p>
+  <div class="key-row">
+    <input type="password" id="apiKeyInput" placeholder="AIzaSy..."/>
+    <button id="apiConnectBtn" onclick="saveKey()"></button>
+  </div>
+</div>
+
+<div class="input-area">
+  <div class="input-row">
+    <textarea id="userInput" rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+    <button id="sendBtn" onclick="sendMessage()">
+      <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+    </button>
+  </div>
+  <p class="hint" id="hintText"></p>
+</div>
+
+<div id="mapModal">
+  <div class="map-panel">
+    <div class="map-header">
+      <h3 id="mapTitle"></h3>
+      <button class="map-close" onclick="closeMap()">✕</button>
+    </div>
+    <div id="map"></div>
+    <div class="map-legend">
+      <span class="legend-item"><span class="legend-dot" style="background:#ef4444"></span> Tham quan</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#3b82f6"></span> Lưu trú</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#f59e0b"></span> Ăn uống</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#10b981"></span> Mua sắm</span>
+    </div>
+  </div>
+</div>
+
+<!-- Thứ tự load quan trọng: dữ liệu trước, logic sau -->
+<script src="i18n.js"></script>
+<script src="khudiem.js"></script>
+<script src="khoangcach.js"></script>
+<script src="luutru.js"></script>
+<script src="nhahang.js"></script>
+<script src="places.js"></script>
+<script src="system.js"></script>
+
+<script>
+// ── STATE ─────────────────────────────────────────────
+let lang    = localStorage.getItem('nb_lang') || 'vi';
+let apiKey  = localStorage.getItem('nb_key')  || '';
+let history = [];
+let leafletMap = null, currentRouteLayer = null, currentMarkers = [];
+
+// Cache system prompt — build 1 lần, tái sử dụng
+let _sysCache = {};
+function getSystemCached(l) {
+  if (!_sysCache[l]) _sysCache[l] = getSystem(l);
+  return _sysCache[l];
+}
+
+// ── INIT ──────────────────────────────────────────────
+if (apiKey) document.getElementById('apiSetup').style.display = 'none';
+applyLang();
+loadWeather();
+
+// ── WEATHER (cache 24h) ───────────────────────────────
+async function loadWeather() {
+  try {
+    const raw = localStorage.getItem('nb_weather');
+    if (raw) {
+      const { temp, code, ts } = JSON.parse(raw);
+      if (Date.now() - ts < 86400000) { renderWeather(temp, code); return; }
+    }
+    const r = await fetch('https://api.open-meteo.com/v1/forecast?latitude=20.2513&longitude=105.9745&current=temperature_2m,weather_code&timezone=Asia%2FBangkok');
+    const d = await r.json();
+    const temp = Math.round(d.current.temperature_2m), code = d.current.weather_code;
+    localStorage.setItem('nb_weather', JSON.stringify({ temp, code, ts: Date.now() }));
+    renderWeather(temp, code);
+  } catch {
+    document.getElementById('weatherIcon').textContent = '🌤️';
+    document.getElementById('weatherTemp').textContent = '--°C';
+  }
+}
+function renderWeather(temp, code) {
+  const { icon, desc } = weatherInfo(code, lang);
+  document.getElementById('weatherIcon').textContent = icon;
+  document.getElementById('weatherTemp').textContent = `${temp}°C`;
+  document.getElementById('weatherDesc').textContent = desc;
+}
+function weatherInfo(code, l) {
+  const map = l === 'vi'
+    ? [[0,'☀️','Trời quang'],[1,'🌤️','Ít mây'],[2,'⛅','Có mây'],[3,'☁️','Nhiều mây'],[45,'🌫️','Sương mù'],[51,'🌦️','Mưa phùn'],[61,'🌧️','Mưa nhẹ'],[71,'🌨️','Mưa tuyết'],[80,'🌦️','Mưa rào'],[95,'⛈️','Giông bão']]
+    : [[0,'☀️','Clear'],[1,'🌤️','Mainly clear'],[2,'⛅','Partly cloudy'],[3,'☁️','Overcast'],[45,'🌫️','Foggy'],[51,'🌦️','Drizzle'],[61,'🌧️','Light rain'],[71,'🌨️','Snow'],[80,'🌦️','Showers'],[95,'⛈️','Thunderstorm']];
+  const found = map.slice().reverse().find(([c]) => code >= c);
+  return found ? { icon: found[1], desc: found[2] } : { icon: '🌤️', desc: 'OK' };
+}
+
+// ── MAP ───────────────────────────────────────────────
+function openMap(routePlaces) {
+  document.getElementById('mapModal').classList.add('open');
+  document.getElementById('mapTitle').textContent = i18n[lang].mapTitle;
+  setTimeout(() => {
+    if (!leafletMap) {
+      leafletMap = L.map('map').setView([20.27, 105.93], 12);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap contributors' }).addTo(leafletMap);
+    } else { leafletMap.invalidateSize(); }
+
+    currentMarkers.forEach(m => leafletMap.removeLayer(m)); currentMarkers = [];
+    if (currentRouteLayer) { leafletMap.removeLayer(currentRouteLayer); currentRouteLayer = null; }
+
+    const list    = (routePlaces && routePlaces.length) ? routePlaces : PLACES;
+    const isRoute = routePlaces && routePlaces.length > 0;
+
+    list.forEach((p, idx) => {
+      const size = isRoute ? 26 : 14;
+      const html = isRoute
+        ? `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${p.color};border:2.5px solid white;box-shadow:0 2px 8px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;color:white;font-size:11px;font-weight:700;font-family:sans-serif">${idx+1}</div>`
+        : `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${p.color};border:2.5px solid white;box-shadow:0 2px 6px rgba(0,0,0,.3)"></div>`;
+      const marker = L.marker([p.lat, p.lng], { icon: L.divIcon({ className:'', html, iconSize:[size,size], iconAnchor:[size/2,size/2] }) })
+        .addTo(leafletMap)
+        .bindPopup(`<strong>${isRoute ? `${idx+1}. ` : ''}${p.name}</strong><br><span style="font-size:.85em;color:#666">${p.note||''}</span>`);
+      currentMarkers.push(marker);
+    });
+
+    if (list.length) leafletMap.fitBounds(L.latLngBounds(list.map(p => [p.lat, p.lng])), { padding: [40,40] });
+    if (isRoute && list.length >= 2) drawRoute(list);
+  }, 150);
+}
+
+async function drawRoute(places) {
+  try {
+    const coords = places.map(p => `${p.lng},${p.lat}`).join(';');
+    const data   = await (await fetch(`https://router.project-osrm.org/route/v1/driving/${coords}?overview=full&geometries=geojson`)).json();
+    if (data.code !== 'Ok' || !data.routes[0]) return;
+    const dist = (data.routes[0].distance / 1000).toFixed(1);
+    const mins = Math.round(data.routes[0].duration / 60);
+    currentRouteLayer = L.geoJSON(data.routes[0].geometry, { style: { color:'#3b82f6', weight:4, opacity:.8 } }).addTo(leafletMap);
+    leafletMap.fitBounds(currentRouteLayer.getBounds(), { padding:[40,40] });
+    const leg = document.querySelector('.map-legend');
+    if (leg) {
+      let ri = document.getElementById('routeInfo');
+      if (!ri) { ri = document.createElement('span'); ri.id = 'routeInfo'; ri.style.cssText = 'color:#3b82f6;font-weight:500;margin-left:auto'; leg.appendChild(ri); }
+      ri.textContent = `🚗 ${dist} km · ~${mins} ${lang === 'vi' ? 'phút' : 'min'}`;
+    }
+  } catch(e) { console.warn('OSRM:', e); }
+}
+
+function extractRoutePlaces(text) {
+  const lower = text.toLowerCase();
+  const map = {
+    'tràng an':'Tràng An','trang an':'Tràng An',
+    'hang múa':'Hang Múa','hang mua':'Hang Múa',
+    'tam cốc':'Tam Cốc','tam coc':'Tam Cốc',
+    'cố đô hoa lư':'Cố đô Hoa Lư','phố cổ hoa lư':'Cố đô Hoa Lư','hoa lư':'Cố đô Hoa Lư','hoa lu':'Cố đô Hoa Lư',
+    'chùa bái đính':'Chùa Bái Đính','bái đính':'Chùa Bái Đính','bai dinh':'Chùa Bái Đính',
+    'thung ui':'Thung Ui',
+    'heo say xỉn':'Heo Say Xỉn (GC22-23)','heo say xin':'Heo Say Xỉn (GC22-23)',
+    'lẩu gà':'Lẩu Gà Lá É (GC57-58)','lau ga':'Lẩu Gà Lá É (GC57-58)',
+    'đại long':'Đại Long Building — Cơm Cháy','dai long':'Đại Long Building — Cơm Cháy',
+    'legend hotel':'Legend Hotel','the reed':'The Reed Hotel',
+    'milan hotel':'Milan Hotel','rêu coffee':'Rêu Coffee & Stay','reu coffee':'Rêu Coffee & Stay',
+  };
+  const pos = [], seen = new Set();
+  for (const [key, name] of Object.entries(map)) {
+    const idx = lower.indexOf(key);
+    if (idx !== -1 && !seen.has(name)) { pos.push({ idx, name }); seen.add(name); }
+  }
+  return pos.sort((a,b) => a.idx - b.idx)
+    .map(({ name }) => PLACES.find(p => p.name === name))
+    .filter(Boolean);
+}
+
+function closeMap() {
+  document.getElementById('mapModal').classList.remove('open');
+  document.getElementById('routeInfo')?.remove();
+}
+document.getElementById('mapModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeMap(); });
+
+// ── ACTIONS ───────────────────────────────────────────
+function clearChat() { if (!confirm(i18n[lang].clearConfirm)) return; history = []; rebuildWelcome(); }
+function resetKey()  { if (!confirm(i18n[lang].keyConfirm)) return; apiKey = ''; localStorage.removeItem('nb_key'); document.getElementById('apiKeyInput').value = ''; document.getElementById('apiSetup').style.display = 'flex'; }
+function resetChat() { history = []; rebuildWelcome(); }
+function rebuildWelcome() {
+  document.getElementById('messages').innerHTML = `<div class="welcome" id="welcome"><h1 class="welcome-heading" id="welcomeHeading"></h1><p class="welcome-sub" id="welcomeSub"></p><div class="suggestions" id="sugGrid"></div></div>`;
+  applyLang();
+}
+
+// ── LANG ──────────────────────────────────────────────
+function toggleLang() {
+  lang = lang === 'vi' ? 'en' : 'vi';
+  localStorage.setItem('nb_lang', lang);
+  _sysCache = {}; // reset cache khi đổi ngôn ngữ
+  applyLang(); loadWeather();
+}
+function applyLang() {
+  const t = i18n[lang];
+  document.getElementById('brandTag').textContent      = t.brandTag;
+  document.getElementById('disclaimer').textContent    = t.disclaimer;
+  document.getElementById('langBtn').textContent       = t.langBtn;
+  document.getElementById('userInput').placeholder     = t.placeholder;
+  document.getElementById('hintText').textContent      = t.hint;
+  document.getElementById('apiText').innerHTML         = t.apiText;
+  document.getElementById('apiConnectBtn').textContent = t.apiBtn;
+  document.getElementById('clearBtn').setAttribute('data-tip', t.clearTip);
+  document.getElementById('keyBtn').setAttribute('data-tip', t.keyTip);
+  document.getElementById('mapTitle').textContent      = t.mapTitle;
+  const wh = document.getElementById('welcomeHeading'); if (wh) wh.innerHTML = t.welcomeH;
+  const ws = document.getElementById('welcomeSub');     if (ws) ws.textContent = t.welcomeSub;
+  const nav = document.getElementById('topicsNav'); nav.innerHTML = '';
+  t.chips.forEach((label, i) => {
+    const btn = document.createElement('button'); btn.className = 'chip'; btn.textContent = label;
+    btn.onclick = () => quickAsk(t.chipQ[i]); nav.appendChild(btn);
+  });
+  const grid = document.getElementById('sugGrid');
+  if (grid) {
+    grid.innerHTML = '';
+    t.sug.forEach(s => {
+      const btn = document.createElement('button'); btn.className = 'sug-btn';
+      btn.innerHTML = `<span class="sug-icon">${s.icon}</span><span class="sug-text">${s.text}</span><span class="sug-label">${s.label}</span>`;
+      btn.onclick = () => quickAsk(s.q); grid.appendChild(btn);
+    });
+  }
+}
+
+// ── API KEY ───────────────────────────────────────────
+function saveKey() {
+  const v = document.getElementById('apiKeyInput').value.trim();
+  if (!v.startsWith('AIza')) { alert(lang === 'vi' ? 'Key không hợp lệ (phải bắt đầu bằng AIza...)' : 'Invalid key (must start with AIza...)'); return; }
+  apiKey = v; localStorage.setItem('nb_key', v);
+  document.getElementById('apiSetup').style.display = 'none';
+}
+
+// ── HELPERS ───────────────────────────────────────────
+function quickAsk(text)  { document.getElementById('userInput').value = text; sendMessage(); }
+function handleKey(e)    { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
+function autoResize(el)  { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 100) + 'px'; }
+function removeWelcome() { document.getElementById('welcome')?.remove(); }
+function isItinerary(t)  {
+  return ['lịch trình','itinerary','ngày 1','ngày 2','day 1','day 2','checkin','check-in','tham quan','schedule','trốn phố','escape']
+    .some(k => t.toLowerCase().includes(k));
+}
+function md(text) {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .split('\n\n').map(p => `<p>${p.replace(/\n/g,'<br>')}</p>`).join('');
+}
+function addMsg(role, text) {
+  removeWelcome();
+  const wrap = document.getElementById('messages');
+  const el = document.createElement('div'); el.className = `msg ${role}`;
+  const av = document.createElement('div'); av.className = 'avatar'; av.textContent = role === 'ai' ? '✦' : i18n[lang].userAvatar;
+  const b  = document.createElement('div'); b.className  = 'bubble';
+  if (role === 'ai') b.innerHTML = md(text); else b.textContent = text;
+  if (role === 'user') { el.appendChild(b); el.appendChild(av); } else { el.appendChild(av); el.appendChild(b); }
+  wrap.appendChild(el); wrap.scrollTop = wrap.scrollHeight;
+}
+function showTyping() {
+  removeWelcome();
+  const wrap = document.getElementById('messages');
+  const el = document.createElement('div'); el.className = 'msg ai'; el.id = 'typing';
+  const av = document.createElement('div'); av.className = 'avatar'; av.textContent = '✦';
+  const b  = document.createElement('div'); b.className  = 'bubble';
+  // Typing indicator: dấu chấm động + text — không dùng class typing-text để tránh lẫn vào nội dung
+  b.innerHTML = `<div class="typing-indicator"><div class="typing-dots"><i></i><i></i><i></i></div><span>${i18n[lang].typingText}</span></div>`;
+  el.appendChild(av); el.appendChild(b); wrap.appendChild(el); wrap.scrollTop = wrap.scrollHeight;
+}
+function typewriterMsg(text, showMapBtn) {
+  removeWelcome();
+  const wrap = document.getElementById('messages');
+  const el = document.createElement('div'); el.className = 'msg ai';
+  const av = document.createElement('div'); av.className = 'avatar'; av.textContent = '✦';
+  const b  = document.createElement('div'); b.className  = 'bubble';
+  el.appendChild(av); el.appendChild(b); wrap.appendChild(el);
+
+  let i = 0;
+  const step = Math.max(1, Math.ceil(text.length / 300));
+
+  function tick() {
+    if (i < text.length) {
+      i = Math.min(i + step, text.length);
+      // FIX: cursor dùng CSS class, không phải text — tránh lẫn vào clipboard
+      b.innerHTML = md(text.slice(0, i)) + '<span class="tw-cursor">▋</span>';
+      wrap.scrollTop = wrap.scrollHeight;
+      setTimeout(tick, 14);
+    } else {
+      b.innerHTML = md(text);
+      // Thanh action
+      const actions = document.createElement('div'); actions.className = 'msg-actions';
+      // Nút copy
+      const copyBtn = document.createElement('button'); copyBtn.className = 'copy-btn';
+      copyBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
+      copyBtn.title = lang === 'vi' ? 'Sao chép' : 'Copy';
+      copyBtn.onclick = () => {
+        navigator.clipboard.writeText(text).then(() => {
+          copyBtn.classList.add('copied');
+          copyBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+          setTimeout(() => {
+            copyBtn.classList.remove('copied');
+            copyBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
+          }, 2000);
+        });
+      };
+      actions.appendChild(copyBtn);
+      // Nút bản đồ
+      if (showMapBtn) {
+        const rp = extractRoutePlaces(text);
+        const mapBtn = document.createElement('button'); mapBtn.className = 'map-btn';
+        mapBtn.textContent = rp.length >= 2
+          ? (lang === 'vi' ? `🗺️ Xem lộ trình ${rp.length} điểm` : `🗺️ View route — ${rp.length} stops`)
+          : i18n[lang].showMap;
+        mapBtn.onclick = () => openMap(rp);
+        actions.appendChild(mapBtn);
+      }
+      b.appendChild(actions);
+      wrap.scrollTop = wrap.scrollHeight;
+    }
+  }
+  tick();
+}
+
+// ── SEND ──────────────────────────────────────────────
+async function callGemini(retries = 1) {
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        system_instruction: { parts: [{ text: getSystemCached(lang) }] },
+        contents: history,
+        generationConfig: { temperature: 0.8, maxOutputTokens: 8192 },
+      }),
+    }
+  );
+  if ((res.status === 503 || res.status === 429) && retries > 0) {
+    await new Promise(r => setTimeout(r, 5000));
+    return callGemini(retries - 1);
+  }
+  return res;
+}
+
+async function sendMessage() {
+  const inp  = document.getElementById('userInput');
+  const text = inp.value.trim();
+  if (!text) return;
+  if (!apiKey) {
+    document.getElementById('apiSetup').style.display = 'flex';
+    alert(lang === 'vi' ? 'Vui lòng nhập Gemini API Key trước.' : 'Please enter your Gemini API Key first.');
+    return;
+  }
+  inp.value = ''; inp.style.height = 'auto';
+  document.getElementById('sendBtn').disabled = true;
+  addMsg('user', text);
+  history.push({ role:'user', parts:[{ text }] });
+  showTyping();
+  try {
+    const res = await callGemini();
+    const d   = await res.json();
+    document.getElementById('typing')?.remove();
+    if (d.error) {
+      const isRate = (d.error.message||'').match(/quota|rate|429|limit/i);
+      addMsg('ai', isRate ? i18n[lang].rateLimitMsg : i18n[lang].errorMsg);
+    } else {
+      const reply   = d.candidates?.[0]?.content?.parts?.[0]?.text || (lang === 'vi' ? 'Xin lỗi, thử lại nhé!' : 'Sorry, please try again!');
+      const showMap = isItinerary(text) || isItinerary(reply);
+      typewriterMsg(reply, showMap);
+      history.push({ role:'model', parts:[{ text: reply }] });
+      if (history.length > 20) history = history.slice(-20);
+    }
+  } catch {
+    document.getElementById('typing')?.remove();
+    addMsg('ai', i18n[lang].errorMsg);
+  }
+  document.getElementById('sendBtn').disabled = false;
+  inp.focus();
+}
+</script>
+</body>
+</html>
