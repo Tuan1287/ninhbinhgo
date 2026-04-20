@@ -156,13 +156,6 @@
   .hint{font-size:.7rem;color:var(--muted);margin-top:.45rem;text-align:center;font-weight:300}
 
   /* ── RESPONSIVE ── */
-  .share-btn{display:inline-flex;align-items:center;gap:.4rem;background:var(--tag-bg);border:1.5px solid var(--border);color:var(--muted);border-radius:8px;padding:.45rem .9rem;font-size:.8rem;font-family:"Nunito",sans-serif;font-weight:500;cursor:pointer;transition:all .15s}
-  .share-btn:hover{background:var(--ink);color:white;border-color:var(--ink)}
-  .rating-wrap{display:flex;gap:.3rem;margin-top:.4rem}
-  .rate-btn{background:transparent;border:1px solid var(--border);border-radius:6px;padding:.28rem .6rem;font-size:.8rem;cursor:pointer;transition:all .15s;color:var(--muted)}
-  .rate-btn:hover{border-color:var(--ink);color:var(--ink)}
-  .rate-btn.active-up{background:#f0fdf4;border-color:#10b981;color:#10b981}
-  .rate-btn.active-down{background:#fff1f1;border-color:#ef4444;color:#ef4444}
   @media(max-width:400px){.suggestions{grid-template-columns:1fr}}
   @media(max-width:540px){
     header{padding:.75rem 1rem}
@@ -557,7 +550,6 @@ function md(text) {
 // ── RENDER MESSAGE ───────────────────────────────────
 const SVG_COPY  = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
 const SVG_CHECK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
-const SVG_SHARE = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>`;
 
 function _buildMsgEl(role, text) {
   const el = document.createElement('div'); el.className = `msg ${role}`;
@@ -625,40 +617,6 @@ function makeCopyBtn(text) {
   };
   return btn;
 }
-function makeShareBtn(text) {
-  const btn = document.createElement('button'); btn.className = 'share-btn';
-  btn.innerHTML = SVG_SHARE + ' ' + (lang === 'vi' ? 'Chia sẻ' : 'Share');
-  btn.onclick = async () => {
-    const shareText = text.replace(/<[^>]*>/g, '').slice(0, 500);
-    if (navigator.share) {
-      try { await navigator.share({ title: 'Ninh Bình AI', text: shareText, url: location.href }); return; } catch {}
-    }
-    navigator.clipboard.writeText(shareText + '\n\n— Ninh Bình AI: ' + location.href).then(() => {
-      btn.textContent = lang === 'vi' ? '✓ Đã sao chép!' : '✓ Copied!';
-      setTimeout(() => { btn.innerHTML = SVG_SHARE + ' ' + (lang === 'vi' ? 'Chia sẻ' : 'Share'); }, 2000);
-    });
-  };
-  return btn;
-}
-function makeRatingWrap(text) {
-  const wrap = document.createElement('div'); wrap.className = 'rating-wrap';
-  const up = document.createElement('button'); up.className = 'rate-btn'; up.textContent = '👍';
-  const dn = document.createElement('button'); dn.className = 'rate-btn'; dn.textContent = '👎';
-  up.title = lang === 'vi' ? 'Hữu ích' : 'Helpful';
-  dn.title = lang === 'vi' ? 'Chưa tốt' : 'Not helpful';
-  up.onclick = () => { up.classList.toggle('active-up'); dn.classList.remove('active-down'); saveRating(text, 1); };
-  dn.onclick = () => { dn.classList.toggle('active-down'); up.classList.remove('active-up'); saveRating(text, -1); };
-  wrap.appendChild(up); wrap.appendChild(dn);
-  return wrap;
-}
-function saveRating(text, val) {
-  try {
-    const ratings = JSON.parse(localStorage.getItem('nb_ratings') || '[]');
-    ratings.push({ q: lastQuestion.slice(0, 80), v: val, ts: Date.now() });
-    if (ratings.length > 50) ratings.shift();
-    localStorage.setItem('nb_ratings', JSON.stringify(ratings));
-  } catch {}
-}
 
 // ── TYPEWRITER (requestAnimationFrame) ───────────────
 function typewriterMsg(text, showMapBtn) {
@@ -695,8 +653,7 @@ function typewriterMsg(text, showMapBtn) {
         mapBtn.onclick = () => openMap(rp);
         actions.appendChild(mapBtn);
       }
-      actions.appendChild(makeShareBtn(text));
-      actions.appendChild(makeRatingWrap(text));
+
       b.appendChild(actions);
       wrap.scrollTop = wrap.scrollHeight;
     }
