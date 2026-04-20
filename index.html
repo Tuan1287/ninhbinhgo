@@ -71,17 +71,17 @@
   #messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
 
   /* ── WELCOME ── */
-  .welcome{display:flex;flex-direction:column;align-items:flex-start;gap:1.5rem;padding:.5rem 0;max-width:600px}
-  .welcome-heading{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,4vw,2.5rem);line-height:1.15;letter-spacing:-.03em}
+  .welcome{display:flex;flex-direction:column;align-items:flex-start;gap:1rem;padding:.5rem 0;max-width:760px}
+  .welcome-heading{font-family:'Playfair Display',serif;font-size:clamp(1.5rem,3vw,2rem);line-height:1.15;letter-spacing:-.03em}
   .welcome-heading em{font-style:italic;color:var(--muted)}
-  .welcome-sub{font-size:.875rem;color:var(--muted);line-height:1.7;font-weight:300;max-width:420px}
-  .suggestions{display:grid;grid-template-columns:repeat(2,1fr);gap:.5rem;width:100%;max-width:520px}
-  .sug-btn{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.85rem 1rem;text-align:left;cursor:pointer;font-family:'Nunito',sans-serif;transition:all .15s}
+  .welcome-sub{font-size:.82rem;color:var(--muted);line-height:1.6;font-weight:300;max-width:600px}
+  .suggestions{display:grid;grid-template-columns:repeat(3,1fr);gap:.4rem;width:100%;max-width:720px}
+  .sug-btn{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.6rem .75rem;text-align:left;cursor:pointer;font-family:'Nunito',sans-serif;transition:all .15s}
   .sug-btn:hover{border-color:var(--ink);background:var(--ink);color:white}
   .sug-btn:hover .sug-label{color:rgba(255,255,255,.5)}
-  .sug-icon{font-size:1rem;margin-bottom:.35rem;display:block}
-  .sug-text{font-size:.82rem;font-weight:400;line-height:1.4;display:block}
-  .sug-label{font-size:.7rem;color:var(--muted);display:block;margin-top:.2rem;font-weight:300}
+  .sug-icon{font-size:.95rem;margin-bottom:.25rem;display:block}
+  .sug-text{font-size:.78rem;font-weight:400;line-height:1.3;display:block}
+  .sug-label{font-size:.68rem;color:var(--muted);display:block;margin-top:.15rem;font-weight:300}
 
   /* ── MSG ── */
   .msg{display:flex;gap:.75rem;animation:fadeIn .25s ease;max-width:720px}
@@ -154,9 +154,12 @@
   #sendBtn:disabled{opacity:.2;cursor:not-allowed}
   #sendBtn svg{width:14px;height:14px;fill:white}
   .hint{font-size:.7rem;color:var(--muted);margin-top:.45rem;text-align:center;font-weight:300}
+  .turn-counter{font-size:.7rem;color:var(--muted);text-align:right;margin-top:.3rem;font-weight:300;transition:color .3s}
+  .turn-counter.warn{color:#d97706;font-weight:500}
+  .turn-counter.full{color:#ef4444;font-weight:500}
 
   /* ── RESPONSIVE ── */
-  @media(max-width:400px){.suggestions{grid-template-columns:1fr}}
+  @media(max-width:400px){.suggestions{grid-template-columns:1fr;gap:.35rem}}
   @media(max-width:540px){
     header{padding:.75rem 1rem}
     #disclaimer{display:none}
@@ -164,7 +167,7 @@
     #messages{padding:1.25rem 1rem}
     .input-area{padding:.75rem 1rem .9rem}
     .api-notice{margin:.75rem 1rem 0}
-    .suggestions{grid-template-columns:1fr}
+    .suggestions{grid-template-columns:repeat(2,1fr)}
     .msg.user{max-width:85%}
     #weatherDesc{display:none}
   }
@@ -229,6 +232,7 @@
     </button>
   </div>
   <p class="hint" id="hintText"></p>
+  <p class="turn-counter" id="turnCounter"></p>
 </div>
 
 <div id="mapModal">
@@ -271,6 +275,7 @@ let history      = [];
 let lastQuestion = '';
 let leafletMap   = null, currentRouteLayer = null, currentMarkers = [];
 let _sysCache    = {};
+const MAX_TURNS  = 10; // giới hạn turns/phiên
 
 // ── SYSTEM PROMPT CACHE ──────────────────────────────
 function getSystemCached(l) {
@@ -290,7 +295,7 @@ function loadHistory() {
     if (!raw) return;
     const { history: h, ts } = JSON.parse(raw);
     if (!h || !h.length) return;
-    if (Date.now() - ts > 7 * 86400000) { localStorage.removeItem('nb_history'); return; }
+    if (Date.now() - ts > 2 * 86400000) { localStorage.removeItem('nb_history'); return; }
     history = h;
     document.getElementById('welcome')?.remove();
     history.forEach(m => {
@@ -298,6 +303,7 @@ function loadHistory() {
       if (m.role === 'model') addMsgRaw('ai',   m.parts[0].text);
     });
   } catch(e) { localStorage.removeItem('nb_history'); }
+  updateTurnCounter();
 }
 
 // ── LAZY LEAFLET ─────────────────────────────────────
@@ -457,7 +463,7 @@ document.getElementById('mapModal').addEventListener('click', e => {
 // ── ACTIONS ──────────────────────────────────────────
 function clearChat() {
   if (!confirm(i18n[lang].clearConfirm)) return;
-  history = []; localStorage.removeItem('nb_history'); rebuildWelcome();
+  history = []; localStorage.removeItem('nb_history'); rebuildWelcome(); updateTurnCounter();
 }
 function resetKey() {
   if (!confirm(i18n[lang].keyConfirm)) return;
@@ -465,7 +471,7 @@ function resetKey() {
   document.getElementById('apiKeyInput').value = '';
   document.getElementById('apiSetup').style.display = 'flex';
 }
-function resetChat() { history = []; localStorage.removeItem('nb_history'); rebuildWelcome(); }
+function resetChat() { history = []; localStorage.removeItem('nb_history'); rebuildWelcome(); updateTurnCounter(); }
 function rebuildWelcome() {
   document.getElementById('messages').innerHTML = `<div class="welcome" id="welcome"><h1 class="welcome-heading" id="welcomeHeading"></h1><p class="welcome-sub" id="welcomeSub"></p><div class="suggestions" id="sugGrid"></div></div>`;
   applyLang();
@@ -476,7 +482,7 @@ function toggleLang() {
   lang = lang === 'vi' ? 'en' : 'vi';
   localStorage.setItem('nb_lang', lang);
   _sysCache = {};
-  applyLang(); loadWeather();
+  applyLang(); loadWeather(); updateTurnCounter();
 }
 function applyLang() {
   const t = i18n[lang];
@@ -524,6 +530,31 @@ function scrollToBottom() {
   const msg = document.getElementById('messages');
   msg.scrollTop = msg.scrollHeight;
   document.getElementById('scrollBtn').classList.remove('show');
+}
+
+// ── TURN COUNTER ─────────────────────────────────────
+function updateTurnCounter() {
+  const turns = Math.floor(history.filter(m => m.role === 'user').length);
+  const el = document.getElementById('turnCounter');
+  if (!el) return;
+  const remaining = MAX_TURNS - turns;
+  if (remaining <= 0) {
+    el.textContent = lang === 'vi' ? '🔒 Đã đủ 10 câu hỏi — nhấn 🗑️ để bắt đầu đoạn chat mới' : '🔒 10 questions reached — press 🗑️ to start a new chat';
+    el.className = 'turn-counter full';
+    document.getElementById('sendBtn').disabled = true;
+    document.getElementById('userInput').disabled = true;
+    document.getElementById('userInput').placeholder = lang === 'vi' ? 'Bắt đầu đoạn chat mới ↑' : 'Start a new chat ↑';
+  } else if (remaining <= 3) {
+    el.textContent = lang === 'vi' ? `Còn ${remaining} câu hỏi trong đoạn chat này` : `${remaining} questions left in this chat`;
+    el.className = 'turn-counter warn';
+    document.getElementById('sendBtn').disabled = false;
+    document.getElementById('userInput').disabled = false;
+  } else {
+    el.textContent = lang === 'vi' ? `${turns}/10 câu hỏi` : `${turns}/10 questions`;
+    el.className = 'turn-counter';
+    document.getElementById('sendBtn').disabled = false;
+    document.getElementById('userInput').disabled = false;
+  }
 }
 document.getElementById('messages').addEventListener('scroll', function() {
   const atBottom = this.scrollHeight - this.scrollTop - this.clientHeight < 60;
@@ -686,6 +717,12 @@ async function sendMessage(retryText) {
   const inp  = document.getElementById('userInput');
   const text = retryText || inp.value.trim();
   if (!text) return;
+  // Kiểm tra giới hạn turns
+  const userTurns = history.filter(m => m.role === 'user').length;
+  if (userTurns >= MAX_TURNS) {
+    updateTurnCounter();
+    return;
+  }
   if (!apiKey) {
     document.getElementById('apiSetup').style.display = 'flex';
     alert(lang === 'vi' ? 'Vui lòng nhập Gemini API Key trước.' : 'Please enter your Gemini API Key first.');
@@ -696,6 +733,7 @@ async function sendMessage(retryText) {
   document.getElementById('sendBtn').disabled = true;
   addMsg('user', text);
   history.push({ role:'user', parts:[{ text }] });
+  updateTurnCounter();
   showTyping();
   try {
     const res = await callGemini();
@@ -712,6 +750,7 @@ async function sendMessage(retryText) {
       history.push({ role:'model', parts:[{ text: reply }] });
       if (history.length > 20) history = history.slice(-20);
       saveHistory();
+      updateTurnCounter();
     }
   } catch {
     document.getElementById('typing')?.remove();
@@ -730,6 +769,7 @@ applyLang();
 loadWeather();
 loadHistory();
 setTimeout(() => getSystemCached(lang), 2000); // pre-warm system prompt
+updateTurnCounter();
 
 </script>
 </body>
