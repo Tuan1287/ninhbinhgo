@@ -30,6 +30,7 @@ let lastQuestion = '';
 let leafletMap   = null, currentRouteLayer = null, currentMarkers = [];
 let _sysCache    = {};
 const MAX_TURNS  = 10; // giới hạn turns/phiên
+let _weatherState = { temp: null, code: null }; // thời tiết realtime cho system prompt
 
 // ── SYSTEM PROMPT CACHE ──────────────────────────────
 function getSystemCached(l) {
@@ -94,6 +95,8 @@ async function loadWeather() {
   }
 }
 function renderWeather(temp, code) {
+  _weatherState = { temp, code };
+  _sysCache = {}; // reset cache để system prompt cập nhật thời tiết mới
   const { icon, desc } = weatherInfo(code, lang);
   document.getElementById('weatherIcon').textContent = icon;
   document.getElementById('weatherTemp').textContent = `${temp}°C`;
@@ -315,6 +318,21 @@ document.getElementById('messages').addEventListener('scroll', function() {
   document.getElementById('scrollBtn').classList.toggle('show', !atBottom);
 });
 
+// Ẩn scroll hint khi user scroll topics lần đầu
+(function() {
+  const nav = document.getElementById('topicsNav');
+  const hint = document.getElementById('scrollHint');
+  if (!nav || !hint) return;
+  // Ẩn hint nếu topics không overflow (không cần scroll)
+  setTimeout(() => {
+    if (nav.scrollWidth <= nav.clientWidth) hint.classList.add('hide');
+  }, 500);
+  nav.addEventListener('scroll', function onScroll() {
+    hint.classList.add('hide');
+    nav.removeEventListener('scroll', onScroll);
+  }, { once: true });
+})();
+
 // ── HELPERS ──────────────────────────────────────────
 function quickAsk(promptText, displayText) {
   // displayText: hiển thị ngắn gọn lên chat (ví dụ: "Lịch trình 2 ngày 1 đêm")
@@ -324,7 +342,12 @@ function quickAsk(promptText, displayText) {
 }
 function handleKey(e)    { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
 function autoResize(el)  { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 100) + 'px'; }
-function removeWelcome() { document.getElementById('welcome')?.remove(); }
+function removeWelcome() {
+  const w = document.getElementById('welcome');
+  if (!w) return;
+  w.classList.add('fading');
+  setTimeout(() => w.remove(), 260); // khớp với transition .25s
+}
 function isItinerary(t)  {
   return ['lịch trình','itinerary','ngày 1','ngày 2','day 1','day 2','checkin','check-in',
           'tham quan','schedule','trốn phố','escape','foodtour','food tour','ăn vặt','đặc sản']
