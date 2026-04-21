@@ -1,76 +1,123 @@
-// ============================================================
-//  NINH BÌNH AI — System Prompt cho AI
-//  File: system.js
-//
-//  - Giá vé tự động lấy từ khudiem.js (không cần sửa 2 nơi)
-//  - Thông tin địa điểm từ places.js
-//  - Khoảng cách từ khoangcach.js
-// ============================================================
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ninh Bình AI — Trợ lý du lịch</title>
+<meta name="description" content="Trợ lý du lịch AI cho Ninh Bình — lịch trình, địa điểm, ăn uống, di chuyển. Miễn phí, không cần đăng ký.">
+<meta name="keywords" content="Ninh Bình, du lịch, Tràng An, Hang Múa, Tam Cốc, lịch trình, AI">
+<meta property="og:title" content="Ninh Bình AI — Trợ lý du lịch">
+<meta property="og:description" content="Hỏi bất kỳ điều gì về du lịch Ninh Bình — AI trả lời ngay, miễn phí.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#111110">
+<link rel="manifest" href="manifest.json">
 
-function getSystem(l) {
-  const isVi = l === 'vi';
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏔️</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
+<!-- Leaflet CSS load lazy khi cần — không block First Paint -->
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
 
-  // ── Giá vé tự động từ khudiem.js ─────────────────────
-  const ticketLines = (typeof ATTRACTIONS !== 'undefined' ? ATTRACTIONS : [])
-    .map(a => {
-      const name   = isVi ? a.name   : a.nameEn;
-      const ticket = isVi ? a.ticket : a.ticketEn;
-      return `- ${name}: ${ticket}. ${isVi ? 'Mở cửa' : 'Open'} ${a.hours}`;
-    }).join('\n');
+<header>
+  <div class="header-left">
+    <div class="brand" onclick="resetChat()">
+      <span class="brand-name">Ninh Bình AI</span>
+      <span class="brand-tag" id="brandTag"></span>
+    </div>
+    <div id="weatherPill" title="Thời tiết Ninh Bình hiện tại">
+      <span id="weatherIcon">⏳</span>
+      <span id="weatherTemp">--°C</span>
+      <span id="weatherDesc"></span>
+    </div>
+  </div>
+  <div class="header-right">
+    <span id="disclaimer"></span>
+    <button class="icon-btn" id="clearBtn" onclick="clearChat()">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
+      </svg>
+    </button>
+    <button class="icon-btn" id="keyBtn" onclick="resetKey()">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="8" cy="15" r="3"/><path d="M11 15h9"/><path d="M17 12l3 3-3 3"/>
+      </svg>
+    </button>
+    <button id="langBtn" onclick="toggleLang()">EN</button>
+  </div>
+</header>
 
-  const ticketBlock = isVi
-    ? `\nGIÁ VÉ CẬP NHẬT 2026:\n${ticketLines}\n`
-    : `\nTICKET PRICES 2026:\n${ticketLines}\n`;
+<div class="topics-wrap">
+  <nav class="topics" id="topicsNav"></nav>
+  <span class="scroll-hint" id="scrollHint">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#888884" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="9 18 15 12 9 6"/>
+    </svg>
+  </span>
+</div>
 
-  // ── Nội dung cơ bản ───────────────────────────────────
-  const base = isVi ? `Bạn là trợ lý du lịch chuyên về Ninh Bình, Việt Nam. Trả lời thân thiện, thực tế, chi tiết.
+<div id="msgWrap">
+<button id="scrollBtn" onclick="scrollToBottom()" title="Xuống cuối">↓</button>
+<div id="messages">
+  <div class="welcome" id="welcome">
+    <h1 class="welcome-heading" id="welcomeHeading"></h1>
+    <p class="welcome-sub" id="welcomeSub"></p>
+    <p class="seo-intro">
+      Ninh Bình — vùng đất của <strong>Tràng An, Hang Múa, Tam Cốc</strong> và cố đô Hoa Lư ngàn năm lịch sử.
+      Hỏi tôi về lịch trình, giá vé, chỗ ở, đặc sản, cách di chuyển từ Hà Nội —
+      AI trả lời dựa trên dữ liệu thực tế 2026, miễn phí.
+    </p>
+    <div class="suggestions" id="sugGrid"></div>
+  </div>
+</div>
+</div>
 
-CHECKIN/CHECKOUT: Hầu hết khách sạn checkin 14h, checkout 12h trưa. Luôn tính đến điều này khi lập lịch trình.
+<div class="api-notice" id="apiSetup">
+  <p id="apiText"></p>
+  <div class="key-row">
+    <input type="password" id="apiKeyInput" placeholder="AIzaSy..."/>
+    <button id="apiConnectBtn" onclick="saveKey()"></button>
+  </div>
+</div>
 
-LỊCH TRÌNH MẪU 2N1Đ:
-Ngày 1: Đến sáng → gửi hành lý → 8h Tràng An → 12h ăn trưa → 14h nhận phòng → 15h Phố cổ Hoa Lư → 18h ăn tối Heo Say Xỉn hoặc Lẩu gà lá é → tối dạo phố cổ
-Ngày 2: 6h30 leo Hang Múa → 9h30 Tam Cốc → 12h trả phòng → chiều về hoặc ghé Bái Đính
+<div class="input-area">
+  <div class="input-row">
+    <textarea id="userInput" rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+    <button id="sendBtn" onclick="sendMessage()">
+      <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+    </button>
+  </div>
+  <p class="hint" id="hintText"></p>
+  <p class="turn-counter" id="turnCounter"></p>
+</div>
 
-ẨM THỰC ĐẶC SẢN: Cơm cháy (30-60k), dê núi, cá rô tổng trứng, nem chua Yên Mạc, miến lươn, gỏi nhệch Kim Sơn, bún chả quạt (CHỈ mở 6h-10h sáng — phải đến sớm)
-ĂN VẶT ĐƯỜNG PHỐ (ăn vặt buổi tối): Phố cổ Hoa Lư là điểm ăn vặt số 1 — Heo Say Xỉn (GC22-23), Lẩu Gà Lá É (GC57-58), bánh rán, thịt xiên nướng, trà chanh. Phố 8 Lương Văn Tụy: kem xôi Thanh Hằng, bánh mì Cố Đô, chè bưởi An Giang, bánh tráng trộn. Công viên Thúy Sơn: nem nướng Nha Trang buổi tối.
-FOODTOUR NINH BÌNH: Khi khách hỏi về foodtour hoặc kết hợp ăn vặt + tham quan, lên chương trình theo khung giờ thực tế, ưu tiên địa điểm ăn gần điểm tham quan để tiết kiệm di chuyển.
-DI CHUYỂN: Xe khách HN-NB (80-150k, 1-2h), Limousine (~200k)
-THỜI TIẾT ĐẸP: Tháng 9-11 (lúa vàng), tháng 5-6. Tránh tháng 7-8 (mưa bão)
+<div id="mapModal">
+  <div class="map-panel">
+    <div class="map-header">
+      <h3 id="mapTitle"></h3>
+      <button class="map-close" onclick="closeMap()">✕</button>
+    </div>
+    <div id="map"></div>
+    <div class="map-legend">
+      <span class="legend-item"><span class="legend-dot" style="background:#ef4444"></span> Tham quan</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#3b82f6"></span> Lưu trú</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#f59e0b"></span> Ăn uống</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#10b981"></span> Mua sắm</span>
+    </div>
+  </div>
+</div>
 
-QUY TẮC LẬP LỊCH TRÌNH:
-- Tính thời gian di chuyển thực tế giữa các điểm (dựa vào bảng khoảng cách đã cung cấp)
-- Khách đến sớm trước 14h: BẮT BUỘC gợi ý gửi hành lý tại cơ sở lưu trú, nhận phòng lúc 14h
-- Lịch trình xe máy tự lái từ HN: ~93km, ~130 phút. Khách tự lái xe của họ, KHÔNG phải thuê xe tại Ninh Bình. Gợi ý chỗ ở có bãi đỗ xe: Milan Hotel (đối diện phố cổ), Hang Mua Ecolodge (trong khuôn viên Hang Múa), Tràng An Retreat (gần bến thuyền)
-- Lịch trình 12 tiếng (14h→12h): Chiều checkin + tham quan Phố cổ Hoa Lư + ăn tối, Sáng dậy sớm 6h30 tham quan 1-2 điểm chính, 12h trả phòng. Sau đó GỢI Ý THÊM lịch trình bonus 12h-17h trước khi về (Bái Đính, mua cơm cháy Đại Long, ăn trưa đặc sản)
-- Tối đa 2-3 điểm/buổi, không nhồi lịch trình` :
+<!-- Thứ tự load quan trọng: dữ liệu trước, logic sau -->
+<script src="i18n.js"></script>
+<script src="khudiem.js"></script>
+<script src="khoangcach.js"></script>
+<script src="luutru.js"></script>
+<script src="nhahang.js"></script>
+<script src="anvat.js"></script>
+<script src="places.js"></script>
+<script src="system.js"></script>
 
-`You are a travel assistant specializing in Ninh Binh, Vietnam. Reply in a friendly, practical, and detailed manner.
-
-CHECK-IN/OUT: Most hotels check-in 2pm, check-out 12pm noon. Always factor this into itinerary planning.
-
-SAMPLE 2D1N ITINERARY:
-Day 1: Arrive morning → drop luggage → 8am Trang An → 12pm lunch → 2pm check-in → 3pm Hoa Lu Old Quarter → 6pm dinner → evening stroll
-Day 2: 6:30am Hang Mua → 9:30am Tam Coc → 12pm check-out → afternoon head home or visit Bai Dinh
-
-LOCAL SPECIALTIES: Burnt rice (30-60k), mountain goat, braised carp, eel vermicelli, Kim Son eel salad, grilled pork noodles (OPEN 6–10am ONLY — must go early)
-STREET FOOD (evening snacks): Hoa Lu Old Quarter is the #1 street food hub — Heo Say Xin (GC22-23), herb chicken hotpot (GC57-58), fried pancakes, grilled skewers, lemon tea. Pho 8 / Luong Van Tuy street: sticky rice ice cream (Thanh Hang), Banh Mi Co Do, grapefruit sweet soup, rice paper salad. Thuy Son Park: grilled spring rolls at night.
-FOODTOUR: When asked about foodtour or combining street food + sightseeing, plan by realistic time slots and prioritize eateries near visited attractions.
-TRANSPORT: Bus Hanoi-NB (80-150k, 1-2hrs), Limousine (~200k)
-BEST TIME: Sep-Nov (golden rice), May-Jun. Avoid Jul-Aug (typhoons)
-
-ITINERARY RULES:
-- Factor in realistic travel time between places (use the distance table provided)
-- Guests arriving before 2pm: ALWAYS suggest luggage drop at accommodation, room ready at 2pm
-- Motorbike itinerary: guests ride their OWN bike from Hanoi (~93km, ~130min). NEVER suggest renting a motorbike in Ninh Binh. Suggest accommodation with parking: Milan Hotel (opposite Old Quarter), Hang Mua Ecolodge (inside Hang Mua complex), Trang An Retreat (near wharf)
-- 12-hour itinerary (2pm→12pm): Check-in + Old Quarter + dinner, Early 6:30am visit 1-2 main sites, Check-out 12pm. Then SUGGEST BONUS itinerary 12pm-5pm (Bai Dinh, burnt rice at Dai Long, specialty lunch)
-- Max 2-3 attractions per half-day, never overpack`;
-
-  // ── Ghép dữ liệu từ các file data ────────────────────
-  const priority  = typeof buildPriorityContext  === 'function' ? buildPriorityContext(l)  : '';
-  const distances = typeof buildDistanceContext  === 'function' ? buildDistanceContext(l)  : '';
-  const style     = isVi
-    ? '\n\nPhong cách: Emoji điểm xuyết, số liệu cụ thể, khung giờ rõ ràng, luôn nhắc checkin 14h/checkout 12h. Trả lời bằng tiếng Việt.'
-    : '\n\nStyle: Use emojis, specific figures, clear hourly schedules, always note check-in 2pm/check-out 12pm. Reply in English.';
-
-  return ticketBlock + base + priority + distances + style;
-}
+<script src="app.js"></script>
+</body>
+</html>
