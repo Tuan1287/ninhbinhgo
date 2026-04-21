@@ -43,6 +43,11 @@
   /* ── TOPICS ── */
   .topics-wrap{position:relative;background:var(--surface);border-bottom:1px solid var(--border)}
   .topics-wrap::after{content:"";position:absolute;right:0;top:0;bottom:0;width:48px;background:linear-gradient(to right,transparent,var(--surface));pointer-events:none}
+  /* mũi tên gợi ý scroll ngang — ẩn sau lần đầu user scroll */
+  .scroll-hint{position:absolute;right:6px;top:50%;transform:translateY(-50%);z-index:2;pointer-events:none;animation:hintBounce 1s ease-in-out 3;animation-fill-mode:forwards}
+  .scroll-hint svg{width:16px;height:16px;opacity:.55}
+  @keyframes hintBounce{0%,100%{transform:translateY(-50%) translateX(0);opacity:.55}50%{transform:translateY(-50%) translateX(4px);opacity:.9}}
+  .scroll-hint.hide{display:none}
   .topics{padding:.65rem 1.5rem;display:flex;gap:.4rem;overflow-x:auto;scrollbar-width:none}
   .topics::-webkit-scrollbar{display:none}
   .chip{background:var(--tag-bg);border:1px solid var(--border);color:var(--ink);padding:.3rem .8rem;border-radius:6px;font-size:.78rem;font-family:'Nunito',sans-serif;cursor:pointer;white-space:nowrap;transition:all .15s}
@@ -58,7 +63,8 @@
   #messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
 
   /* ── WELCOME ── */
-  .welcome{display:flex;flex-direction:column;align-items:flex-start;gap:1rem;padding:.5rem 0;max-width:760px}
+  .welcome{display:flex;flex-direction:column;align-items:flex-start;gap:1rem;padding:.5rem 0;max-width:760px;transition:opacity .25s ease,transform .25s ease}
+  .welcome.fading{opacity:0;transform:translateY(-6px);pointer-events:none}
   .welcome-heading{font-family:'Playfair Display',serif;font-size:clamp(1.5rem,3vw,2rem);line-height:1.15;letter-spacing:-.03em}
   .welcome-heading em{font-style:italic;color:var(--muted)}
   .welcome-sub{font-size:.82rem;color:var(--muted);line-height:1.6;font-weight:300;max-width:600px}
@@ -144,6 +150,10 @@
   .turn-counter{font-size:.7rem;color:var(--muted);text-align:right;margin-top:.3rem;font-weight:300;transition:color .3s}
   .turn-counter.warn{color:#d97706;font-weight:500}
   .turn-counter.full{color:#ef4444;font-weight:500}
+
+  /* ── SEO STATIC TEXT ── */
+  .seo-intro{font-size:.78rem;color:var(--muted);line-height:1.65;font-weight:300;max-width:600px;margin-top:.25rem}
+  .seo-intro strong{font-weight:500;color:var(--ink)}
 
   /* ── RESPONSIVE ── */
   @media(max-width:400px){.suggestions{grid-template-columns:1fr;gap:.35rem}}
