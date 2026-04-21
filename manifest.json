@@ -1,0 +1,17 @@
+{
+  "name": "Ninh Bình AI — Trợ lý du lịch",
+  "short_name": "Ninh Bình AI",
+  "description": "Hỏi bất kỳ điều gì về du lịch Ninh Bình — AI trả lời ngay, miễn phí.",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#f8f8f6",
+  "theme_color": "#111110",
+  "lang": "vi",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏔️</text></svg>",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
