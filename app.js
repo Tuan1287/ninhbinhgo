@@ -255,7 +255,7 @@ function applyLang() {
   const nav = document.getElementById('topicsNav'); nav.innerHTML = '';
   t.chips.forEach((label, i) => {
     const btn = document.createElement('button'); btn.className = 'chip';
-    btn.textContent = label; btn.onclick = () => quickAsk(t.chipQ[i]); nav.appendChild(btn);
+    btn.textContent = label; btn.onclick = () => quickAsk(t.chipQ[i], label); nav.appendChild(btn);
   });
   const grid = document.getElementById('sugGrid');
   if (grid) {
@@ -263,7 +263,7 @@ function applyLang() {
     t.sug.forEach(s => {
       const btn = document.createElement('button'); btn.className = 'sug-btn';
       btn.innerHTML = `<span class="sug-icon">${s.icon}</span><span class="sug-text">${s.text}</span><span class="sug-label">${s.label}</span>`;
-      btn.onclick = () => quickAsk(s.q); grid.appendChild(btn);
+      btn.onclick = () => quickAsk(s.q, s.text); grid.appendChild(btn);
     });
   }
 }
@@ -316,7 +316,12 @@ document.getElementById('messages').addEventListener('scroll', function() {
 });
 
 // ── HELPERS ──────────────────────────────────────────
-function quickAsk(text)  { document.getElementById('userInput').value = text; sendMessage(); }
+function quickAsk(promptText, displayText) {
+  // displayText: hiển thị ngắn gọn lên chat (ví dụ: "Lịch trình 2 ngày 1 đêm")
+  // promptText:  prompt đầy đủ gửi AI (ngầm, không hiện)
+  document.getElementById('userInput').value = promptText;
+  sendMessage(null, displayText || promptText);
+}
 function handleKey(e)    { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
 function autoResize(el)  { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 100) + 'px'; }
 function removeWelcome() { document.getElementById('welcome')?.remove(); }
@@ -467,7 +472,7 @@ async function callGemini(retries = 1) {
   return res;
 }
 
-async function sendMessage(retryText) {
+async function sendMessage(retryText, displayText) {
   const inp  = document.getElementById('userInput');
   const text = retryText || inp.value.trim();
   if (!text) return;
@@ -485,7 +490,7 @@ async function sendMessage(retryText) {
   lastQuestion = text;
   inp.value = ''; inp.style.height = 'auto';
   document.getElementById('sendBtn').disabled = true;
-  addMsg('user', text);
+  addMsg('user', displayText || text);   // hiển thị text ngắn, gửi AI text đầy đủ
   history.push({ role:'user', parts:[{ text }] });
   updateTurnCounter();
   showTyping();
