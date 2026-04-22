@@ -12,7 +12,7 @@
   body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--ink);height:100dvh;height:100vh;display:grid;grid-template-rows:auto auto 1fr auto auto;overflow:hidden}
 
   /* ── HEADER ── */
-  header{padding:.75rem 1.5rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:var(--surface);gap:1rem}
+  header{padding:.75rem 1.5rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:var(--surface);gap:1rem;position:relative}
   .header-left{display:flex;align-items:center;gap:1rem}
   .brand{display:flex;align-items:baseline;gap:.5rem;cursor:pointer}
   .brand:hover .brand-name{opacity:.65}
@@ -67,7 +67,7 @@
   .welcome.fading{opacity:0;transform:translateY(-6px);pointer-events:none}
   .welcome-heading{font-family:'Playfair Display',serif;font-size:clamp(1.5rem,3vw,2rem);line-height:1.15;letter-spacing:-.03em}
   .welcome-heading em{font-style:italic;color:var(--muted)}
-  .welcome-sub{font-size:.82rem;color:var(--muted);line-height:1.6;font-weight:300;max-width:600px}
+  .welcome-sub{font-size:.85rem;color:#555552;line-height:1.65;font-weight:400;max-width:600px;letter-spacing:.01em}
   .suggestions{display:grid;grid-template-columns:repeat(3,1fr);gap:.4rem;width:100%;max-width:720px}
   .sug-btn{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.6rem .75rem;text-align:left;cursor:pointer;font-family:'Nunito',sans-serif;transition:all .15s}
   .sug-btn:hover{border-color:var(--ink);background:var(--ink);color:white}
@@ -147,13 +147,15 @@
   #sendBtn:disabled{opacity:.2;cursor:not-allowed}
   #sendBtn svg{width:14px;height:14px;fill:white}
   .hint{font-size:.7rem;color:var(--muted);margin-top:.45rem;text-align:center;font-weight:300}
-  .turn-counter{font-size:.7rem;color:var(--muted);text-align:right;margin-top:.3rem;font-weight:300;transition:color .3s}
+  /* turn counter text (dưới input, nhỏ) */
+  .turn-counter{font-size:.68rem;color:var(--muted);text-align:right;margin-top:.25rem;font-weight:300;transition:color .3s}
   .turn-counter.warn{color:#d97706;font-weight:500}
   .turn-counter.full{color:#ef4444;font-weight:500}
-
-  /* ── SEO STATIC TEXT ── */
-  .seo-intro{font-size:.78rem;color:var(--muted);line-height:1.65;font-weight:300;max-width:600px;margin-top:.25rem}
-  .seo-intro strong{font-weight:500;color:var(--ink)}
+  /* progress bar mỏng trên header */
+  #turnBar{height:2px;background:transparent;position:absolute;bottom:0;left:0;right:0;overflow:hidden;pointer-events:none}
+  #turnBarFill{height:100%;width:0%;background:var(--border);transition:width .4s ease,background .4s}
+  #turnBar.warn #turnBarFill{background:#fcd34d}
+  #turnBar.full #turnBarFill{background:#ef4444}
 
   /* ── RESPONSIVE ── */
   @media(max-width:400px){.suggestions{grid-template-columns:1fr;gap:.35rem}}
