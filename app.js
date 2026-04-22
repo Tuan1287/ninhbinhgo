@@ -53,6 +53,12 @@ function loadHistory() {
     if (Date.now() - ts > 2 * 86400000) { localStorage.removeItem('nb_history'); return; }
     history = h;
     document.getElementById('welcome')?.remove();
+    // Badge báo đây là lịch sử chat cũ
+    const wrap = document.getElementById('messages');
+    const badge = document.createElement('div');
+    badge.style.cssText = 'text-align:center;font-size:.7rem;color:var(--muted);padding:.4rem 0 .6rem;font-style:italic;opacity:.7';
+    badge.textContent = lang === 'vi' ? '── Cuộc trò chuyện trước ──' : '── Previous conversation ──';
+    wrap.appendChild(badge);
     history.forEach(m => {
       if (m.role === 'user')  addMsgRaw('user', m.parts[0].text);
       if (m.role === 'model') addMsgRaw('ai',   m.parts[0].text);
@@ -291,23 +297,36 @@ function scrollToBottom() {
 
 // ── TURN COUNTER ─────────────────────────────────────
 function updateTurnCounter() {
-  const turns = Math.floor(history.filter(m => m.role === 'user').length);
-  const el = document.getElementById('turnCounter');
-  if (!el) return;
+  const turns    = history.filter(m => m.role === 'user').length;
+  const el       = document.getElementById('turnCounter');
+  const bar      = document.getElementById('turnBar');
+  const fill     = document.getElementById('turnBarFill');
   const remaining = MAX_TURNS - turns;
+  const pct      = Math.min((turns / MAX_TURNS) * 100, 100);
+
+  // Progress bar trên header
+  if (fill) fill.style.width = pct + '%';
+  if (bar)  bar.className = remaining <= 0 ? 'full' : remaining <= 3 ? 'warn' : '';
+
+  if (!el) return;
   if (remaining <= 0) {
-    el.textContent = lang === 'vi' ? '🔒 Đã đủ 10 câu hỏi — nhấn 🗑️ để bắt đầu đoạn chat mới' : '🔒 10 questions reached — press 🗑️ to start a new chat';
+    el.textContent = lang === 'vi' ? '🔒 Đã đủ 10 câu — nhấn 🗑️ để chat mới' : '🔒 10/10 — press 🗑️ for new chat';
     el.className = 'turn-counter full';
     document.getElementById('sendBtn').disabled = true;
     document.getElementById('userInput').disabled = true;
-    document.getElementById('userInput').placeholder = lang === 'vi' ? 'Bắt đầu đoạn chat mới ↑' : 'Start a new chat ↑';
+    document.getElementById('userInput').placeholder = lang === 'vi' ? 'Nhấn 🗑️ để bắt đầu đoạn chat mới' : 'Press 🗑️ to start a new chat';
   } else if (remaining <= 3) {
-    el.textContent = lang === 'vi' ? `Còn ${remaining} câu hỏi trong đoạn chat này` : `${remaining} questions left in this chat`;
+    el.textContent = lang === 'vi' ? `Còn ${remaining} câu hỏi` : `${remaining} left`;
     el.className = 'turn-counter warn';
     document.getElementById('sendBtn').disabled = false;
     document.getElementById('userInput').disabled = false;
+  } else if (turns > 0) {
+    el.textContent = lang === 'vi' ? `${turns}/10 câu hỏi` : `${turns}/10`;
+    el.className = 'turn-counter';
+    document.getElementById('sendBtn').disabled = false;
+    document.getElementById('userInput').disabled = false;
   } else {
-    el.textContent = lang === 'vi' ? `${turns}/10 câu hỏi` : `${turns}/10 questions`;
+    el.textContent = '';  // ẩn counter khi chưa hỏi gì
     el.className = 'turn-counter';
     document.getElementById('sendBtn').disabled = false;
     document.getElementById('userInput').disabled = false;
@@ -413,7 +432,12 @@ function showTyping() {
   const el = document.createElement('div'); el.className = 'msg ai'; el.id = 'typing';
   const av = document.createElement('div'); av.className = 'avatar'; av.textContent = '✦';
   const b  = document.createElement('div'); b.className  = 'bubble';
-  b.innerHTML = `<div class="typing-indicator"><div class="typing-dots"><i></i><i></i><i></i></div><span>${i18n[lang].typingText}</span></div>`;
+  const typingPhrases = {
+    vi: ['đang lên chương trình...', 'đang tra cứu thông tin...', 'đang xem xét...', 'để mình nghĩ xem...'],
+    en: ['planning your trip...', 'looking up info...', 'thinking it through...', 'let me check...'],
+  };
+  const phrase = typingPhrases[lang][Math.floor(Math.random() * typingPhrases[lang].length)];
+  b.innerHTML = `<div class="typing-indicator"><div class="typing-dots"><i></i><i></i><i></i></div><span>${phrase}</span></div>`;
   el.appendChild(av); el.appendChild(b);
   wrap.appendChild(el); wrap.scrollTop = wrap.scrollHeight;
 }
