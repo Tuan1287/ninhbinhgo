@@ -498,73 +498,179 @@ function typewriterMsg(text, showMapBtn) {
   requestAnimationFrame(tick);
 }
 
-// ── GEMINI API ────────────────────────────────────────
-async function callGemini(retries = 1) {
-  const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        system_instruction: { parts: [{ text: getSystemCached(lang) }] },
-        contents: history,
-        generationConfig: { temperature: 0.8, maxOutputTokens: 8192 },
-      }),
-    }
-  );
-  if ((res.status === 503 || res.status === 429) && retries > 0) {
-    await new Promise(r => setTimeout(r, 5000));
-    return callGemini(retries - 1);
+// ── GEMINI STREAMING API ─────────────────────────────
+// Model ưu tiên và dự phòng
+const MODELS = [
+  'gemini-2.5-flash',
+  'gemini-2.0-flash',
+];
+let _modelIdx = 0; // model đang dùng
+
+function getApiUrl(stream = true) {
+  const model  = MODELS[_modelIdx] || MODELS[0];
+  const action = stream ? 'streamGenerateContent?alt=sse' : 'generateContent';
+  return `https://generativelanguage.googleapis.com/v1beta/models/${model}:${action}&key=${apiKey}`;
+}
+
+function buildBody() {
+  return JSON.stringify({
+    system_instruction: { parts: [{ text: getSystemCached(lang) }] },
+    contents: history,
+    generationConfig: { temperature: 0.8, maxOutputTokens: 4096 },
+  });
+}
+
+// ── STREAMING MESSAGE ─────────────────────────────────
+// Text xuất hiện ngay từng chunk, không cần chờ AI xong
+function streamingMsg(onChunk, onDone) {
+  removeWelcome();
+  const wrap = document.getElementById('messages');
+  const el   = document.createElement('div'); el.className = 'msg ai';
+  const av   = document.createElement('div'); av.className = 'avatar'; av.textContent = '✦';
+  const b    = document.createElement('div'); b.className  = 'bubble';
+  el.appendChild(av); el.appendChild(b); wrap.appendChild(el);
+
+  let fullText = '';
+
+  function append(chunk) {
+    fullText += chunk;
+    b.innerHTML = md(fullText) + '<span class="tw-cursor">▋</span>';
+    wrap.scrollTop = wrap.scrollHeight;
   }
-  return res;
+
+  function finish() {
+    b.innerHTML = md(fullText);
+    const actions = document.createElement('div'); actions.className = 'msg-actions';
+    actions.appendChild(makeCopyBtn(fullText));
+    if (isItinerary(fullText)) {
+      const rp = extractRoutePlaces(fullText);
+      const mapBtn = document.createElement('button'); mapBtn.className = 'map-btn';
+      mapBtn.textContent = rp.length >= 2
+        ? (lang === 'vi' ? `🗺️ Xem lộ trình ${rp.length} điểm` : `🗺️ View route — ${rp.length} stops`)
+        : i18n[lang].showMap;
+      mapBtn.onclick = () => openMap(rp);
+      actions.appendChild(mapBtn);
+    }
+    b.appendChild(actions);
+    wrap.scrollTop = wrap.scrollHeight;
+    onDone(fullText);
+  }
+
+  return { append, finish };
 }
 
 async function sendMessage(retryText, displayText) {
   const inp  = document.getElementById('userInput');
   const text = retryText || inp.value.trim();
   if (!text) return;
-  // Kiểm tra giới hạn turns
-  const userTurns = history.filter(m => m.role === 'user').length;
-  if (userTurns >= MAX_TURNS) {
-    updateTurnCounter();
-    return;
-  }
+
+  if (history.filter(m => m.role === 'user').length >= MAX_TURNS) { updateTurnCounter(); return; }
   if (!apiKey) {
     document.getElementById('apiSetup').style.display = 'flex';
     alert(lang === 'vi' ? 'Vui lòng nhập Gemini API Key trước.' : 'Please enter your Gemini API Key first.');
     return;
   }
+
   lastQuestion = text;
   inp.value = ''; inp.style.height = 'auto';
   document.getElementById('sendBtn').disabled = true;
-  addMsg('user', displayText || text);   // hiển thị text ngắn, gửi AI text đầy đủ
+  addMsg('user', displayText || text);
   history.push({ role:'user', parts:[{ text }] });
   updateTurnCounter();
   showTyping();
-  try {
-    const res = await callGemini();
-    const d   = await res.json();
-    document.getElementById('typing')?.remove();
-    if (d.error) {
-      const isRate = (d.error.message || '').match(/quota|rate|429|limit/i);
-      addMsgWithRetry('ai', isRate ? i18n[lang].rateLimitMsg : i18n[lang].errorMsg, !isRate);
-    } else {
-      const reply   = d.candidates?.[0]?.content?.parts?.[0]?.text
-                   || (lang === 'vi' ? 'Xin lỗi, thử lại nhé!' : 'Sorry, please try again!');
-      const showMap = isItinerary(text) || isItinerary(reply);
-      typewriterMsg(reply, showMap);
-      history.push({ role:'model', parts:[{ text: reply }] });
-      if (history.length > 20) history = history.slice(-20);
-      saveHistory();
-      updateTurnCounter();
+
+  let success = false;
+
+  // ── Thử streaming trước ───────────────────────────────
+  for (let attempt = 0; attempt < 3 && !success; attempt++) {
+    if (attempt > 0) {
+      // Đổi model dự phòng sau lần đầu thất bại
+      _modelIdx = Math.min(_modelIdx + 1, MODELS.length - 1);
+      await new Promise(r => setTimeout(r, 1500));
     }
-  } catch {
-    document.getElementById('typing')?.remove();
-    addMsgWithRetry('ai', i18n[lang].errorMsg, true);
-  } finally {
-    document.getElementById('sendBtn').disabled = false;
-    inp.focus();
+    try {
+      const res = await fetch(getApiUrl(true), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: buildBody(),
+      });
+
+      if (res.status === 503 || res.status === 429) continue; // retry
+
+      if (!res.ok || !res.body) throw new Error('no body');
+
+      // Bắt đầu stream — xóa typing indicator ngay
+      document.getElementById('typing')?.remove();
+      const { append, finish } = streamingMsg(null, (fullReply) => {
+        history.push({ role:'model', parts:[{ text: fullReply }] });
+        if (history.length > 20) history = history.slice(-20);
+        saveHistory();
+        updateTurnCounter();
+        _modelIdx = 0; // reset về model chính sau thành công
+      });
+
+      const reader  = res.body.getReader();
+      const decoder = new TextDecoder();
+      let   buf     = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buf += decoder.decode(value, { stream: true });
+        // SSE: mỗi event bắt đầu bằng "data: "
+        const parts = buf.split("\n");
+        buf = parts.pop(); // giữ phần chưa hoàn chỉnh
+        for (const part of parts) {
+          if (!part.startsWith('data: ')) continue;
+          const json = part.slice(6).trim();
+          if (json === '[DONE]') continue;
+          try {
+            const chunk = JSON.parse(json);
+            const txt   = chunk?.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (txt) append(txt);
+          } catch {}
+        }
+      }
+      finish();
+      success = true;
+
+    } catch (e) {
+      console.warn(`Stream attempt ${attempt + 1} failed:`, e);
+    }
   }
+
+  // ── Fallback: non-streaming nếu stream thất bại hết ──
+  if (!success) {
+    try {
+      document.getElementById('typing')?.remove();
+      showTyping();
+      const res = await fetch(getApiUrl(false), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: buildBody(),
+      });
+      const d = await res.json();
+      document.getElementById('typing')?.remove();
+      if (d.error) {
+        const isRate = (d.error.message || '').match(/quota|rate|429|limit/i);
+        addMsgWithRetry('ai', isRate ? i18n[lang].rateLimitMsg : i18n[lang].errorMsg, !isRate);
+      } else {
+        const reply = d.candidates?.[0]?.content?.parts?.[0]?.text
+                   || (lang === 'vi' ? 'Xin lỗi, thử lại nhé!' : 'Sorry, please try again!');
+        typewriterMsg(reply, isItinerary(text) || isItinerary(reply));
+        history.push({ role:'model', parts:[{ text: reply }] });
+        if (history.length > 20) history = history.slice(-20);
+        saveHistory();
+        updateTurnCounter();
+      }
+    } catch {
+      document.getElementById('typing')?.remove();
+      addMsgWithRetry('ai', i18n[lang].errorMsg, true);
+    }
+  }
+
+  document.getElementById('sendBtn').disabled = false;
+  inp.focus();
 }
 
 // ══════════════════════════════════════════════════════
