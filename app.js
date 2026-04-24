@@ -516,7 +516,7 @@ function buildBody() {
   return JSON.stringify({
     system_instruction: { parts: [{ text: getSystemCached(lang) }] },
     contents: history,
-    generationConfig: { temperature: 0.8, maxOutputTokens: 4096 },
+    generationConfig: { temperature: 0.8, maxOutputTokens: 8192 },
   });
 }
 
