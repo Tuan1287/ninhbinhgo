@@ -599,14 +599,16 @@ async function sendMessage(retryText, displayText) {
 
       if (!res.ok || !res.body) throw new Error('no body');
 
-      // Bắt đầu stream — xóa typing indicator ngay
-      document.getElementById('typing')?.remove();
+      // Typing indicator GIỮ LẠI đến khi có chunk đầu tiên
+      let gotFirstChunk = false;
+      let truncated     = false; // bị cắt do MAX_TOKENS?
+
       const { append, finish } = streamingMsg(null, (fullReply) => {
         history.push({ role:'model', parts:[{ text: fullReply }] });
         if (history.length > 20) history = history.slice(-20);
         saveHistory();
         updateTurnCounter();
-        _modelIdx = 0; // reset về model chính sau thành công
+        _modelIdx = 0;
       });
 
       const reader  = res.body.getReader();
@@ -617,21 +619,71 @@ async function sendMessage(retryText, displayText) {
         const { done, value } = await reader.read();
         if (done) break;
         buf += decoder.decode(value, { stream: true });
-        // SSE: mỗi event bắt đầu bằng "data: "
         const parts = buf.split("\n");
-        buf = parts.pop(); // giữ phần chưa hoàn chỉnh
+        buf = parts.pop();
         for (const part of parts) {
           if (!part.startsWith('data: ')) continue;
           const json = part.slice(6).trim();
           if (json === '[DONE]') continue;
           try {
-            const chunk = JSON.parse(json);
-            const txt   = chunk?.candidates?.[0]?.content?.parts?.[0]?.text;
+            const chunk  = JSON.parse(json);
+            const txt    = chunk?.candidates?.[0]?.content?.parts?.[0]?.text;
+            const reason = chunk?.candidates?.[0]?.finishReason;
+            // Xóa typing indicator khi nhận chunk đầu tiên
+            if (!gotFirstChunk && (txt || reason)) {
+              document.getElementById('typing')?.remove();
+              gotFirstChunk = true;
+            }
             if (txt) append(txt);
+            // Detect bị cắt giữa chừng
+            if (reason === 'MAX_TOKENS') truncated = true;
           } catch {}
         }
       }
       finish();
+
+      // Nếu bị cắt → tự động gửi tiếp "hãy tiếp tục"
+      if (truncated) {
+        await new Promise(r => setTimeout(r, 600));
+        const contMsg = lang === 'vi' ? 'tiếp tục' : 'continue';
+        history.push({ role:'user', parts:[{ text: contMsg }] });
+        // Gọi lại non-streaming để nối phần còn lại vào bubble cũ
+        const contRes = await fetch(getApiUrl(false), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: buildBody(),
+        });
+        const contD = await contRes.json();
+        const contTxt = contD?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        if (contTxt) {
+          // Nối vào history và bubble cuối
+          history.push({ role:'model', parts:[{ text: contTxt }] });
+          // Tìm bubble AI cuối và append
+          const bubbles = document.querySelectorAll('.msg.ai .bubble');
+          const lastBubble = bubbles[bubbles.length - 1];
+          if (lastBubble) {
+            // Xóa actions cũ nếu có
+            lastBubble.querySelector('.msg-actions')?.remove();
+            // Nối text vào nội dung hiện tại
+            const currentText = history.slice(-2)[0]?.parts?.[0]?.text + contTxt;
+            // Render lại actions với full text
+            const actions = document.createElement('div'); actions.className = 'msg-actions';
+            actions.appendChild(makeCopyBtn(currentText));
+            if (isItinerary(currentText)) {
+              const rp = extractRoutePlaces(currentText);
+              const mapBtn = document.createElement('button'); mapBtn.className = 'map-btn';
+              mapBtn.textContent = rp.length >= 2
+                ? (lang === 'vi' ? `🗺️ Xem lộ trình ${rp.length} điểm` : `🗺️ View route — ${rp.length} stops`)
+                : i18n[lang].showMap;
+              mapBtn.onclick = () => openMap(rp);
+              actions.appendChild(mapBtn);
+            }
+            lastBubble.appendChild(actions);
+          }
+          saveHistory();
+        }
+      }
+
       success = true;
 
     } catch (e) {
