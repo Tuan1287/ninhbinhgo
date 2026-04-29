@@ -159,6 +159,15 @@
 
   /* ── RESPONSIVE ── */
   @media(max-width:400px){.suggestions{grid-template-columns:1fr;gap:.35rem}}
+  @media(max-width:480px){
+    .suggestions{grid-template-columns:repeat(2,1fr);gap:.35rem}
+    .sug-btn{padding:.5rem .6rem}
+    .sug-text{font-size:.74rem}
+    .sug-label{font-size:.65rem}
+  }
+  @media(max-width:360px){
+    .suggestions{grid-template-columns:1fr}
+  }
   @media(max-width:540px){
     header{padding:.75rem 1rem}
     #disclaimer{display:none}
