@@ -24,7 +24,7 @@
 
 // ── STATE ────────────────────────────────────────────
 let lang         = localStorage.getItem('nb_lang') || 'vi';
-let apiKey       = localStorage.getItem('nb_key')  || '';
+let apiKey       = localStorage.getItem('nb_key') || sessionStorage.getItem('nb_key') || '';
 let history      = [];
 let lastQuestion = '';
 let leafletMap   = null, currentRouteLayer = null, currentMarkers = [];
@@ -34,8 +34,26 @@ let _weatherState = { temp: null, code: null }; // thời tiết realtime cho sy
 
 // ── SYSTEM PROMPT CACHE ──────────────────────────────
 function getSystemCached(l) {
-  if (!_sysCache[l]) _sysCache[l] = getSystem(l);
+  if (!_sysCache[l]) _sysCache[l] = getSystem(l) + getQualityRules(l);
   return _sysCache[l];
+}
+
+function getQualityRules(l) {
+  return l === 'vi'
+    ? `
+
+QUY TẮC CHẤT LƯỢNG TRẢ LỜI:
+- KHÔNG bịa đặt: Nếu không có thông tin chính xác về giá, giờ, địa chỉ trong data → nói rõ "tôi không chắc về thông tin này, bạn nên kiểm tra lại trực tiếp" thay vì đoán
+- ĐỘ DÀI PHÙ HỢP: Câu hỏi đơn giản (1 địa điểm, 1 thông tin) → trả lời ngắn gọn 2-4 câu. Chỉ trả lời dài khi hỏi lịch trình, so sánh nhiều lựa chọn, hoặc user yêu cầu chi tiết
+- KHÔNG lặp lại thông tin đã nói trong cùng đoạn chat
+- KHÔNG thêm disclaimer dài dòng cuối mỗi câu trả lời`
+    : `
+
+RESPONSE QUALITY RULES:
+- NO fabrication: If exact price, hours, or address not in provided data → say "I'm not certain about this, please verify directly" instead of guessing
+- CALIBRATE LENGTH: Simple questions (1 place, 1 fact) → short 2-4 sentence answer. Only give long answers for itineraries, comparisons, or when detail is requested
+- DO NOT repeat information already given in the same conversation
+- DO NOT add lengthy disclaimers at the end of each response`;
 }
 
 // ── LỊCH SỬ CHAT ────────────────────────────────────
@@ -43,6 +61,16 @@ function saveHistory() {
   try {
     localStorage.setItem('nb_history', JSON.stringify({ history, ts: Date.now() }));
   } catch(e) {}
+}
+
+// Analytics chip — đếm lần nhấn, lưu local (không gửi server)
+function trackChip(label) {
+  try {
+    const key  = 'nb_chip_stats';
+    const data = JSON.parse(localStorage.getItem(key) || '{}');
+    data[label] = (data[label] || 0) + 1;
+    localStorage.setItem(key, JSON.stringify(data));
+  } catch {}
 }
 function loadHistory() {
   try {
@@ -259,12 +287,15 @@ function applyLang() {
   document.getElementById('clearBtn').setAttribute('data-tip', t.clearTip);
   document.getElementById('keyBtn').setAttribute('data-tip', t.keyTip);
   document.getElementById('mapTitle').textContent      = t.mapTitle;
+  const kst = document.getElementById('keySessionText'); if (kst) kst.textContent = t.keySession;
   const wh = document.getElementById('welcomeHeading'); if (wh) wh.innerHTML = t.welcomeH;
   const ws = document.getElementById('welcomeSub');     if (ws) ws.textContent = t.welcomeSub;
   const nav = document.getElementById('topicsNav'); nav.innerHTML = '';
   t.chips.forEach((label, i) => {
     const btn = document.createElement('button'); btn.className = 'chip';
-    btn.textContent = label; btn.onclick = () => quickAsk(t.chipQ[i], label); nav.appendChild(btn);
+    btn.textContent = label;
+    btn.onclick = () => { trackChip(label); quickAsk(t.chipQ[i], label); };
+    nav.appendChild(btn);
   });
   const grid = document.getElementById('sugGrid');
   if (grid) {
@@ -272,19 +303,26 @@ function applyLang() {
     t.sug.forEach(s => {
       const btn = document.createElement('button'); btn.className = 'sug-btn';
       btn.innerHTML = `<span class="sug-icon">${s.icon}</span><span class="sug-text">${s.text}</span><span class="sug-label">${s.label}</span>`;
-      btn.onclick = () => quickAsk(s.q, s.text); grid.appendChild(btn);
+      btn.onclick = () => { trackChip(s.text); quickAsk(s.q, s.text); }; grid.appendChild(btn);
     });
   }
 }
 
 // ── API KEY ──────────────────────────────────────────
 function saveKey() {
-  const v = document.getElementById('apiKeyInput').value.trim();
+  const v       = document.getElementById('apiKeyInput').value.trim();
+  const session = document.getElementById('keySessionOnly')?.checked;
   if (!v.startsWith('AIza')) {
     alert(lang === 'vi' ? 'Key không hợp lệ (phải bắt đầu bằng AIza...)' : 'Invalid key (must start with AIza...)');
     return;
   }
-  apiKey = v; localStorage.setItem('nb_key', v);
+  apiKey = v;
+  if (session) {
+    sessionStorage.setItem('nb_key', v); // chỉ lưu trong tab hiện tại
+    localStorage.removeItem('nb_key');
+  } else {
+    localStorage.setItem('nb_key', v);
+  }
   document.getElementById('apiSetup').style.display = 'none';
 }
 
@@ -513,9 +551,16 @@ function getApiUrl(stream = true) {
 }
 
 function buildBody() {
+  // Chỉ gửi 8 turns gần nhất lên API — giảm token, tăng tốc độ
+  // User vẫn thấy đủ lịch sử trên màn hình
+  const MAX_CTX  = 8;
+  const ctx      = history.slice(-MAX_CTX);
+  // Đảm bảo context bắt đầu bằng role 'user' (Gemini yêu cầu)
+  const startIdx = ctx.findIndex(m => m.role === 'user');
+  const contents = startIdx > 0 ? ctx.slice(startIdx) : ctx;
   return JSON.stringify({
     system_instruction: { parts: [{ text: getSystemCached(lang) }] },
-    contents: history,
+    contents,
     generationConfig: { temperature: 0.8, maxOutputTokens: 8192 },
   });
 }
@@ -619,69 +664,104 @@ async function sendMessage(retryText, displayText) {
         const { done, value } = await reader.read();
         if (done) break;
         buf += decoder.decode(value, { stream: true });
-        const parts = buf.split("\n");
-        buf = parts.pop();
-        for (const part of parts) {
-          if (!part.startsWith('data: ')) continue;
-          const json = part.slice(6).trim();
-          if (json === '[DONE]') continue;
-          try {
-            const chunk  = JSON.parse(json);
-            const txt    = chunk?.candidates?.[0]?.content?.parts?.[0]?.text;
-            const reason = chunk?.candidates?.[0]?.finishReason;
-            // Xóa typing indicator khi nhận chunk đầu tiên
-            if (!gotFirstChunk && (txt || reason)) {
-              document.getElementById('typing')?.remove();
-              gotFirstChunk = true;
-            }
-            if (txt) append(txt);
-            // Detect bị cắt giữa chừng
-            if (reason === 'MAX_TOKENS') truncated = true;
-          } catch {}
+        const events = buf.split('\n\n');
+        buf = events.pop();
+        for (const event of events) {
+          for (const line of event.split('\n')) {
+            if (!line.startsWith('data: ')) continue;
+            const json = line.slice(6).trim();
+            if (!json || json === '[DONE]') continue;
+            try {
+              const chunk  = JSON.parse(json);
+              const txt    = chunk?.candidates?.[0]?.content?.parts?.[0]?.text;
+              const reason = chunk?.candidates?.[0]?.finishReason;
+              if (!gotFirstChunk && (txt || reason)) {
+                document.getElementById('typing')?.remove();
+                gotFirstChunk = true;
+              }
+              if (txt) append(txt);
+              if (reason === 'MAX_TOKENS') truncated = true;
+            } catch {}
+          }
         }
       }
       finish();
 
-      // Nếu bị cắt → tự động gửi tiếp "hãy tiếp tục"
+      // Nếu bị cắt → tự động stream tiếp, nối vào bubble gốc
       if (truncated) {
-        await new Promise(r => setTimeout(r, 600));
+        await new Promise(r => setTimeout(r, 500));
         const contMsg = lang === 'vi' ? 'tiếp tục' : 'continue';
         history.push({ role:'user', parts:[{ text: contMsg }] });
-        // Gọi lại non-streaming để nối phần còn lại vào bubble cũ
-        const contRes = await fetch(getApiUrl(false), {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: buildBody(),
-        });
-        const contD = await contRes.json();
-        const contTxt = contD?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-        if (contTxt) {
-          // Nối vào history và bubble cuối
-          history.push({ role:'model', parts:[{ text: contTxt }] });
-          // Tìm bubble AI cuối và append
-          const bubbles = document.querySelectorAll('.msg.ai .bubble');
-          const lastBubble = bubbles[bubbles.length - 1];
-          if (lastBubble) {
-            // Xóa actions cũ nếu có
-            lastBubble.querySelector('.msg-actions')?.remove();
-            // Nối text vào nội dung hiện tại
-            const currentText = history.slice(-2)[0]?.parts?.[0]?.text + contTxt;
-            // Render lại actions với full text
-            const actions = document.createElement('div'); actions.className = 'msg-actions';
-            actions.appendChild(makeCopyBtn(currentText));
-            if (isItinerary(currentText)) {
-              const rp = extractRoutePlaces(currentText);
-              const mapBtn = document.createElement('button'); mapBtn.className = 'map-btn';
-              mapBtn.textContent = rp.length >= 2
-                ? (lang === 'vi' ? `🗺️ Xem lộ trình ${rp.length} điểm` : `🗺️ View route — ${rp.length} stops`)
-                : i18n[lang].showMap;
-              mapBtn.onclick = () => openMap(rp);
-              actions.appendChild(mapBtn);
+
+        // Lấy fullText đã có từ streamingMsg (qua closure trong onDone)
+        // Dùng history model cuối để biết text đã có
+        const prevText = history.filter(m => m.role === 'model').slice(-1)[0]?.parts?.[0]?.text || '';
+
+        try {
+          const contRes = await fetch(getApiUrl(true), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: buildBody(),
+          });
+          if (contRes.ok && contRes.body) {
+            const contReader  = contRes.body.getReader();
+            const contDecoder = new TextDecoder();
+            let   contBuf     = '';
+            let   contTxt     = '';
+
+            // Tìm bubble cuối để nối vào
+            const bubbles    = document.querySelectorAll('.msg.ai .bubble');
+            const lastBubble = bubbles[bubbles.length - 1];
+            if (lastBubble) lastBubble.querySelector('.msg-actions')?.remove();
+
+            while (true) {
+              const { done, value } = await contReader.read();
+              if (done) break;
+              contBuf += contDecoder.decode(value, { stream: true });
+              const evts = contBuf.split('\n\n');
+              contBuf = evts.pop();
+              for (const evt of evts) {
+                for (const ln of evt.split('\n')) {
+                  if (!ln.startsWith('data: ')) continue;
+                  const j = ln.slice(6).trim();
+                  if (!j || j === '[DONE]') continue;
+                  try {
+                    const ck = JSON.parse(j);
+                    const t  = ck?.candidates?.[0]?.content?.parts?.[0]?.text;
+                    if (t) {
+                      contTxt += t;
+                      // Render trực tiếp vào bubble gốc — markdown đúng
+                      if (lastBubble) {
+                        lastBubble.innerHTML = md(prevText + contTxt) + '<span class="tw-cursor">▋</span>';
+                        document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+                      }
+                    }
+                  } catch {}
+                }
+              }
             }
-            lastBubble.appendChild(actions);
+
+            if (contTxt && lastBubble) {
+              const fullCombined = prevText + contTxt;
+              lastBubble.innerHTML = md(fullCombined);
+              // Thêm actions với full text
+              const actions = document.createElement('div'); actions.className = 'msg-actions';
+              actions.appendChild(makeCopyBtn(fullCombined));
+              if (isItinerary(fullCombined)) {
+                const rp = extractRoutePlaces(fullCombined);
+                const mapBtn = document.createElement('button'); mapBtn.className = 'map-btn';
+                mapBtn.textContent = rp.length >= 2
+                  ? (lang === 'vi' ? `🗺️ Xem lộ trình ${rp.length} điểm` : `🗺️ View route — ${rp.length} stops`)
+                  : i18n[lang].showMap;
+                mapBtn.onclick = () => openMap(rp);
+                actions.appendChild(mapBtn);
+              }
+              lastBubble.appendChild(actions);
+              history.push({ role:'model', parts:[{ text: contTxt }] });
+              saveHistory();
+            }
           }
-          saveHistory();
-        }
+        } catch(e) { console.warn('Continuation failed:', e); }
       }
 
       success = true;
