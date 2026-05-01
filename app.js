@@ -24,7 +24,7 @@
 
 // ── STATE ────────────────────────────────────────────
 let lang         = localStorage.getItem('nb_lang') || 'vi';
-let apiKey       = localStorage.getItem('nb_key') || sessionStorage.getItem('nb_key') || '';
+let apiKey       = localStorage.getItem('nb_key') || '';
 let history      = [];
 let lastQuestion = '';
 let leafletMap   = null, currentRouteLayer = null, currentMarkers = [];
@@ -287,7 +287,6 @@ function applyLang() {
   document.getElementById('clearBtn').setAttribute('data-tip', t.clearTip);
   document.getElementById('keyBtn').setAttribute('data-tip', t.keyTip);
   document.getElementById('mapTitle').textContent      = t.mapTitle;
-  const kst = document.getElementById('keySessionText'); if (kst) kst.textContent = t.keySession;
   const wh = document.getElementById('welcomeHeading'); if (wh) wh.innerHTML = t.welcomeH;
   const ws = document.getElementById('welcomeSub');     if (ws) ws.textContent = t.welcomeSub;
   const nav = document.getElementById('topicsNav'); nav.innerHTML = '';
@@ -310,19 +309,13 @@ function applyLang() {
 
 // ── API KEY ──────────────────────────────────────────
 function saveKey() {
-  const v       = document.getElementById('apiKeyInput').value.trim();
-  const session = document.getElementById('keySessionOnly')?.checked;
+  const v = document.getElementById('apiKeyInput').value.trim();
   if (!v.startsWith('AIza')) {
-    alert(lang === 'vi' ? 'Key không hợp lệ (phải bắt đầu bằng AIza...)' : 'Invalid key (must start with AIza...)');
+    alert(lang === 'vi' ? 'Key không hợp lệ (phải bắt đầu bằng AIza...)' : 'Invalid key (must start với AIza...)');
     return;
   }
   apiKey = v;
-  if (session) {
-    sessionStorage.setItem('nb_key', v); // chỉ lưu trong tab hiện tại
-    localStorage.removeItem('nb_key');
-  } else {
-    localStorage.setItem('nb_key', v);
-  }
+  localStorage.setItem('nb_key', v);
   document.getElementById('apiSetup').style.display = 'none';
 }
 
@@ -493,56 +486,71 @@ function makeCopyBtn(text) {
   return btn;
 }
 
-// ── TYPEWRITER (requestAnimationFrame) ───────────────
+// -- HELPER: them action buttons vao bubble ---
+function addMsgActions(bubble, text, showMapBtn) {
+  const actions = document.createElement('div');
+  actions.className = 'msg-actions';
+  actions.appendChild(makeCopyBtn(text));
+  if (showMapBtn) {
+    const rp     = extractRoutePlaces(text);
+    const mapBtn = document.createElement('button');
+    mapBtn.className   = 'map-btn';
+    mapBtn.textContent = rp.length >= 2
+      ? (lang === 'vi' ? `🗺️ Xem lo trinh ${rp.length} diem` : `🗺️ View route -- ${rp.length} stops`)
+      : i18n[lang].showMap;
+    mapBtn.onclick = () => openMap(rp);
+    actions.appendChild(mapBtn);
+  }
+  bubble.appendChild(actions);
+}
+
+// -- TYPEWRITER --
 function typewriterMsg(text, showMapBtn) {
   removeWelcome();
   const wrap = document.getElementById('messages');
-  const el = document.createElement('div'); el.className = 'msg ai';
-  const av = document.createElement('div'); av.className = 'avatar'; av.textContent = '✦';
-  const b  = document.createElement('div'); b.className  = 'bubble';
+  const el   = document.createElement('div'); el.className = 'msg ai';
+  const av   = document.createElement('div'); av.className = 'avatar'; av.textContent = '\u2756';
+  const b    = document.createElement('div'); b.className  = 'bubble';
   el.appendChild(av); el.appendChild(b); wrap.appendChild(el);
 
-  let i = 0;
-  const step = text.length < 200 ? 3 : Math.max(4, Math.ceil(text.length / 260));
-  let lastRender = 0;
-  const FRAME_MS = 28;
-
-  function tick(ts) {
-    if (ts - lastRender < FRAME_MS) { requestAnimationFrame(tick); return; }
-    lastRender = ts;
-    if (i < text.length) {
-      i = Math.min(i + step, text.length);
-      b.innerHTML = md(text.slice(0, i)) + '<span class="tw-cursor">▋</span>';
-      wrap.scrollTop = wrap.scrollHeight;
-      requestAnimationFrame(tick);
-    } else {
-      b.innerHTML = md(text);
-      const actions = document.createElement('div'); actions.className = 'msg-actions';
-      actions.appendChild(makeCopyBtn(text));
-      if (showMapBtn) {
-        const rp = extractRoutePlaces(text);
-        const mapBtn = document.createElement('button'); mapBtn.className = 'map-btn';
-        mapBtn.textContent = rp.length >= 2
-          ? (lang === 'vi' ? `🗺️ Xem lộ trình ${rp.length} điểm` : `🗺️ View route — ${rp.length} stops`)
-          : i18n[lang].showMap;
-        mapBtn.onclick = () => openMap(rp);
-        actions.appendChild(mapBtn);
-      }
-
-      b.appendChild(actions);
-      wrap.scrollTop = wrap.scrollHeight;
-    }
+  if (document.hidden) {
+    b.innerHTML = md(text);
+    addMsgActions(b, text, showMapBtn);
+    return;
   }
-  requestAnimationFrame(tick);
+
+  let i = 0;
+  const step = text.length < 200 ? 4 : Math.max(6, Math.ceil(text.length / 200));
+
+  function tick() {
+    if (document.hidden || i >= text.length) {
+      b.innerHTML = md(text);
+      addMsgActions(b, text, showMapBtn);
+      wrap.scrollTop = wrap.scrollHeight;
+      return;
+    }
+    i = Math.min(i + step, text.length);
+    b.innerHTML = md(text.slice(0, i)) + '<span class="tw-cursor">\u25CB</span>';
+    wrap.scrollTop = wrap.scrollHeight;
+    setTimeout(tick, 18);
+  }
+  setTimeout(tick, 0);
 }
 
-// ── GEMINI STREAMING API ─────────────────────────────
-// Model ưu tiên và dự phòng
-const MODELS = [
-  'gemini-2.5-flash',
-  'gemini-2.0-flash',
-];
-let _modelIdx = 0; // model đang dùng
+// -- STREAM BUBBLE: chi tao khi co chunk dau tien --
+function createStreamBubble() {
+  removeWelcome();
+  const wrap = document.getElementById('messages');
+  const el   = document.createElement('div'); el.className = 'msg ai';
+  const av   = document.createElement('div'); av.className = 'avatar'; av.textContent = '\u2756';
+  const b    = document.createElement('div'); b.className  = 'bubble';
+  el.appendChild(av); el.appendChild(b); wrap.appendChild(el);
+  return { wrap, b };
+}
+
+// ── GEMINI API CONFIG ─────────────────────────────────
+const MODELS   = ['gemini-2.5-flash', 'gemini-2.0-flash'];
+let _modelIdx  = 0;
 
 function getApiUrl(stream = true) {
   const model  = MODELS[_modelIdx] || MODELS[0];
@@ -551,11 +559,9 @@ function getApiUrl(stream = true) {
 }
 
 function buildBody() {
-  // Chỉ gửi 8 turns gần nhất lên API — giảm token, tăng tốc độ
-  // User vẫn thấy đủ lịch sử trên màn hình
+  // Chỉ gửi 8 turns gần nhất — giảm token, tăng tốc
   const MAX_CTX  = 8;
   const ctx      = history.slice(-MAX_CTX);
-  // Đảm bảo context bắt đầu bằng role 'user' (Gemini yêu cầu)
   const startIdx = ctx.findIndex(m => m.role === 'user');
   const contents = startIdx > 0 ? ctx.slice(startIdx) : ctx;
   return JSON.stringify({
@@ -563,45 +569,6 @@ function buildBody() {
     contents,
     generationConfig: { temperature: 0.8, maxOutputTokens: 8192 },
   });
-}
-
-// ── STREAMING MESSAGE ─────────────────────────────────
-// Text xuất hiện ngay từng chunk, không cần chờ AI xong
-function streamingMsg(onChunk, onDone) {
-  removeWelcome();
-  const wrap = document.getElementById('messages');
-  const el   = document.createElement('div'); el.className = 'msg ai';
-  const av   = document.createElement('div'); av.className = 'avatar'; av.textContent = '✦';
-  const b    = document.createElement('div'); b.className  = 'bubble';
-  el.appendChild(av); el.appendChild(b); wrap.appendChild(el);
-
-  let fullText = '';
-
-  function append(chunk) {
-    fullText += chunk;
-    b.innerHTML = md(fullText) + '<span class="tw-cursor">▋</span>';
-    wrap.scrollTop = wrap.scrollHeight;
-  }
-
-  function finish() {
-    b.innerHTML = md(fullText);
-    const actions = document.createElement('div'); actions.className = 'msg-actions';
-    actions.appendChild(makeCopyBtn(fullText));
-    if (isItinerary(fullText)) {
-      const rp = extractRoutePlaces(fullText);
-      const mapBtn = document.createElement('button'); mapBtn.className = 'map-btn';
-      mapBtn.textContent = rp.length >= 2
-        ? (lang === 'vi' ? `🗺️ Xem lộ trình ${rp.length} điểm` : `🗺️ View route — ${rp.length} stops`)
-        : i18n[lang].showMap;
-      mapBtn.onclick = () => openMap(rp);
-      actions.appendChild(mapBtn);
-    }
-    b.appendChild(actions);
-    wrap.scrollTop = wrap.scrollHeight;
-    onDone(fullText);
-  }
-
-  return { append, finish };
 }
 
 async function sendMessage(retryText, displayText) {
@@ -644,17 +611,10 @@ async function sendMessage(retryText, displayText) {
 
       if (!res.ok || !res.body) throw new Error('no body');
 
-      // Typing indicator GIỮ LẠI đến khi có chunk đầu tiên
-      let gotFirstChunk = false;
-      let truncated     = false; // bị cắt do MAX_TOKENS?
-
-      const { append, finish } = streamingMsg(null, (fullReply) => {
-        history.push({ role:'model', parts:[{ text: fullReply }] });
-        if (history.length > 20) history = history.slice(-20);
-        saveHistory();
-        updateTurnCounter();
-        _modelIdx = 0;
-      });
+      // Stream trực tiếp — bubble chỉ tạo khi nhận chunk đầu tiên
+      let streamBubble   = null; // { wrap, b }
+      let fullText       = '';
+      let truncated      = false;
 
       const reader  = res.body.getReader();
       const decoder = new TextDecoder();
@@ -675,17 +635,33 @@ async function sendMessage(retryText, displayText) {
               const chunk  = JSON.parse(json);
               const txt    = chunk?.candidates?.[0]?.content?.parts?.[0]?.text;
               const reason = chunk?.candidates?.[0]?.finishReason;
-              if (!gotFirstChunk && (txt || reason)) {
+              // Chunk đầu tiên: xóa typing, tạo bubble thật
+              if (!streamBubble && (txt || reason)) {
                 document.getElementById('typing')?.remove();
-                gotFirstChunk = true;
+                streamBubble = createStreamBubble();
               }
-              if (txt) append(txt);
+              if (txt && streamBubble) {
+                fullText += txt;
+                streamBubble.b.innerHTML = md(fullText) + '<span class="tw-cursor">\u25CB</span>';
+                if (!document.hidden) streamBubble.wrap.scrollTop = streamBubble.wrap.scrollHeight;
+              }
               if (reason === 'MAX_TOKENS') truncated = true;
             } catch {}
           }
         }
       }
-      finish();
+
+      // Hoàn thành — render final + actions
+      if (streamBubble) {
+        streamBubble.b.innerHTML = md(fullText);
+        addMsgActions(streamBubble.b, fullText, isItinerary(text) || isItinerary(fullText));
+        streamBubble.wrap.scrollTop = streamBubble.wrap.scrollHeight;
+        history.push({ role:'model', parts:[{ text: fullText }] });
+        if (history.length > 20) history = history.slice(-20);
+        saveHistory();
+        updateTurnCounter();
+        _modelIdx = 0;
+      }
 
       // Nếu bị cắt → tự động stream tiếp, nối vào bubble gốc
       if (truncated) {
@@ -693,7 +669,6 @@ async function sendMessage(retryText, displayText) {
         const contMsg = lang === 'vi' ? 'tiếp tục' : 'continue';
         history.push({ role:'user', parts:[{ text: contMsg }] });
 
-        // Lấy fullText đã có từ streamingMsg (qua closure trong onDone)
         // Dùng history model cuối để biết text đã có
         const prevText = history.filter(m => m.role === 'model').slice(-1)[0]?.parts?.[0]?.text || '';
 
