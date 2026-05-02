@@ -591,12 +591,25 @@ async function sendMessage(retryText, displayText) {
   updateTurnCounter();
   showTyping();
 
-  let success = false;
+  const reply = await fetchWithStream(text);
 
-  // ── Thử streaming trước ───────────────────────────────
-  for (let attempt = 0; attempt < 3 && !success; attempt++) {
+  document.getElementById('typing')?.remove();
+
+  if (reply === null) {
+    addMsgWithRetry('ai', i18n[lang].errorMsg, true);
+  } else if (reply === 'RATE') {
+    addMsgWithRetry('ai', i18n[lang].rateLimitMsg, false);
+  }
+
+  document.getElementById('sendBtn').disabled = false;
+  inp.focus();
+}
+
+// Tách logic gọi API ra hàm riêng — dễ debug, retry rõ ràng
+async function fetchWithStream(userText) {
+  // Thử streaming tối đa 3 lần (đổi model sau mỗi lần thất bại)
+  for (let attempt = 0; attempt < 3; attempt++) {
     if (attempt > 0) {
-      // Đổi model dự phòng sau lần đầu thất bại
       _modelIdx = Math.min(_modelIdx + 1, MODELS.length - 1);
       await new Promise(r => setTimeout(r, 1500));
     }
@@ -607,177 +620,150 @@ async function sendMessage(retryText, displayText) {
         body: buildBody(),
       });
 
-      if (res.status === 503 || res.status === 429) continue; // retry
+      if (res.status === 429) return 'RATE';
+      if (res.status === 503) continue;
+      if (!res.ok || !res.body) continue;
 
-      if (!res.ok || !res.body) throw new Error('no body');
+      const result = await readStream(res, userText);
+      if (result) {
+        _modelIdx = 0;
+        return result; // success
+      }
+    } catch (e) {
+      console.warn('Stream attempt', attempt, e);
+    }
+  }
 
-      // Stream trực tiếp — bubble chỉ tạo khi nhận chunk đầu tiên
-      let streamBubble   = null; // { wrap, b }
-      let fullText       = '';
-      let truncated      = false;
+  // Fallback non-streaming
+  try {
+    const res = await fetch(getApiUrl(false), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: buildBody(),
+    });
+    const d = await res.json();
+    if (d.error) {
+      const isRate = (d.error.message || '').match(/quota|rate|429|limit/i);
+      return isRate ? 'RATE' : null;
+    }
+    const reply = d.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (reply) {
+      document.getElementById('typing')?.remove();
+      typewriterMsg(reply, isItinerary(userText) || isItinerary(reply));
+      history.push({ role:'model', parts:[{ text: reply }] });
+      if (history.length > 20) history = history.slice(-20);
+      saveHistory(); updateTurnCounter();
+      return 'DONE';
+    }
+  } catch (e) { console.warn('Fallback failed', e); }
 
-      const reader  = res.body.getReader();
-      const decoder = new TextDecoder();
-      let   buf     = '';
+  return null;
+}
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        buf += decoder.decode(value, { stream: true });
-        const events = buf.split('\n\n');
-        buf = events.pop();
-        for (const event of events) {
-          for (const line of event.split('\n')) {
-            if (!line.startsWith('data: ')) continue;
-            const json = line.slice(6).trim();
-            if (!json || json === '[DONE]') continue;
-            try {
-              const chunk  = JSON.parse(json);
-              const txt    = chunk?.candidates?.[0]?.content?.parts?.[0]?.text;
-              const reason = chunk?.candidates?.[0]?.finishReason;
-              // Chunk đầu tiên: xóa typing, tạo bubble thật
-              if (!streamBubble && (txt || reason)) {
-                document.getElementById('typing')?.remove();
-                streamBubble = createStreamBubble();
-              }
-              if (txt && streamBubble) {
-                fullText += txt;
-                streamBubble.b.innerHTML = md(fullText) + '<span class="tw-cursor">\u25CB</span>';
-                if (!document.hidden) streamBubble.wrap.scrollTop = streamBubble.wrap.scrollHeight;
-              }
-              if (reason === 'MAX_TOKENS') truncated = true;
-            } catch {}
-          }
+// Đọc SSE stream, render trực tiếp vào bubble
+async function readStream(res, userText) {
+  let streamBubble = null;
+  let fullText     = '';
+  let truncated    = false;
+
+  const reader  = res.body.getReader();
+  const decoder = new TextDecoder();
+  let   buf     = '';
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buf += decoder.decode(value, { stream: true });
+      const events = buf.split('\n\n');
+      buf = events.pop();
+      for (const event of events) {
+        for (const line of event.split('\n')) {
+          if (!line.startsWith('data: ')) continue;
+          const raw = line.slice(6).trim();
+          if (!raw || raw === '[DONE]') continue;
+          try {
+            const chunk  = JSON.parse(raw);
+            const txt    = chunk?.candidates?.[0]?.content?.parts?.[0]?.text;
+            const reason = chunk?.candidates?.[0]?.finishReason;
+            // Tạo bubble lần đầu có text
+            if (!streamBubble && txt) {
+              document.getElementById('typing')?.remove();
+              streamBubble = createStreamBubble();
+            }
+            if (txt && streamBubble) {
+              fullText += txt;
+              streamBubble.b.innerHTML = md(fullText) + '<span class="tw-cursor">&#9675;</span>';
+              if (!document.hidden) streamBubble.wrap.scrollTop = streamBubble.wrap.scrollHeight;
+            }
+            if (reason === 'MAX_TOKENS') truncated = true;
+          } catch {}
         }
       }
-
-      // Hoàn thành — render final + actions
-      if (streamBubble) {
-        streamBubble.b.innerHTML = md(fullText);
-        addMsgActions(streamBubble.b, fullText, isItinerary(text) || isItinerary(fullText));
-        streamBubble.wrap.scrollTop = streamBubble.wrap.scrollHeight;
-        history.push({ role:'model', parts:[{ text: fullText }] });
-        if (history.length > 20) history = history.slice(-20);
-        saveHistory();
-        updateTurnCounter();
-        _modelIdx = 0;
-      }
-
-      // Nếu bị cắt → tự động stream tiếp, nối vào bubble gốc
-      if (truncated) {
-        await new Promise(r => setTimeout(r, 500));
-        const contMsg = lang === 'vi' ? 'tiếp tục' : 'continue';
-        history.push({ role:'user', parts:[{ text: contMsg }] });
-
-        // Dùng history model cuối để biết text đã có
-        const prevText = history.filter(m => m.role === 'model').slice(-1)[0]?.parts?.[0]?.text || '';
-
-        try {
-          const contRes = await fetch(getApiUrl(true), {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: buildBody(),
-          });
-          if (contRes.ok && contRes.body) {
-            const contReader  = contRes.body.getReader();
-            const contDecoder = new TextDecoder();
-            let   contBuf     = '';
-            let   contTxt     = '';
-
-            // Tìm bubble cuối để nối vào
-            const bubbles    = document.querySelectorAll('.msg.ai .bubble');
-            const lastBubble = bubbles[bubbles.length - 1];
-            if (lastBubble) lastBubble.querySelector('.msg-actions')?.remove();
-
-            while (true) {
-              const { done, value } = await contReader.read();
-              if (done) break;
-              contBuf += contDecoder.decode(value, { stream: true });
-              const evts = contBuf.split('\n\n');
-              contBuf = evts.pop();
-              for (const evt of evts) {
-                for (const ln of evt.split('\n')) {
-                  if (!ln.startsWith('data: ')) continue;
-                  const j = ln.slice(6).trim();
-                  if (!j || j === '[DONE]') continue;
-                  try {
-                    const ck = JSON.parse(j);
-                    const t  = ck?.candidates?.[0]?.content?.parts?.[0]?.text;
-                    if (t) {
-                      contTxt += t;
-                      // Render trực tiếp vào bubble gốc — markdown đúng
-                      if (lastBubble) {
-                        lastBubble.innerHTML = md(prevText + contTxt) + '<span class="tw-cursor">▋</span>';
-                        document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
-                      }
-                    }
-                  } catch {}
-                }
-              }
-            }
-
-            if (contTxt && lastBubble) {
-              const fullCombined = prevText + contTxt;
-              lastBubble.innerHTML = md(fullCombined);
-              // Thêm actions với full text
-              const actions = document.createElement('div'); actions.className = 'msg-actions';
-              actions.appendChild(makeCopyBtn(fullCombined));
-              if (isItinerary(fullCombined)) {
-                const rp = extractRoutePlaces(fullCombined);
-                const mapBtn = document.createElement('button'); mapBtn.className = 'map-btn';
-                mapBtn.textContent = rp.length >= 2
-                  ? (lang === 'vi' ? `🗺️ Xem lộ trình ${rp.length} điểm` : `🗺️ View route — ${rp.length} stops`)
-                  : i18n[lang].showMap;
-                mapBtn.onclick = () => openMap(rp);
-                actions.appendChild(mapBtn);
-              }
-              lastBubble.appendChild(actions);
-              history.push({ role:'model', parts:[{ text: contTxt }] });
-              saveHistory();
-            }
-          }
-        } catch(e) { console.warn('Continuation failed:', e); }
-      }
-
-      success = true;
-
-    } catch (e) {
-      console.warn(`Stream attempt ${attempt + 1} failed:`, e);
     }
+  } catch (e) {
+    console.warn('Stream read error:', e);
+    if (!fullText) return null; // không có gì — thử lại
   }
 
-  // ── Fallback: non-streaming nếu stream thất bại hết ──
-  if (!success) {
-    try {
-      document.getElementById('typing')?.remove();
-      showTyping();
-      const res = await fetch(getApiUrl(false), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: buildBody(),
-      });
-      const d = await res.json();
-      document.getElementById('typing')?.remove();
-      if (d.error) {
-        const isRate = (d.error.message || '').match(/quota|rate|429|limit/i);
-        addMsgWithRetry('ai', isRate ? i18n[lang].rateLimitMsg : i18n[lang].errorMsg, !isRate);
-      } else {
-        const reply = d.candidates?.[0]?.content?.parts?.[0]?.text
-                   || (lang === 'vi' ? 'Xin lỗi, thử lại nhé!' : 'Sorry, please try again!');
-        typewriterMsg(reply, isItinerary(text) || isItinerary(reply));
-        history.push({ role:'model', parts:[{ text: reply }] });
-        if (history.length > 20) history = history.slice(-20);
-        saveHistory();
-        updateTurnCounter();
-      }
-    } catch {
-      document.getElementById('typing')?.remove();
-      addMsgWithRetry('ai', i18n[lang].errorMsg, true);
-    }
-  }
+  if (!fullText) return null;
 
-  document.getElementById('sendBtn').disabled = false;
-  inp.focus();
+  // Render hoàn chỉnh
+  streamBubble.b.innerHTML = md(fullText);
+  addMsgActions(streamBubble.b, fullText, isItinerary(userText) || isItinerary(fullText));
+  streamBubble.wrap.scrollTop = streamBubble.wrap.scrollHeight;
+  history.push({ role:'model', parts:[{ text: fullText }] });
+  if (history.length > 20) history = history.slice(-20);
+  saveHistory(); updateTurnCounter();
+
+  // Auto-continue nếu bị cắt
+  if (truncated) await continueStream(fullText, streamBubble);
+
+  return 'DONE';
+}
+
+// Tự động tiếp tục khi bị MAX_TOKENS
+async function continueStream(prevText, bubble) {
+  await new Promise(r => setTimeout(r, 500));
+  history.push({ role:'user', parts:[{ text: lang === 'vi' ? 'tiếp tục' : 'continue' }] });
+  try {
+    const res = await fetch(getApiUrl(true), {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: buildBody(),
+    });
+    if (!res.ok || !res.body) return;
+    const reader = res.body.getReader();
+    const dec    = new TextDecoder();
+    let   buf    = '', extra = '';
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buf += dec.decode(value, { stream: true });
+      const evts = buf.split('\n\n'); buf = evts.pop();
+      for (const evt of evts) {
+        for (const ln of evt.split('\n')) {
+          if (!ln.startsWith('data: ')) continue;
+          const raw = ln.slice(6).trim();
+          if (!raw || raw === '[DONE]') continue;
+          try {
+            const t = JSON.parse(raw)?.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (t) {
+              extra += t;
+              bubble.b.innerHTML = md(prevText + extra) + '<span class="tw-cursor">&#9675;</span>';
+              if (!document.hidden) bubble.wrap.scrollTop = bubble.wrap.scrollHeight;
+            }
+          } catch {}
+        }
+      }
+    }
+    if (extra) {
+      const combined = prevText + extra;
+      bubble.b.innerHTML = md(combined);
+      bubble.b.querySelector('.msg-actions')?.remove();
+      addMsgActions(bubble.b, combined, isItinerary(combined));
+      history.push({ role:'model', parts:[{ text: extra }] });
+      saveHistory();
+    }
+  } catch (e) { console.warn('continueStream failed:', e); }
 }
 
 // ══════════════════════════════════════════════════════
