@@ -548,18 +548,10 @@ function createStreamBubble() {
   return { wrap, b };
 }
 
-// ── GEMINI API CONFIG ─────────────────────────────────
-const MODELS   = ['gemini-2.5-flash', 'gemini-2.0-flash'];
-let _modelIdx  = 0;
-
-function getApiUrl(stream = true) {
-  const model  = MODELS[_modelIdx] || MODELS[0];
-  const action = stream ? 'streamGenerateContent?alt=sse' : 'generateContent';
-  return `https://generativelanguage.googleapis.com/v1beta/models/${model}:${action}&key=${apiKey}`;
-}
+// ── GEMINI API ───────────────────────────────────────
+const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 
 function buildBody() {
-  // Chỉ gửi 8 turns gần nhất — giảm token, tăng tốc
   const MAX_CTX  = 8;
   const ctx      = history.slice(-MAX_CTX);
   const startIdx = ctx.findIndex(m => m.role === 'user');
@@ -571,73 +563,39 @@ function buildBody() {
   });
 }
 
-async function sendMessage(retryText, displayText) {
-  const inp  = document.getElementById('userInput');
-  const text = retryText || inp.value.trim();
-  if (!text) return;
-
-  if (history.filter(m => m.role === 'user').length >= MAX_TURNS) { updateTurnCounter(); return; }
-  if (!apiKey) {
-    document.getElementById('apiSetup').style.display = 'flex';
-    alert(lang === 'vi' ? 'Vui lòng nhập Gemini API Key trước.' : 'Please enter your Gemini API Key first.');
-    return;
+async function callAPI(retries = 2) {
+  const res = await fetch(`${API_URL}?key=${apiKey}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: buildBody(),
+  });
+  if ((res.status === 503 || res.status === 429) && retries > 0) {
+    await new Promise(r => setTimeout(r, 2000));
+    return callAPI(retries - 1);
   }
-
-  lastQuestion = text;
-  inp.value = ''; inp.style.height = 'auto';
-  document.getElementById('sendBtn').disabled = true;
-  addMsg('user', displayText || text);
-  history.push({ role:'user', parts:[{ text }] });
-  updateTurnCounter();
-  showTyping();
-
-  const reply = await fetchWithStream(text);
-
-  document.getElementById('typing')?.remove();
-
-  if (reply === null) {
-    addMsgWithRetry('ai', i18n[lang].errorMsg, true);
-  } else if (reply === 'RATE') {
-    addMsgWithRetry('ai', i18n[lang].rateLimitMsg, false);
-  }
-
-  document.getElementById('sendBtn').disabled = false;
-  inp.focus();
+  return res;
 }
 
-// Gọi Gemini API (non-streaming ổn định + typewriter effect giả lập)
 async function fetchWithStream(userText) {
-  // Thử tối đa 3 lần, đổi model sau mỗi lần 503
-  for (let attempt = 0; attempt < 3; attempt++) {
-    if (attempt > 0) {
-      _modelIdx = Math.min(_modelIdx + 1, MODELS.length - 1);
-      await new Promise(r => setTimeout(r, 1500));
+  try {
+    const res = await callAPI();
+    const d   = await res.json();
+    if (d.error) {
+      const isRate = (d.error.message || '').match(/quota|rate|429|limit/i);
+      return isRate ? 'RATE' : null;
     }
-    try {
-      const res = await fetch(getApiUrl(false), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: buildBody(),
-      });
-      if (res.status === 429) return 'RATE';
-      if (res.status === 503) continue;
-      if (!res.ok) continue;
-      const d = await res.json();
-      if (d.error) {
-        const isRate = (d.error.message||'').match(/quota|rate|429|limit/i);
-        return isRate ? 'RATE' : null;
-      }
-      const reply = d.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (reply) {
-        document.getElementById('typing')?.remove();
-        typewriterMsg(reply, isItinerary(userText) || isItinerary(reply));
-        history.push({ role:'model', parts:[{ text: reply }] });
-        if (history.length > 20) history = history.slice(-20);
-        saveHistory(); updateTurnCounter();
-        _modelIdx = 0;
-        return 'DONE';
-      }
-    } catch(e) { console.warn('Attempt', attempt, e); }
+    const reply = d.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (reply) {
+      document.getElementById('typing')?.remove();
+      typewriterMsg(reply, isItinerary(userText) || isItinerary(reply));
+      history.push({ role:'model', parts:[{ text: reply }] });
+      if (history.length > 20) history = history.slice(-20);
+      saveHistory();
+      updateTurnCounter();
+      return 'DONE';
+    }
+  } catch(e) {
+    console.warn('API error:', e);
   }
   return null;
 }
