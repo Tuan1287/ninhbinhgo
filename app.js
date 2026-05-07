@@ -600,6 +600,42 @@ async function fetchWithStream(userText) {
   return null;
 }
 
+// ── SEND MESSAGE ─────────────────────────────────────
+async function sendMessage(retryText, displayText) {
+  const inp  = document.getElementById('userInput');
+  const text = retryText || inp.value.trim();
+  if (!text) return;
+
+  if (history.filter(m => m.role === 'user').length >= MAX_TURNS) {
+    updateTurnCounter(); return;
+  }
+  if (!apiKey) {
+    document.getElementById('apiSetup').style.display = 'flex';
+    alert(lang === 'vi' ? 'Vui lòng nhập Gemini API Key trước.' : 'Please enter your Gemini API Key first.');
+    return;
+  }
+
+  lastQuestion = text;
+  inp.value = ''; inp.style.height = 'auto';
+  document.getElementById('sendBtn').disabled = true;
+  addMsg('user', displayText || text);
+  history.push({ role:'user', parts:[{ text }] });
+  updateTurnCounter();
+  showTyping();
+
+  const result = await fetchWithStream(text);
+
+  document.getElementById('typing')?.remove();
+  if (result === null) {
+    addMsgWithRetry('ai', i18n[lang].errorMsg, true);
+  } else if (result === 'RATE') {
+    addMsgWithRetry('ai', i18n[lang].rateLimitMsg, false);
+  }
+
+  document.getElementById('sendBtn').disabled = false;
+  inp.focus();
+}
+
 // ══════════════════════════════════════════════════════
 //  INIT — chạy SAU KHI tất cả functions đã định nghĩa
 // ══════════════════════════════════════════════════════
