@@ -9,7 +9,7 @@
     --ink:#111110; --muted:#888884; --tag-bg:#f0f0ec;
   }
   *{margin:0;padding:0;box-sizing:border-box}
-  body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--ink);height:100dvh;height:100vh;display:grid;grid-template-rows:auto auto 1fr auto auto;overflow:hidden}
+  body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--ink);height:var(--vh, 100dvh);height:100vh;display:grid;grid-template-rows:auto auto 1fr auto auto;overflow:hidden}
 
   /* ── HEADER ── */
   header{padding:.75rem 1.5rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:var(--surface);gap:1rem;position:relative}
