@@ -34,7 +34,11 @@ let _weatherState = { temp: null, code: null }; // thời tiết realtime cho sy
 
 // ── SYSTEM PROMPT CACHE ──────────────────────────────
 function getSystemCached(l) {
-  if (!_sysCache[l]) _sysCache[l] = getSystem(l) + getQualityRules(l);
+  if (!_sysCache[l]) {
+    // Cache toàn bộ: system + quality rules + priority context + distances
+    // buildPriorityContext và buildDistanceContextLite tốn CPU — cache lại
+    _sysCache[l] = getSystem(l) + getQualityRules(l);
+  }
   return _sysCache[l];
 }
 
@@ -449,7 +453,9 @@ function addMsgWithRetry(role, text, showRetry) {
     retryBtn.onclick = () => {
       el.remove();
       if (history.length && history[history.length - 1].role === 'user') history.pop();
-      sendMessage(lastQuestion);
+      // Hiện display text ngắn thay vì prompt dài
+      const disp = lastQuestion.length > 60 ? lastQuestion.slice(0, 60) + '...' : lastQuestion;
+      sendMessage(lastQuestion, disp);
     };
     b.appendChild(retryBtn);
   }
@@ -537,16 +543,6 @@ function typewriterMsg(text, showMapBtn) {
   setTimeout(tick, 0);
 }
 
-// -- STREAM BUBBLE: chi tao khi co chunk dau tien --
-function createStreamBubble() {
-  removeWelcome();
-  const wrap = document.getElementById('messages');
-  const el   = document.createElement('div'); el.className = 'msg ai';
-  const av   = document.createElement('div'); av.className = 'avatar'; av.textContent = '\u2756';
-  const b    = document.createElement('div'); b.className  = 'bubble';
-  el.appendChild(av); el.appendChild(b); wrap.appendChild(el);
-  return { wrap, b };
-}
 
 // ── GEMINI API ───────────────────────────────────────
 const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
@@ -645,3 +641,20 @@ loadWeather();
 loadHistory();
 setTimeout(() => getSystemCached(lang), 2000); // pre-warm system prompt
 updateTurnCounter();
+
+// ── iOS visualViewport fix ────────────────────────────────
+// Khi bàn phím iOS đóng/mở, viewport thay đổi nhưng layout không tự adjust
+// → dùng visualViewport API để set height chính xác
+if (window.visualViewport) {
+  const vp = window.visualViewport;
+  function onViewportResize() {
+    const h = vp.height;
+    document.documentElement.style.setProperty('--vh', h + 'px');
+    // Scroll messages xuống khi bàn phím đóng
+    const msgs = document.getElementById('messages');
+    if (msgs) msgs.scrollTop = msgs.scrollHeight;
+  }
+  vp.addEventListener('resize', onViewportResize);
+  vp.addEventListener('scroll', onViewportResize);
+  onViewportResize();
+}
