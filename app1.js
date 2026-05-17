@@ -34,7 +34,11 @@ let _weatherState = { temp: null, code: null }; // thời tiết realtime cho sy
 
 // ── SYSTEM PROMPT CACHE ──────────────────────────────
 function getSystemCached(l) {
-  if (!_sysCache[l]) _sysCache[l] = getSystem(l) + getQualityRules(l);
+  if (!_sysCache[l]) {
+    // Cache toàn bộ: system + quality rules + priority context + distances
+    // buildPriorityContext và buildDistanceContextLite tốn CPU — cache lại
+    _sysCache[l] = getSystem(l) + getQualityRules(l);
+  }
   return _sysCache[l];
 }
 
@@ -43,17 +47,19 @@ function getQualityRules(l) {
     ? `
 
 QUY TẮC CHẤT LƯỢNG TRẢ LỜI:
-- KHÔNG bịa đặt: Nếu không có thông tin chính xác về giá, giờ, địa chỉ trong data → nói rõ "tôi không chắc về thông tin này, bạn nên kiểm tra lại trực tiếp" thay vì đoán
-- ĐỘ DÀI PHÙ HỢP: Câu hỏi đơn giản (1 địa điểm, 1 thông tin) → trả lời ngắn gọn 2-4 câu. Chỉ trả lời dài khi hỏi lịch trình, so sánh nhiều lựa chọn, hoặc user yêu cầu chi tiết
-- KHÔNG lặp lại thông tin đã nói trong cùng đoạn chat
-- KHÔNG thêm disclaimer dài dòng cuối mỗi câu trả lời`
+- ĐỘ DÀI: Câu hỏi đơn giản → 2-4 câu ngắn gọn. Chỉ trả lời dài khi hỏi lịch trình hoặc so sánh nhiều lựa chọn.
+- KHÔNG lặp lại thông tin đã nói trong cùng đoạn chat.
+- KHÔNG thêm disclaimer dài dòng cuối câu trả lời.
+- KHI KHÔNG CÓ DỮ LIỆU CỤ THỂ (giá phòng, khách sạn lạ, nhà hàng chưa biết...): KHÔNG nói "không có trong dữ liệu" hay "tôi không có thông tin". Thay vào đó hãy: (1) chia sẻ những gì biết về khu vực/loại hình tương tự, (2) gợi ý cách tìm thông tin chính xác nhất như "bạn có thể xem trực tiếp trên Booking.com / liên hệ họ qua Facebook / Google Maps để có giá hôm nay". Trả lời như người địa phương thân thiện, không phải chatbot đọc database.
+- KHI ĐƯỢC HỎI VỀ GIÁ PHÒNG HIỆN TẠI: Luôn nhắc rằng giá có thể thay đổi theo mùa/dịp lễ và nên kiểm tra trực tiếp trên Booking/Agoda/web khách sạn để có giá thực tế nhất.`
     : `
 
 RESPONSE QUALITY RULES:
-- NO fabrication: If exact price, hours, or address not in provided data → say "I'm not certain about this, please verify directly" instead of guessing
-- CALIBRATE LENGTH: Simple questions (1 place, 1 fact) → short 2-4 sentence answer. Only give long answers for itineraries, comparisons, or when detail is requested
-- DO NOT repeat information already given in the same conversation
-- DO NOT add lengthy disclaimers at the end of each response`;
+- LENGTH: Simple questions → 2-4 short sentences. Only go long for itineraries or multi-option comparisons.
+- DO NOT repeat information already given in the conversation.
+- DO NOT add lengthy disclaimers.
+- WHEN DATA IS MISSING (unknown hotel, restaurant not in list, specific room price...): NEVER say "not in my database" or "I don't have that information". Instead: (1) share what you know about similar places/areas, (2) guide them to find accurate info — "check Booking.com / their Facebook page / Google Maps for today's price". Respond like a helpful local, not a database reader.
+- WHEN ASKED ABOUT CURRENT ROOM PRICES: Always note prices vary by season/holidays and recommend checking Booking/Agoda/hotel website directly for real-time rates.`;
 }
 
 // ── LỊCH SỬ CHAT ────────────────────────────────────
@@ -449,7 +455,9 @@ function addMsgWithRetry(role, text, showRetry) {
     retryBtn.onclick = () => {
       el.remove();
       if (history.length && history[history.length - 1].role === 'user') history.pop();
-      sendMessage(lastQuestion);
+      // Hiện display text ngắn thay vì prompt dài
+      const disp = lastQuestion.length > 60 ? lastQuestion.slice(0, 60) + '...' : lastQuestion;
+      sendMessage(lastQuestion, disp);
     };
     b.appendChild(retryBtn);
   }
@@ -537,16 +545,6 @@ function typewriterMsg(text, showMapBtn) {
   setTimeout(tick, 0);
 }
 
-// -- STREAM BUBBLE: chi tao khi co chunk dau tien --
-function createStreamBubble() {
-  removeWelcome();
-  const wrap = document.getElementById('messages');
-  const el   = document.createElement('div'); el.className = 'msg ai';
-  const av   = document.createElement('div'); av.className = 'avatar'; av.textContent = '\u2756';
-  const b    = document.createElement('div'); b.className  = 'bubble';
-  el.appendChild(av); el.appendChild(b); wrap.appendChild(el);
-  return { wrap, b };
-}
 
 // ── GEMINI API ───────────────────────────────────────
 const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
@@ -645,3 +643,20 @@ loadWeather();
 loadHistory();
 setTimeout(() => getSystemCached(lang), 2000); // pre-warm system prompt
 updateTurnCounter();
+
+// ── iOS visualViewport fix ────────────────────────────────
+// Khi bàn phím iOS đóng/mở, viewport thay đổi nhưng layout không tự adjust
+// → dùng visualViewport API để set height chính xác
+if (window.visualViewport) {
+  const vp = window.visualViewport;
+  function onViewportResize() {
+    const h = vp.height;
+    document.documentElement.style.setProperty('--vh', h + 'px');
+    // Scroll messages xuống khi bàn phím đóng
+    const msgs = document.getElementById('messages');
+    if (msgs) msgs.scrollTop = msgs.scrollHeight;
+  }
+  vp.addEventListener('resize', onViewportResize);
+  vp.addEventListener('scroll', onViewportResize);
+  onViewportResize();
+}
