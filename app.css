@@ -9,7 +9,7 @@
     --ink:#111110; --muted:#888884; --tag-bg:#f0f0ec;
   }
   *{margin:0;padding:0;box-sizing:border-box}
-  body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--ink);height:var(--vh, 100dvh);height:100vh;display:grid;grid-template-rows:auto auto 1fr auto auto;overflow:hidden}
+  body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--ink);height:var(--vh, 100dvh);display:grid;grid-template-rows:auto auto 1fr auto auto;overflow:hidden}
 
   /* ── HEADER ── */
   header{padding:.75rem 1.5rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:var(--surface);gap:1rem;position:relative}
@@ -81,6 +81,7 @@
   /* ── MSG ── */
   .msg{display:flex;gap:.75rem;animation:fadeIn .25s ease;max-width:720px}
   @keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes fadeInUp{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
   .msg.user{align-self:flex-end;flex-direction:row-reverse;max-width:75%}
   .avatar{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;margin-top:2px}
   .msg.ai .avatar{background:var(--ink);color:white;font-size:14px}
@@ -113,7 +114,7 @@
   /* ── MAP BTN ── */
   .map-btn{display:inline-flex;align-items:center;gap:.4rem;background:#eff6ff;border:1.5px solid #93c5fd;color:#1d4ed8;border-radius:8px;padding:.45rem .9rem;font-size:.8rem;font-family:'Nunito',sans-serif;font-weight:500;cursor:pointer;transition:all .15s}
   .map-btn:hover{background:#1d4ed8;color:white;border-color:#1d4ed8}
-  .msg-actions{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.6rem}
+  .msg-actions{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.6rem;animation:fadeInUp .2s ease}
 
   /* ── MAP MODAL ── */
   #mapModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center;padding:1rem}
@@ -154,7 +155,7 @@
   .turn-counter.warn{color:#d97706;font-weight:500}
   .turn-counter.full{color:#ef4444;font-weight:500}
   /* progress bar mỏng trên header */
-  #turnBar{height:2px;background:transparent;position:absolute;bottom:0;left:0;right:0;overflow:hidden;pointer-events:none}
+  #turnBar{height:2px;position:absolute;bottom:0;left:0;right:0;overflow:hidden;pointer-events:none}
   #turnBarFill{height:100%;width:0%;background:var(--border);transition:width .4s ease,background .4s}
   #turnBar.warn #turnBarFill{background:#fcd34d}
   #turnBar.full #turnBarFill{background:#ef4444}
@@ -177,9 +178,6 @@
     #messages{padding:1.25rem 1rem}
     .input-area{padding:.75rem 1rem .9rem}
     .api-notice{margin:.75rem 1rem 0}
-    .suggestions{grid-template-columns:repeat(2,1fr)}
     .msg.user{max-width:85%}
     #weatherDesc{display:none}
   }
-
-  @keyframes fadeInUp{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
