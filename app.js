@@ -386,10 +386,7 @@ document.getElementById('messages').addEventListener('scroll', function() {
 
 // ── HELPERS ──────────────────────────────────────────
 function quickAsk(promptText, displayText) {
-  // displayText: hiển thị ngắn gọn lên chat (ví dụ: "Lịch trình 2 ngày 1 đêm")
-  // promptText:  prompt đầy đủ gửi AI (ngầm, không hiện)
-  document.getElementById('userInput').value = promptText;
-  sendMessage(null, displayText || promptText);
+  sendMessage(promptText, displayText || promptText);
 }
 function handleKey(e)    { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
 function autoResize(el)  { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 100) + 'px'; }
@@ -399,11 +396,9 @@ function removeWelcome() {
   w.classList.add('fading');
   setTimeout(() => w.remove(), 260); // khớp với transition .25s
 }
-function isItinerary(t)  {
-  return ['lịch trình','itinerary','ngày 1','ngày 2','day 1','day 2','checkin','check-in',
-          'tham quan','schedule','trốn phố','escape','foodtour','food tour','ăn vặt','đặc sản']
-    .some(k => t.toLowerCase().includes(k));
-}
+const ITINERARY_KEYS = ['lịch trình','itinerary','ngày 1','ngày 2','day 1','day 2',
+  'checkin','check-in','tham quan','schedule','trốn phố','escape','foodtour','food tour','ăn vặt','đặc sản'];
+function isItinerary(t) { return ITINERARY_KEYS.some(k => t.toLowerCase().includes(k)); }
 function md(text) {
   return text
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
@@ -544,9 +539,10 @@ function typewriterMsg(text, showMapBtn) {
 // ── GEMINI API ───────────────────────────────────────
 const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 
+const MAX_CTX = 8; // số turns gửi lên API
+
 function buildBody() {
-  const MAX_CTX  = 8;
-  const ctx      = history.slice(-MAX_CTX);
+  const ctx = history.slice(-MAX_CTX);
   const startIdx = ctx.findIndex(m => m.role === 'user');
   const contents = startIdx > 0 ? ctx.slice(startIdx) : ctx;
   return JSON.stringify({
