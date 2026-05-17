@@ -16,12 +16,6 @@
 //  khudiem/luutru/nhahang/anvat/khoangcach.js — raw data
 // ============================================================
 
-// ═══════════════════════════════════════════════════════
-//  NINH BÌNH AI — Main Script
-//  Thứ tự: khai báo state → định nghĩa TẤT CẢ functions
-//  → INIT cuối cùng (sau khi mọi thứ đã ready)
-// ═══════════════════════════════════════════════════════
-
 // ── STATE ────────────────────────────────────────────
 let lang         = localStorage.getItem('nb_lang') || 'vi';
 let apiKey       = localStorage.getItem('nb_key') || '';
@@ -317,7 +311,7 @@ function applyLang() {
 function saveKey() {
   const v = document.getElementById('apiKeyInput').value.trim();
   if (!v.startsWith('AIza')) {
-    alert(lang === 'vi' ? 'Key không hợp lệ (phải bắt đầu bằng AIza...)' : 'Invalid key (must start với AIza...)');
+    alert(lang === 'vi' ? 'Key không hợp lệ (phải bắt đầu bằng AIza...)' : 'Invalid key (must start with AIza...)');
     return;
   }
   apiKey = v;
@@ -346,27 +340,28 @@ function updateTurnCounter() {
   if (bar)  bar.className = remaining <= 0 ? 'full' : remaining <= 3 ? 'warn' : '';
 
   if (!el) return;
+  const inp = document.getElementById('userInput');
+  const btn = document.getElementById('sendBtn');
+  const del = document.getElementById('clearBtn');
+
   if (remaining <= 0) {
-    el.textContent = lang === 'vi' ? '🔒 Đã đủ 10 câu — nhấn 🗑️ để chat mới' : '🔒 10/10 — press 🗑️ for new chat';
-    el.className = 'turn-counter full';
-    document.getElementById('sendBtn').disabled = true;
-    document.getElementById('userInput').disabled = true;
-    document.getElementById('userInput').placeholder = lang === 'vi' ? 'Nhấn 🗑️ để bắt đầu đoạn chat mới' : 'Press 🗑️ to start a new chat';
-  } else if (remaining <= 3) {
-    el.textContent = lang === 'vi' ? `Còn ${remaining} câu hỏi` : `${remaining} left`;
-    el.className = 'turn-counter warn';
-    document.getElementById('sendBtn').disabled = false;
-    document.getElementById('userInput').disabled = false;
-  } else if (turns > 0) {
-    el.textContent = lang === 'vi' ? `${turns}/10 câu hỏi` : `${turns}/10`;
-    el.className = 'turn-counter';
-    document.getElementById('sendBtn').disabled = false;
-    document.getElementById('userInput').disabled = false;
+    el.textContent  = lang === 'vi' ? '🔒 Đã đủ 10 câu — nhấn 🗑️ để chat mới' : '🔒 10/10 — press 🗑️ for new chat';
+    el.className    = 'turn-counter full';
+    btn.disabled    = true;
+    inp.disabled    = true;
+    inp.placeholder = lang === 'vi' ? 'Nhấn 🗑️ để bắt đầu đoạn chat mới' : 'Press 🗑️ to start a new chat';
+    // Pulse nút xóa để user biết cần nhấn vào đó
+    del?.classList.add('pulse');
   } else {
-    el.textContent = '';  // ẩn counter khi chưa hỏi gì
-    el.className = 'turn-counter';
-    document.getElementById('sendBtn').disabled = false;
-    document.getElementById('userInput').disabled = false;
+    el.textContent = turns > 0
+      ? (remaining <= 3
+          ? (lang === 'vi' ? `Còn ${remaining} câu hỏi` : `${remaining} left`)
+          : (lang === 'vi' ? `${turns}/10 câu hỏi` : `${turns}/10`))
+      : '';
+    el.className    = remaining <= 3 && turns > 0 ? 'turn-counter warn' : 'turn-counter';
+    btn.disabled    = false;
+    inp.disabled    = false;
+    del?.classList.remove('pulse');
   }
 }
 document.getElementById('messages').addEventListener('scroll', function() {
@@ -504,7 +499,7 @@ function addMsgActions(bubble, text, showMapBtn) {
     const mapBtn = document.createElement('button');
     mapBtn.className   = 'map-btn';
     mapBtn.textContent = rp.length >= 2
-      ? (lang === 'vi' ? `🗺️ Xem lo trinh ${rp.length} diem` : `🗺️ View route -- ${rp.length} stops`)
+      ? (lang === 'vi' ? `🗺️ Xem lộ trình ${rp.length} điểm` : `🗺️ View route — ${rp.length} stops`)
       : i18n[lang].showMap;
     mapBtn.onclick = () => openMap(rp);
     actions.appendChild(mapBtn);
