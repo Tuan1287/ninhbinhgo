@@ -46,6 +46,8 @@
   /* mũi tên gợi ý scroll ngang — ẩn sau lần đầu user scroll */
   .scroll-hint{position:absolute;right:6px;top:50%;transform:translateY(-50%);z-index:2;pointer-events:none;animation:hintBounce 1s ease-in-out 3;animation-fill-mode:forwards}
   .scroll-hint svg{width:16px;height:16px;opacity:.55}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.4)}70%{box-shadow:0 0 0 6px rgba(239,68,68,0)}}
+  .pulse{animation:pulse 1.2s ease infinite!important;border-color:#ef4444!important}
   @keyframes hintBounce{0%,100%{transform:translateY(-50%) translateX(0);opacity:.55}50%{transform:translateY(-50%) translateX(4px);opacity:.9}}
   .scroll-hint.hide{display:none}
   .topics{padding:.65rem 1.5rem;display:flex;gap:.4rem;overflow-x:auto;scrollbar-width:none}
@@ -179,3 +181,5 @@
     .msg.user{max-width:85%}
     #weatherDesc{display:none}
   }
+
+  @keyframes fadeInUp{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
