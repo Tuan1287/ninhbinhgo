@@ -16,12 +16,6 @@
 //  khudiem/luutru/nhahang/anvat/khoangcach.js — raw data
 // ============================================================
 
-// ═══════════════════════════════════════════════════════
-//  NINH BÌNH AI — Main Script
-//  Thứ tự: khai báo state → định nghĩa TẤT CẢ functions
-//  → INIT cuối cùng (sau khi mọi thứ đã ready)
-// ═══════════════════════════════════════════════════════
-
 // ── STATE ────────────────────────────────────────────
 let lang         = localStorage.getItem('nb_lang') || 'vi';
 let apiKey       = localStorage.getItem('nb_key') || '';
@@ -317,7 +311,7 @@ function applyLang() {
 function saveKey() {
   const v = document.getElementById('apiKeyInput').value.trim();
   if (!v.startsWith('AIza')) {
-    alert(lang === 'vi' ? 'Key không hợp lệ (phải bắt đầu bằng AIza...)' : 'Invalid key (must start với AIza...)');
+    alert(lang === 'vi' ? 'Key không hợp lệ (phải bắt đầu bằng AIza...)' : 'Invalid key (must start with AIza...)');
     return;
   }
   apiKey = v;
@@ -346,27 +340,28 @@ function updateTurnCounter() {
   if (bar)  bar.className = remaining <= 0 ? 'full' : remaining <= 3 ? 'warn' : '';
 
   if (!el) return;
+  const inp = document.getElementById('userInput');
+  const btn = document.getElementById('sendBtn');
+  const del = document.getElementById('clearBtn');
+
   if (remaining <= 0) {
-    el.textContent = lang === 'vi' ? '🔒 Đã đủ 10 câu — nhấn 🗑️ để chat mới' : '🔒 10/10 — press 🗑️ for new chat';
-    el.className = 'turn-counter full';
-    document.getElementById('sendBtn').disabled = true;
-    document.getElementById('userInput').disabled = true;
-    document.getElementById('userInput').placeholder = lang === 'vi' ? 'Nhấn 🗑️ để bắt đầu đoạn chat mới' : 'Press 🗑️ to start a new chat';
-  } else if (remaining <= 3) {
-    el.textContent = lang === 'vi' ? `Còn ${remaining} câu hỏi` : `${remaining} left`;
-    el.className = 'turn-counter warn';
-    document.getElementById('sendBtn').disabled = false;
-    document.getElementById('userInput').disabled = false;
-  } else if (turns > 0) {
-    el.textContent = lang === 'vi' ? `${turns}/10 câu hỏi` : `${turns}/10`;
-    el.className = 'turn-counter';
-    document.getElementById('sendBtn').disabled = false;
-    document.getElementById('userInput').disabled = false;
+    el.textContent  = lang === 'vi' ? '🔒 Đã đủ 10 câu — nhấn 🗑️ để chat mới' : '🔒 10/10 — press 🗑️ for new chat';
+    el.className    = 'turn-counter full';
+    btn.disabled    = true;
+    inp.disabled    = true;
+    inp.placeholder = lang === 'vi' ? 'Nhấn 🗑️ để bắt đầu đoạn chat mới' : 'Press 🗑️ to start a new chat';
+    // Pulse nút xóa để user biết cần nhấn vào đó
+    del?.classList.add('pulse');
   } else {
-    el.textContent = '';  // ẩn counter khi chưa hỏi gì
-    el.className = 'turn-counter';
-    document.getElementById('sendBtn').disabled = false;
-    document.getElementById('userInput').disabled = false;
+    el.textContent = turns > 0
+      ? (remaining <= 3
+          ? (lang === 'vi' ? `Còn ${remaining} câu hỏi` : `${remaining} left`)
+          : (lang === 'vi' ? `${turns}/10 câu hỏi` : `${turns}/10`))
+      : '';
+    el.className    = remaining <= 3 && turns > 0 ? 'turn-counter warn' : 'turn-counter';
+    btn.disabled    = false;
+    inp.disabled    = false;
+    del?.classList.remove('pulse');
   }
 }
 document.getElementById('messages').addEventListener('scroll', function() {
@@ -391,10 +386,7 @@ document.getElementById('messages').addEventListener('scroll', function() {
 
 // ── HELPERS ──────────────────────────────────────────
 function quickAsk(promptText, displayText) {
-  // displayText: hiển thị ngắn gọn lên chat (ví dụ: "Lịch trình 2 ngày 1 đêm")
-  // promptText:  prompt đầy đủ gửi AI (ngầm, không hiện)
-  document.getElementById('userInput').value = promptText;
-  sendMessage(null, displayText || promptText);
+  sendMessage(promptText, displayText || promptText);
 }
 function handleKey(e)    { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
 function autoResize(el)  { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 100) + 'px'; }
@@ -404,11 +396,9 @@ function removeWelcome() {
   w.classList.add('fading');
   setTimeout(() => w.remove(), 260); // khớp với transition .25s
 }
-function isItinerary(t)  {
-  return ['lịch trình','itinerary','ngày 1','ngày 2','day 1','day 2','checkin','check-in',
-          'tham quan','schedule','trốn phố','escape','foodtour','food tour','ăn vặt','đặc sản']
-    .some(k => t.toLowerCase().includes(k));
-}
+const ITINERARY_KEYS = ['lịch trình','itinerary','ngày 1','ngày 2','day 1','day 2',
+  'checkin','check-in','tham quan','schedule','trốn phố','escape','foodtour','food tour','ăn vặt','đặc sản'];
+function isItinerary(t) { return ITINERARY_KEYS.some(k => t.toLowerCase().includes(k)); }
 function md(text) {
   return text
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
@@ -504,7 +494,7 @@ function addMsgActions(bubble, text, showMapBtn) {
     const mapBtn = document.createElement('button');
     mapBtn.className   = 'map-btn';
     mapBtn.textContent = rp.length >= 2
-      ? (lang === 'vi' ? `🗺️ Xem lo trinh ${rp.length} diem` : `🗺️ View route -- ${rp.length} stops`)
+      ? (lang === 'vi' ? `🗺️ Xem lộ trình ${rp.length} điểm` : `🗺️ View route — ${rp.length} stops`)
       : i18n[lang].showMap;
     mapBtn.onclick = () => openMap(rp);
     actions.appendChild(mapBtn);
@@ -549,9 +539,10 @@ function typewriterMsg(text, showMapBtn) {
 // ── GEMINI API ───────────────────────────────────────
 const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 
+const MAX_CTX = 8; // số turns gửi lên API
+
 function buildBody() {
-  const MAX_CTX  = 8;
-  const ctx      = history.slice(-MAX_CTX);
+  const ctx = history.slice(-MAX_CTX);
   const startIdx = ctx.findIndex(m => m.role === 'user');
   const contents = startIdx > 0 ? ctx.slice(startIdx) : ctx;
   return JSON.stringify({
