@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ninh Bình AI — Trợ lý du lịch</title>
+<meta name="description" content="Trợ lý du lịch AI cho Ninh Bình — lịch trình, địa điểm, ăn uống, di chuyển. Miễn phí, không cần đăng ký.">
+<meta name="keywords" content="Ninh Bình, du lịch, Tràng An, Hang Múa, Tam Cốc, lịch trình, AI">
+<meta property="og:title" content="Ninh Bình AI — Trợ lý du lịch">
+<meta property="og:description" content="Hỏi bất kỳ điều gì về du lịch Ninh Bình — AI trả lời ngay, miễn phí.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#111110">
+<link rel="manifest" href="manifest.json">
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏔️</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
+<!-- Leaflet CSS load lazy khi cần — không block First Paint -->
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="brand" onclick="resetChat()">
+      <span class="brand-name">Ninh Bình AI</span>
+      <span class="brand-tag" id="brandTag"></span>
+    </div>
+    <div id="weatherPill" title="Thời tiết Ninh Bình hiện tại">
+      <span id="weatherIcon">⏳</span>
+      <span id="weatherTemp">--°C</span>
+      <span id="weatherDesc"></span>
+    </div>
+  </div>
+  <div class="header-right">
+    <span id="disclaimer"></span>
+    <button class="icon-btn" id="clearBtn" onclick="clearChat()">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
+      </svg>
+    </button>
+    <button class="icon-btn" id="keyBtn" onclick="resetKey()">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="8" cy="15" r="3"/><path d="M11 15h9"/><path d="M17 12l3 3-3 3"/>
+      </svg>
+    </button>
+    <button id="langBtn" onclick="toggleLang()">EN</button>
+  </div>
+  <div id="turnBar"><div id="turnBarFill"></div></div>
+</header>
+
+<div class="topics-wrap">
+  <nav class="topics" id="topicsNav"></nav>
+  <span class="scroll-hint" id="scrollHint">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#888884" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="9 18 15 12 9 6"/>
+    </svg>
+  </span>
+</div>
+
+<div id="msgWrap">
+<button id="scrollBtn" onclick="scrollToBottom()" title="Xuống cuối">↓</button>
+<div id="messages">
+  <div class="welcome" id="welcome">
+    <h1 class="welcome-heading" id="welcomeHeading"></h1>
+    <p class="welcome-sub" id="welcomeSub"></p>
+    <div class="suggestions" id="sugGrid"></div>
+  </div>
+</div>
+</div>
+
+<div class="api-notice" id="apiSetup">
+  <p id="apiText"></p>
+  <div class="key-row">
+    <input type="password" id="apiKeyInput" placeholder="AIzaSy..."/>
+    <button id="apiConnectBtn" onclick="saveKey()"></button>
+  </div>
+
+</div>
+
+<div class="input-area">
+  <div class="input-row">
+    <textarea id="userInput" rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+    <button id="sendBtn" onclick="sendMessage()">
+      <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+    </button>
+  </div>
+  <p class="hint" id="hintText"></p>
+  <p class="turn-counter" id="turnCounter"></p>
+</div>
+
+<div id="mapModal">
+  <div class="map-panel">
+    <div class="map-header">
+      <h3 id="mapTitle"></h3>
+      <button class="map-close" onclick="closeMap()">✕</button>
+    </div>
+    <div id="map"></div>
+    <div class="map-legend">
+      <span class="legend-item"><span class="legend-dot" style="background:#ef4444"></span> Tham quan</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#3b82f6"></span> Lưu trú</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#f59e0b"></span> Ăn uống</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#10b981"></span> Mua sắm</span>
+    </div>
+  </div>
+</div>
+
+<!-- Thứ tự load quan trọng: dữ liệu trước, logic sau -->
+<script src="i18n.js"></script>
+<script src="khudiem.js"></script>
+<script src="khoangcach.js"></script>
+<script src="luutru.js"></script>
+<script src="nhahang.js"></script>
+<script src="anvat.js"></script>
+<script src="places.js"></script>
+<script src="system.js"></script>
+
+<script src="app.js"></script>
+</body>
+</html>
