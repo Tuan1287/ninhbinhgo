@@ -66,10 +66,9 @@ function saveHistory() {
 // Analytics chip — đếm lần nhấn, lưu local (không gửi server)
 function trackChip(label) {
   try {
-    const key  = 'nb_chip_stats';
-    const data = JSON.parse(localStorage.getItem(key) || '{}');
-    data[label] = (data[label] || 0) + 1;
-    localStorage.setItem(key, JSON.stringify(data));
+    const k = 'nb_chip_stats';
+    const d = JSON.parse(localStorage.getItem(k) || '{}');
+    localStorage.setItem(k, JSON.stringify({...d, [label]: (d[label]||0)+1}));
   } catch {}
 }
 function loadHistory() {
@@ -136,15 +135,16 @@ function renderWeather(temp, code) {
   document.getElementById('weatherTemp').textContent = `${temp}°C`;
   document.getElementById('weatherDesc').textContent = desc;
 }
-function weatherInfo(code, l) {
-  const map = l === 'vi'
-    ? [[0,'☀️','Trời quang'],[1,'🌤️','Ít mây'],[2,'⛅','Có mây'],[3,'☁️','Nhiều mây'],
+const WEATHER_MAP = {
+  vi: [[0,'☀️','Trời quang'],[1,'🌤️','Ít mây'],[2,'⛅','Có mây'],[3,'☁️','Nhiều mây'],
        [45,'🌫️','Sương mù'],[51,'🌦️','Mưa phùn'],[61,'🌧️','Mưa nhẹ'],[71,'🌨️','Mưa tuyết'],
-       [80,'🌦️','Mưa rào'],[95,'⛈️','Giông bão']]
-    : [[0,'☀️','Clear'],[1,'🌤️','Mainly clear'],[2,'⛅','Partly cloudy'],[3,'☁️','Overcast'],
+       [80,'🌦️','Mưa rào'],[95,'⛈️','Giông bão']],
+  en: [[0,'☀️','Clear'],[1,'🌤️','Mainly clear'],[2,'⛅','Partly cloudy'],[3,'☁️','Overcast'],
        [45,'🌫️','Foggy'],[51,'🌦️','Drizzle'],[61,'🌧️','Light rain'],[71,'🌨️','Snow'],
-       [80,'🌦️','Showers'],[95,'⛈️','Thunderstorm']];
-  const found = map.slice().reverse().find(([c]) => code >= c);
+       [80,'🌦️','Showers'],[95,'⛈️','Thunderstorm']],
+};
+function weatherInfo(code, l) {
+  const found = [...WEATHER_MAP[l]].reverse().find(([c]) => code >= c);
   return found ? { icon: found[1], desc: found[2] } : { icon: '🌤️', desc: 'OK' };
 }
 
