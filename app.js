@@ -537,7 +537,7 @@ function typewriterMsg(text, showMapBtn) {
 
 
 // ── GEMINI API ───────────────────────────────────────
-const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent';
 
 const MAX_CTX = 8; // số turns gửi lên API
 
