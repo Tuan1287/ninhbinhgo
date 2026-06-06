@@ -726,20 +726,7 @@ const SNACKS = [
     note: 'Quán chè gia đình phục vụ các món chè nóng mùa đông và chè đá mùa hè chuẩn vị truyền thống Bắc Bộ.',
     noteEn: 'Family-run dessert shop offering hot sweet soups in winter and iced desserts in summer.',
   },
-  Dưới đây là phần dữ liệu mở rộng cho các địa điểm từ số 70 đến số 104 dựa trên hai hình ảnh mới nhất bạn cung cấp.
-
-Để giữ tính đồng nhất cho toàn bộ hệ thống, tôi đã tìm kiếm địa chỉ thực tế kèm tọa độ GPS tại Ninh Bình và phân tách danh sách này thành 3 nhóm danh mục mới:
-
-type: 'snack' (Màu hồng #ec4899): Tiệm chè, quán ốc, ăn vặt đường phố.
-
-type: 'pub' (Màu xanh dương #3b82f6): Các quán bia tô, bia hơi, nhậu lai rai bờ hồ/sân vườn.
-
-type: 'latenight' (Màu tím #8b5cf6): Các quán chuyên ăn đêm, cháo, phở, đồ nướng muộn sau 22h.
-
-JavaScript
-const LATENIGHT_AND_PUBS = [
-  // === NHÓM 1: TIỆM CHÈ, ĂN VẶT & QUÁN ỐC (Từ số 70 đến 85) ===
-  {
+    {
     name: 'TIỆM CHÈ CÔ DUNG - P. Vân Giang',
     nameEn: 'Co Dung Dessert Shop',
     lat: 20.258412, lng: 105.975104,
@@ -932,7 +919,6 @@ const LATENIGHT_AND_PUBS = [
     noteEn: 'Renowned seafood snail restaurant offering rich salted egg yolk and cheese baked toppings.',
   },
 
-  // === NHÓM 2: QUÁN BIA, NHẬU LAI RAI (Từ số 86 đến 94) ===
   {
     name: 'Bia Tô Nhậu Lai Rai',
     nameEn: 'Bia To Casual Pub',
@@ -1042,7 +1028,6 @@ const LATENIGHT_AND_PUBS = [
     noteEn: 'A great refreshment pit-stop for tourist groups touring nearby caves.',
   },
 
-  // === NHÓM 3: HÀNG ĂN ĐÊM, ĂN MUỘN (Từ số 95 đến 104) ===
   {
     name: 'Gỏi cá - 104 Lê Thánh Tông',
     nameEn: '104 Le Thanh Tong Raw Fish Salad',
