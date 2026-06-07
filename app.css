@@ -65,8 +65,27 @@
   #messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
 
   /* ── WELCOME ── */
-  .welcome{display:flex;flex-direction:column;align-items:flex-start;gap:1rem;padding:.5rem 0;max-width:760px;transition:opacity .25s ease,transform .25s ease}
+  /* ── WELCOME LAYOUT ── */
+  .welcome{padding:.5rem 0;transition:opacity .25s ease,transform .25s ease;width:100%}
   .welcome.fading{opacity:0;transform:translateY(-6px);pointer-events:none}
+  .welcome-body{display:grid;grid-template-columns:1fr 320px;gap:1.5rem;align-items:start;width:100%;max-width:900px}
+  .welcome-left{display:flex;flex-direction:column;gap:.9rem}
+  .welcome-heading{font-family:'Playfair Display',serif;font-size:clamp(1.5rem,3vw,2rem);line-height:1.15;letter-spacing:-.03em}
+  .welcome-sub{font-size:.85rem;color:#555552;line-height:1.65;font-weight:400;max-width:480px;letter-spacing:.01em}
+
+  /* ── PLANNER PANEL ── */
+  .planner{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:1.1rem 1.1rem 1rem;display:flex;flex-direction:column;gap:.85rem;position:sticky;top:.5rem}
+  .planner-title{font-size:.78rem;font-weight:600;color:var(--ink);letter-spacing:.03em;text-transform:uppercase;opacity:.7}
+  .planner-fields{display:flex;flex-direction:column;gap:.7rem}
+  .pfield{display:flex;flex-direction:column;gap:.3rem}
+  .pfield label{font-size:.72rem;font-weight:500;color:var(--muted)}
+  .pchips{display:flex;flex-wrap:wrap;gap:.3rem}
+  .pchip{background:transparent;border:1px solid var(--border);border-radius:7px;padding:.28rem .55rem;font-size:.72rem;font-family:'Nunito',sans-serif;font-weight:400;color:var(--muted);cursor:pointer;transition:all .15s;white-space:nowrap}
+  .pchip:hover{border-color:var(--ink);color:var(--ink)}
+  .pchip.active{background:var(--ink);border-color:var(--ink);color:#fff;font-weight:500}
+  .planner-btn{background:var(--ink);color:#fff;border:none;border-radius:9px;padding:.65rem 1rem;font-size:.82rem;font-family:'Nunito',sans-serif;font-weight:600;cursor:pointer;transition:opacity .15s;margin-top:.2rem;letter-spacing:.01em}
+  .planner-btn:hover{opacity:.82}
+  .planner-btn:active{opacity:.65}
   .welcome-heading{font-family:'Playfair Display',serif;font-size:clamp(1.5rem,3vw,2rem);line-height:1.15;letter-spacing:-.03em}
   .welcome-heading em{font-style:italic;color:var(--muted)}
   .welcome-sub{font-size:.85rem;color:#555552;line-height:1.65;font-weight:400;max-width:600px;letter-spacing:.01em}
@@ -162,6 +181,10 @@
 
   /* ── RESPONSIVE ── */
   @media(max-width:400px){.suggestions{grid-template-columns:1fr;gap:.35rem}}
+  @media(max-width:700px){
+    .welcome-body{grid-template-columns:1fr}
+    .planner{position:static}
+  }
   @media(max-width:480px){
     .suggestions{grid-template-columns:repeat(2,1fr);gap:.35rem}
     .sug-btn{padding:.5rem .6rem}
