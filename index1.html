@@ -1,21 +1,68 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" prefix="og: https://ogp.me/ns#">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ninh Bình AI — Trợ lý du lịch</title>
-<meta name="description" content="Trợ lý du lịch AI cho Ninh Bình — lịch trình, địa điểm, ăn uống, di chuyển. Miễn phí, không cần đăng ký.">
-<meta name="keywords" content="Ninh Bình, du lịch, Tràng An, Hang Múa, Tam Cốc, lịch trình, AI">
-<meta property="og:title" content="Ninh Bình AI — Trợ lý du lịch">
-<meta property="og:description" content="Hỏi bất kỳ điều gì về du lịch Ninh Bình — AI trả lời ngay, miễn phí.">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+<!-- ── Primary SEO ── -->
+<title>Ninh Bình AI — Trợ lý du lịch thông minh</title>
+<link rel="canonical" href="https://tuan1287.github.io/ninhbinhgo/">
+<meta name="description" content="Trợ lý du lịch AI miễn phí cho Ninh Bình. Hỏi về lịch trình, giá vé Tràng An, Hang Múa, Tam Cốc, chỗ ở, ăn uống và cách di chuyển từ Hà Nội — AI trả lời ngay, chính xác theo dữ liệu 2026.">
+<meta name="keywords" content="du lịch Ninh Bình, Tràng An, Hang Múa, Tam Cốc, Hoa Lư, Bái Đính, lịch trình Ninh Bình, ăn gì ở Ninh Bình, khách sạn Ninh Bình, từ Hà Nội đi Ninh Bình, AI du lịch">
+<meta name="author" content="Ninh Bình AI">
+<meta name="robots" content="index, follow">
+<meta name="language" content="Vietnamese">
+
+<!-- ── Open Graph (Facebook, Zalo) ── -->
 <meta property="og:type" content="website">
+<meta property="og:url" content="https://tuan1287.github.io/ninhbinhgo/">
+<meta property="og:title" content="Ninh Bình AI — Trợ lý du lịch thông minh">
+<meta property="og:description" content="Hỏi bất kỳ điều gì về du lịch Ninh Bình — lịch trình, giá vé, chỗ ở, ăn uống. AI trả lời ngay, miễn phí, dữ liệu 2026.">
+<meta property="og:locale" content="vi_VN">
+<meta property="og:site_name" content="Ninh Bình AI">
+
+<!-- ── Twitter Card ── -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Ninh Bình AI — Trợ lý du lịch thông minh">
+<meta name="twitter:description" content="Hỏi bất kỳ điều gì về du lịch Ninh Bình — AI trả lời ngay, miễn phí.">
+
+<!-- ── Schema.org JSON-LD ── -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Ninh Bình AI",
+  "alternateName": "Trợ lý du lịch Ninh Bình",
+  "url": "https://tuan1287.github.io/ninhbinhgo/",
+  "description": "Trợ lý du lịch AI miễn phí cho Ninh Bình. Hỏi về lịch trình, giá vé, chỗ ở, ăn uống và cách di chuyển.",
+  "applicationCategory": "TravelApplication",
+  "operatingSystem": "Web",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "VND" },
+  "areaServed": {
+    "@type": "Place",
+    "name": "Ninh Bình",
+    "addressCountry": "VN"
+  },
+  "inLanguage": ["vi", "en"],
+  "featureList": ["Lịch trình du lịch", "Giá vé địa điểm 2026", "Gợi ý ăn uống", "Gợi ý lưu trú", "Hướng dẫn di chuyển"]
+}
+</script>
+
+<!-- ── PWA & Theme ── -->
 <meta name="theme-color" content="#111110">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ninh Bình AI">
 <link rel="manifest" href="manifest.json">
 
+<!-- ── Favicon ── -->
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏔️</text></svg>">
+
+<!-- ── Fonts ── -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
-<!-- Leaflet CSS load lazy khi cần — không block First Paint -->
+
 <link rel="stylesheet" href="app.css">
 </head>
 <body>
@@ -75,7 +122,6 @@
     <input type="password" id="apiKeyInput" placeholder="AIzaSy..."/>
     <button id="apiConnectBtn" onclick="saveKey()"></button>
   </div>
-
 </div>
 
 <div class="input-area">
