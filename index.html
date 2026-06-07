@@ -109,9 +109,77 @@
 <button id="scrollBtn" onclick="scrollToBottom()" title="Xuống cuối">↓</button>
 <div id="messages">
   <div class="welcome" id="welcome">
-    <h1 class="welcome-heading" id="welcomeHeading"></h1>
-    <p class="welcome-sub" id="welcomeSub"></p>
-    <div class="suggestions" id="sugGrid"></div>
+    <div class="welcome-body">
+      <!-- Cột trái: heading + suggestions -->
+      <div class="welcome-left">
+        <h1 class="welcome-heading" id="welcomeHeading"></h1>
+        <p class="welcome-sub" id="welcomeSub"></p>
+        <div class="suggestions" id="sugGrid"></div>
+      </div>
+      <!-- Cột phải: planner form -->
+      <div class="planner" id="plannerPanel">
+        <div class="planner-title" id="plannerTitle">✦ Tư vấn theo nhu cầu</div>
+        <div class="planner-fields">
+          <div class="pfield">
+            <label id="pLabelPeople">👥 Số người</label>
+            <div class="pchips" id="pPeople">
+              <button class="pchip" data-val="1">1</button>
+              <button class="pchip" data-val="2">2</button>
+              <button class="pchip" data-val="3-5">3–5</button>
+              <button class="pchip active" data-val="6+">6+</button>
+            </div>
+          </div>
+          <div class="pfield">
+            <label id="pLabelDays">📅 Số ngày</label>
+            <div class="pchips" id="pDays">
+              <button class="pchip active" data-val="1">1 ngày</button>
+              <button class="pchip" data-val="2">2N1Đ</button>
+              <button class="pchip" data-val="3">3N2Đ</button>
+              <button class="pchip" data-val="4+">4N+</button>
+            </div>
+          </div>
+          <div class="pfield">
+            <label id="pLabelStyle">🎯 Mục tiêu</label>
+            <div class="pchips multi" id="pStyle">
+              <button class="pchip" data-val="kham-pha">🏞️ Khám phá</button>
+              <button class="pchip" data-val="nghi-duong">🧘 Nghỉ dưỡng</button>
+              <button class="pchip" data-val="am-thuc">🍜 Ẩm thực</button>
+              <button class="pchip" data-val="check-in">📸 Check-in</button>
+            </div>
+          </div>
+          <div class="pfield">
+            <label id="pLabelArea">📍 Khu vực ưu tiên</label>
+            <div class="pchips multi" id="pArea">
+              <button class="pchip" data-val="trang-an">Tràng An</button>
+              <button class="pchip" data-val="tam-coc">Tam Cốc</button>
+              <button class="pchip" data-val="bai-dinh">Bái Đính</button>
+              <button class="pchip" data-val="pho-co">Phố cổ</button>
+            </div>
+          </div>
+          <div class="pfield">
+            <label id="pLabelTransport">🚗 Phương tiện</label>
+            <div class="pchips" id="pTransport">
+              <button class="pchip active" data-val="xe-may">🏍️ Xe máy</button>
+              <button class="pchip" data-val="o-to">🚗 Ô tô</button>
+              <button class="pchip" data-val="xe-khach">🚌 Xe khách</button>
+              <button class="pchip" data-val="tau">🚂 Tàu</button>
+            </div>
+          </div>
+          <div class="pfield">
+            <label id="pLabelBudget">💰 Ngân sách/người</label>
+            <div class="pchips" id="pBudget">
+              <button class="pchip" data-val="<1tr">&lt;1 triệu</button>
+              <button class="pchip active" data-val="1-2tr">1–2 triệu</button>
+              <button class="pchip" data-val="2-5tr">2–5 triệu</button>
+              <button class="pchip" data-val=">5tr">5tr+</button>
+            </div>
+          </div>
+        </div>
+        <button class="planner-btn" id="plannerBtn" onclick="submitPlanner()">
+          Tư vấn cho tôi →
+        </button>
+      </div>
+    </div>
   </div>
 </div>
 </div>
