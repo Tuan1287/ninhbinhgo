@@ -289,6 +289,7 @@ function applyLang() {
   document.getElementById('mapTitle').textContent      = t.mapTitle;
   const wh = document.getElementById('welcomeHeading'); if (wh) wh.innerHTML = t.welcomeH;
   const ws = document.getElementById('welcomeSub');     if (ws) ws.textContent = t.welcomeSub;
+  applyPlannerLang(t);
   const nav = document.getElementById('topicsNav'); nav.innerHTML = '';
   t.chips.forEach((label, i) => {
     const btn = document.createElement('button'); btn.className = 'chip';
@@ -537,7 +538,7 @@ function typewriterMsg(text, showMapBtn) {
 
 
 // ── GEMINI API ───────────────────────────────────────
-const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent';
+const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 
 const MAX_CTX = 8; // số turns gửi lên API
 
@@ -624,6 +625,119 @@ async function sendMessage(retryText, displayText) {
   document.getElementById('sendBtn').disabled = false;
   inp.focus();
 }
+
+
+// ── PLANNER PANEL ─────────────────────────────────────
+// Single-select chips: chỉ 1 active tại 1 thời điểm
+// Multi-select chips (class="pchips multi"): nhiều active
+
+(function initPlanner() {
+  document.querySelectorAll('.pchips').forEach(group => {
+    const isMulti = group.classList.contains('multi');
+    group.querySelectorAll('.pchip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        if (isMulti) {
+          chip.classList.toggle('active');
+        } else {
+          group.querySelectorAll('.pchip').forEach(c => c.classList.remove('active'));
+          chip.classList.add('active');
+        }
+      });
+    });
+  });
+})();
+
+function getPlanner(lang) {
+  const get = (id) => {
+    const el = document.getElementById(id);
+    if (!el) return [];
+    const isMulti = el.classList.contains('multi');
+    const actives = [...el.querySelectorAll('.pchip.active')].map(c => c.dataset.val);
+    return actives;
+  };
+
+  const people    = get('pPeople')[0]    || '2';
+  const days      = get('pDays')[0]      || '2';
+  const styles    = get('pStyle');
+  const areas     = get('pArea');
+  const transport = get('pTransport')[0] || 'xe-khach';
+  const budget    = get('pBudget')[0]    || '1-2tr';
+
+  // Map values → text đẹp
+  const dayMap  = { '1':'1 ngày', '2':'2 ngày 1 đêm', '3':'3 ngày 2 đêm', '4+':'4 ngày trở lên' };
+  const dayMapEn= { '1':'1 day trip', '2':'2 days 1 night', '3':'3 days 2 nights', '4+':'4+ days' };
+  const transMap= { 'xe-may':'xe máy cá nhân', 'o-to':'ô tô', 'xe-khach':'xe khách/limousine', 'tau':'tàu hỏa' };
+  const transMapEn = { 'xe-may':'personal motorbike', 'o-to':'car', 'xe-khach':'bus/limousine', 'tau':'train' };
+  const styleMap= { 'kham-pha':'khám phá thiên nhiên', 'nghi-duong':'nghỉ dưỡng thư giãn', 'am-thuc':'trải nghiệm ẩm thực', 'check-in':'chụp ảnh check-in' };
+  const styleMapEn = { 'kham-pha':'nature exploration', 'nghi-duong':'relaxation & resort', 'am-thuc':'food experience', 'check-in':'photography & check-in' };
+  const areaMap = { 'trang-an':'Tràng An', 'tam-coc':'Tam Cốc', 'bai-dinh':'Bái Đính', 'pho-co':'Phố cổ Hoa Lư' };
+  const budgetMap = { '<1tr':'dưới 1 triệu', '1-2tr':'1–2 triệu', '2-5tr':'2–5 triệu', '>5tr':'trên 5 triệu' };
+  const budgetMapEn = { '<1tr':'under 1M VND', '1-2tr':'1–2M VND', '2-5tr':'2–5M VND', '>5tr':'over 5M VND' };
+
+  const styleText  = styles.map(s => styleMap[s]   || s).join(', ') || 'khám phá';
+  const styleTextEn= styles.map(s => styleMapEn[s] || s).join(', ') || 'exploration';
+  const areaText   = areas.map(a => areaMap[a]     || a).join(', ') || 'tất cả khu vực';
+  const areaTextEn = areas.map(a => areaMap[a]     || a).join(' & ') || 'all areas';
+
+  if (lang === 'vi') {
+    return `Lên cho tôi chương trình du lịch Ninh Bình chi tiết với thông tin sau:
+- Số người: ${people} người
+- Thời gian: ${dayMap[days] || days}
+- Mục tiêu chuyến đi: ${styleText}
+- Khu vực ưu tiên: ${areaText || 'tất cả'}
+- Phương tiện di chuyển: ${transMap[transport] || transport}
+- Ngân sách: ${budgetMap[budget] || budget}/người
+Hãy lên lịch trình chi tiết theo khung giờ, gợi ý chỗ ở phù hợp và các địa điểm ăn uống gần điểm tham quan.`;
+  }
+  return `Plan a detailed Ninh Binh itinerary with:
+- Group size: ${people} people
+- Duration: ${dayMapEn[days] || days}
+- Travel style: ${styleTextEn}
+- Priority areas: ${areaTextEn || 'all areas'}
+- Transport: ${transMapEn[transport] || transport}
+- Budget: ${budgetMapEn[budget] || budget}/person
+Please provide a detailed hourly schedule, accommodation suggestions and nearby dining options.`;
+}
+
+function submitPlanner() {
+  const prompt  = getPlanner(lang);
+  const days    = document.querySelector('#pDays .pchip.active')?.dataset.val || '2';
+  const people  = document.querySelector('#pPeople .pchip.active')?.dataset.val || '2';
+  const dayMap  = { '1':'1 ngày', '2':'2N1Đ', '3':'3N2Đ', '4+':'4N+' };
+  const dayMapEn= { '1':'1-day trip', '2':'2D1N', '3':'3D2N', '4+':'4D+' };
+  const display = lang === 'vi'
+    ? `Lên lịch trình ${dayMap[days] || days} — ${people} người`
+    : `Plan ${dayMapEn[days] || days} — ${people} people`;
+
+  sendMessage(prompt, display);
+}
+
+// i18n cho planner labels
+function applyPlannerLang(t) {
+  const el = (id) => document.getElementById(id);
+  if (!t.planner) return;
+  const p = t.planner;
+  if (el('plannerTitle'))     el('plannerTitle').textContent     = p.title;
+  if (el('pLabelPeople'))     el('pLabelPeople').textContent     = p.people;
+  if (el('pLabelDays'))       el('pLabelDays').textContent       = p.days;
+  if (el('pLabelStyle'))      el('pLabelStyle').textContent      = p.style;
+  if (el('pLabelArea'))       el('pLabelArea').textContent       = p.area;
+  if (el('pLabelTransport'))  el('pLabelTransport').textContent  = p.transport;
+  if (el('pLabelBudget'))     el('pLabelBudget').textContent     = p.budget;
+  if (el('plannerBtn'))       el('plannerBtn').textContent       = p.btn;
+  // Dịch chip text
+  const chipMap = {
+    'pStyle': p.styleChips,
+    'pArea':  p.areaChips,
+  };
+  Object.entries(chipMap).forEach(([id, labels]) => {
+    if (!labels) return;
+    document.querySelectorAll(`#${id} .pchip`).forEach((chip, i) => {
+      if (labels[i]) chip.textContent = labels[i];
+    });
+  });
+}
+
 
 // ══════════════════════════════════════════════════════
 //  INIT — chạy SAU KHI tất cả functions đã định nghĩa
