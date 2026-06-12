@@ -538,7 +538,7 @@ function typewriterMsg(text, showMapBtn) {
 
 
 // ── GEMINI API ───────────────────────────────────────
-const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent';
+const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 
 const MAX_CTX = 8; // số turns gửi lên API
 
@@ -664,8 +664,8 @@ function getPlanner(lang) {
   const budget    = get('pBudget')[0]    || '1-2tr';
 
   // Map values → text đẹp
-  const dayMap  = { '1':'1 ngày', '2':'2 ngày 1 đêm', '3':'3 ngày 2 đêm', '4+':'4 ngày trở lên' };
-  const dayMapEn= { '1':'1 day trip', '2':'2 days 1 night', '3':'3 days 2 nights', '4+':'4+ days' };
+  const dayMap  = { '1':'1 ngày', '2':'2 ngày 1 đêm', '3':'3 ngày 2 đêm' };
+  const dayMapEn= { '1':'1 day trip', '2':'2 days 1 night', '3':'3 days 2 nights' };
   const transMap= { 'xe-may':'xe máy cá nhân', 'o-to':'ô tô', 'xe-khach':'xe khách/limousine', 'tau':'tàu hỏa' };
   const transMapEn = { 'xe-may':'personal motorbike', 'o-to':'car', 'xe-khach':'bus/limousine', 'tau':'train' };
   const styleMap= { 'kham-pha':'khám phá thiên nhiên', 'nghi-duong':'nghỉ dưỡng thư giãn', 'am-thuc':'trải nghiệm ẩm thực', 'check-in':'chụp ảnh check-in' };
@@ -717,23 +717,30 @@ function applyPlannerLang(t) {
   const el = (id) => document.getElementById(id);
   if (!t.planner) return;
   const p = t.planner;
-  if (el('plannerTitle'))     el('plannerTitle').textContent     = p.title;
-  if (el('pLabelPeople'))     el('pLabelPeople').textContent     = p.people;
-  if (el('pLabelDays'))       el('pLabelDays').textContent       = p.days;
-  if (el('pLabelStyle'))      el('pLabelStyle').textContent      = p.style;
-  if (el('pLabelArea'))       el('pLabelArea').textContent       = p.area;
-  if (el('pLabelTransport'))  el('pLabelTransport').textContent  = p.transport;
-  if (el('pLabelBudget'))     el('pLabelBudget').textContent     = p.budget;
-  if (el('plannerBtn'))       el('plannerBtn').textContent       = p.btn;
-  // Dịch chip text
+
+  // Labels
+  if (el('plannerTitle'))    el('plannerTitle').textContent    = p.title;
+  if (el('pLabelPeople'))    el('pLabelPeople').textContent    = p.people;
+  if (el('pLabelDays'))      el('pLabelDays').textContent      = p.days;
+  if (el('pLabelStyle'))     el('pLabelStyle').textContent     = p.style;
+  if (el('pLabelArea'))      el('pLabelArea').textContent      = p.area;
+  if (el('pLabelTransport')) el('pLabelTransport').textContent = p.transport;
+  if (el('pLabelBudget'))    el('pLabelBudget').textContent    = p.budget;
+  if (el('plannerBtn'))      el('plannerBtn').textContent      = p.btn;
+
+  // Dịch tất cả chip groups
   const chipMap = {
-    'pStyle': p.styleChips,
-    'pArea':  p.areaChips,
+    'pPeople':    p.peopleChips,
+    'pDays':      p.daysChips,
+    'pStyle':     p.styleChips,
+    'pArea':      p.areaChips,
+    'pTransport': p.transportChips,
+    'pBudget':    p.budgetChips,
   };
   Object.entries(chipMap).forEach(([id, labels]) => {
     if (!labels) return;
-    document.querySelectorAll(`#${id} .pchip`).forEach((chip, i) => {
-      if (labels[i]) chip.textContent = labels[i];
+    document.querySelectorAll('#' + id + ' .pchip').forEach((chip, i) => {
+      if (labels[i] !== undefined) chip.textContent = labels[i];
     });
   });
 }
