@@ -48,7 +48,7 @@ const i18n = {
       transport: '🚗 Phương tiện',
       budget: '💰 Ngân sách/người',
       btn: 'Tư vấn cho tôi →',
-      peopleChips:    ['1','2'],
+      peopleChips:    ['1','2','3','4'],
       daysChips:      ['1 ngày','2N1Đ','3N2Đ'],
       styleChips:     ['🏞️ Khám phá','🧘 Nghỉ dưỡng','🍜 Ẩm thực','📸 Check-in'],
       areaChips:      ['Tràng An','Tam Cốc','Bái Đính','Phố cổ'],
