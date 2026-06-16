@@ -1186,4 +1186,40 @@ const SNACKS = [
     note: 'Tiệm ăn muộn phục vụ bún kèn, mỳ cay và các món ăn nhanh tiện lợi cho giới trẻ.',
     noteEn: 'Rustic bamboo-styled space specializing in Vietnamese countryside dishes, hill chicken, and flavorful Northwest specialties.'
   },
+  {
+    name: 'Bánh Gối Quỳnh Mai',
+    nameEn: 'Quynh Mai Fried Pillow Cake',
+    lat: 20.2585, lng: 105.9702, // Tọa độ ước tính khu vực Cù Chính Lan
+    color: '#ec4899', type: 'snack', priority: false,
+    location: '23 Cù Chính Lan, Tân Thành, TP. Ninh Bình',
+    locationEn: '23 Cu Chinh Lan Street, Tan Thanh, Ninh Binh City',
+    price: '10.000 – 30.000đ', priceEn: '10,000 – 30,000 VND',
+    bestTime: 'Chiều & Tối', bestTimeEn: 'Afternoon & Evening',
+    note: 'Tiệm bánh gối, bánh rán nóng hổi nổi tiếng trên phố ăn vặt. Vỏ bánh giòn rụm, nhân thịt mộc nhĩ đầy đặn chấm cùng nước mắm chua ngọt đu đủ xanh.',
+    noteEn: 'Crispy fried pillow cakes and donuts served with a sweet and sour dipping sauce. A perfect afternoon snack.',
+  },
+  {
+    name: 'Cơm Tấm Sài Gòn',
+    nameEn: 'Sai Gon Broken Rice',
+    lat: 20.2523, lng: 105.9785, // Tọa độ ước tính khu vực Đào Duy Từ
+    color: '#ef4444', type: 'asian', priority: false,
+    location: '42 Đào Duy Từ, Phường Ba Đình, TP. Ninh Bình',
+    locationEn: '42 Dao Duy Tu Street, Ba Dinh Ward, Ninh Binh City',
+    price: '35.000 – 60.000đ', priceEn: '35,000 – 60,000 VND',
+    bestTime: 'Trưa & Tối', bestTimeEn: 'Lunch & Evening',
+    note: 'Chuẩn vị cơm tấm miền Nam với sườn nướng cốt lết đậm đà thơm củi, chả trứng béo ngậy và nước mắm kẹo ngọt cay đặc trưng.',
+    noteEn: 'Authentic Southern-style broken rice featuring savory grilled pork chops, egg meatloaf, and signature sweet fish sauce.',
+  },
+  {
+    name: 'Đảo Matcha',
+    nameEn: 'Matcha Island',
+    lat: 20.2635, lng: 105.9680, // Tọa độ ước tính khu vực Phố cổ Hoa Lư
+    color: '#ec4899', type: 'snack', priority: true,
+    location: 'Khu ẩm thực Phố cổ Hoa Lư, TP. Ninh Bình',
+    locationEn: 'Food Court, Hoa Lu Old Quarter, Ninh Binh City',
+    price: '25.000 – 50.000đ', priceEn: '25,000 – 50,000 VND',
+    bestTime: 'Chiều & Tối', bestTimeEn: 'Afternoon & Evening',
+    note: 'Điểm đến yêu thích của tín đồ trà xanh nằm ngay trong lòng Phố Cổ. Chuyên các dòng kem matcha đậm vị, thức uống giải nhiệt và bánh ngọt check-in cực chill về đêm.',
+    noteEn: 'A heaven for matcha lovers located inside Hoa Lu Old Quarter. Specializing in rich matcha ice cream and refreshing drinks with a vibrant night view.',
+  }
 ];
