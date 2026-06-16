@@ -138,10 +138,10 @@ function renderWeather(temp, code) {
 const WEATHER_MAP = {
   vi: [[0,'☀️','Trời quang'],[1,'🌤️','Ít mây'],[2,'⛅','Có mây'],[3,'☁️','Nhiều mây'],
        [45,'🌫️','Sương mù'],[51,'🌦️','Mưa phùn'],[61,'🌧️','Mưa nhẹ'],[71,'🌨️','Mưa tuyết'],
-       [80,'🌦️','Mưa rào'],[95,'⛈️','Giông bão']],
+       [80,'🌦️','Mưa rào'],[95,'🌧️','Mưa to']],
   en: [[0,'☀️','Clear'],[1,'🌤️','Mainly clear'],[2,'⛅','Partly cloudy'],[3,'☁️','Overcast'],
        [45,'🌫️','Foggy'],[51,'🌦️','Drizzle'],[61,'🌧️','Light rain'],[71,'🌨️','Snow'],
-       [80,'🌦️','Showers'],[95,'⛈️','Thunderstorm']],
+       [80,'🌦️','Showers'],[95,'🌧️','Heavy rain']],
 };
 function weatherInfo(code, l) {
   const found = [...WEATHER_MAP[l]].reverse().find(([c]) => code >= c);
