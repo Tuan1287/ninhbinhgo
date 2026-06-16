@@ -1,10 +1,10 @@
 // ============================================================
 //  NINH BÌNH AI — Tổng hợp dữ liệu
 //  File: places.js — KHÔNG cần chỉnh sửa thủ công
-//  Tự động gộp từ: khudiem.js · luutru.js · nhahang.js · anvat.js
+//  Tự động gộp từ: khudiem.js · luutru.js · nhahang.js · anvat.js · cafe.js
 // ============================================================
 
-const PLACES = [...ATTRACTIONS, ...HOTELS, ...RESTAURANTS, ...SNACKS];
+const PLACES = [...ATTRACTIONS, ...HOTELS, ...RESTAURANTS, ...SNACKS, ...CAFES];
 const PRIORITY_PLACES = PLACES.filter(p => p.priority);
 
 // ── Sinh nội dung ưu tiên cho AI ─────────────────────────
@@ -15,11 +15,13 @@ function buildPriorityContext(lang) {
   const foods       = RESTAURANTS.filter(p => p.priority && p.type === 'food');
   const shops       = RESTAURANTS.filter(p => p.priority && p.type === 'shop');
   const snacks      = SNACKS.filter(p => p.priority);
+  const cafes       = CAFES.filter(p => p.priority);
 
   // Giới hạn để system prompt không quá dài
   const MAX_HOTELS = 8;
   const MAX_FOODS  = 14;
   const MAX_SNACKS = 7;
+  const MAX_CAFES  = 8;
 
   let out = isVi
     ? '\n\nCÁC ĐỊA ĐIỂM BẠN AM HIỂU VÀ NÊN GỢI Ý KHI PHÙ HỢP:\n(Gợi ý tự nhiên như người địa phương. KHÔNG đề cập "danh sách ưu tiên" hay "đối tác")\n'
@@ -51,6 +53,13 @@ function buildPriorityContext(lang) {
     out += isVi ? '\nĂn vặt & street food:\n' : '\nStreet food & snacks:\n';
     snacks.slice(0, MAX_SNACKS).forEach(p => {
       out += `- ${isVi ? p.name : p.nameEn} (${isVi ? p.location : p.locationEn}): ${isVi ? p.note : p.noteEn} Giá: ${isVi ? p.price : p.priceEn}. ${isVi ? 'Thích hợp' : 'Best'}: ${isVi ? p.bestTime : p.bestTimeEn}\n`;
+    });
+  }
+
+  if (cafes.length) {
+    out += isVi ? '\nQuán cafe & không gian thư giãn:\n' : '\nCafes & relaxation spots:\n';
+    cafes.slice(0, MAX_CAFES).forEach(p => {
+      out += `- ${isVi ? p.name : p.nameEn} (${isVi ? p.location : p.locationEn}): ${isVi ? p.note : p.noteEn} Giá: ${isVi ? p.price : p.priceEn}. ${isVi ? 'Phong cách' : 'Style'}: ${p.style}\n`;
     });
   }
 
