@@ -273,7 +273,10 @@ function toggleLang() {
   lang = lang === 'vi' ? 'en' : 'vi';
   localStorage.setItem('nb_lang', lang);
   _sysCache = {};
-  applyLang(); loadWeather(); updateTurnCounter();
+  applyLang(); loadWeather();
+  // Dịch planner panel ngay lập tức khi toggle
+  const tp = i18n[lang];
+  if (tp) applyPlannerLang(tp);
 }
 function applyLang() {
   const t = i18n[lang];
@@ -656,7 +659,7 @@ function getPlanner(lang) {
     return actives;
   };
 
-  const people    = get('pPeople')[0]    || '2';
+  const people    = get('pPeople')[0]    || '1';
   const days      = get('pDays')[0]      || '2';
   const styles    = get('pStyle');
   const areas     = get('pArea');
@@ -701,10 +704,10 @@ Please provide a detailed hourly schedule, accommodation suggestions and nearby 
 
 function submitPlanner() {
   const prompt  = getPlanner(lang);
-  const days    = document.querySelector('#pDays .pchip.active')?.dataset.val || '2';
-  const people  = document.querySelector('#pPeople .pchip.active')?.dataset.val || '2';
-  const dayMap  = { '1':'1 ngày', '2':'2N1Đ', '3':'3N2Đ', '4+':'4N+' };
-  const dayMapEn= { '1':'1-day trip', '2':'2D1N', '3':'3D2N', '4+':'4D+' };
+  const days    = document.querySelector('#pDays .pchip.active')?.dataset.val || '1';
+  const people  = document.querySelector('#pPeople .pchip.active')?.dataset.val || '1';
+  const dayMap  = { '1':'1 ngày', '2':'2N1Đ', '3':'3N2Đ' };
+  const dayMapEn= { '1':'1-day trip', '2':'2D1N', '3':'3D2N' };
   const display = lang === 'vi'
     ? `Lên lịch trình ${dayMap[days] || days} — ${people} người`
     : `Plan ${dayMapEn[days] || days} — ${people} people`;
