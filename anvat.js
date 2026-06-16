@@ -173,6 +173,30 @@ const SNACKS = [
     noteEn: 'Local restaurant serving authentic Vietnamese countryside specialties in a cozy atmosphere.',
   },
   {
+    name: 'Bi Béo Quán',
+    nameEn: 'Bi Beo Quan',
+    lat: 20.2566, lng: 105.9721, // Tọa độ ước tính khu vực Ngõ 75 Lương Văn Tụy
+    color: '#ec4899', type: 'snack', priority: false,
+    location: 'Số 5, Ngõ 75 Lương Văn Tụy, Tân Thành, TP. Ninh Bình',
+    locationEn: 'No. 5, Alley 75 Luong Van Tuy Street, Tan Thanh, Ninh Binh City',
+    price: '20.000 – 60.000đ', priceEn: '20,000 – 60,000 VND',
+    bestTime: 'Chiều & Tối', bestTimeEn: 'Afternoon & Evening',
+    note: 'Nằm trong ngõ ăn vặt sầm uất, quán phục vụ đa dạng các món ăn nhanh như nem chua rán, khoai tây chiên, chân gà và các thức uống giải nhiệt cho giới trẻ.',
+    noteEn: 'Located in a lively food alley, this spot offers popular youth snacks like fried fermented pork rolls, french fries, and chicken feet.',
+  },
+  {
+    name: 'Túi Mơ',
+    nameEn: 'Tui Mo Coffee & Tea',
+    lat: 20.2530, lng: 105.9765, // Tọa độ ước tính trục đường Bà Triệu
+    color: '#ec4899', type: 'snack', priority: true,
+    location: '01 Đường Bà Triệu, Phường Vân Giang, TP. Ninh Bình',
+    locationEn: '01 Ba Trieu Street, Van Giang Ward, Ninh Binh City',
+    price: '25.000 – 50.000đ', priceEn: '25,000 – 50,000 VND',
+    bestTime: 'Cả ngày', bestTimeEn: 'All day',
+    note: 'Quán nước có không gian decor xinh xắn, nhẹ nhàng. Thực đơn phong phú từ trà sữa, trà trái cây hiện đại đến các món ăn vặt nhẹ, thích hợp để tụ tập tán gẫu.',
+    noteEn: 'A charming café with a lovely cozy decor. Offers a trendy selection of milk teas, fruit teas, and light snacks, perfect for friend gatherings.',
+  },
+  {
     name: 'Viva Mexico - Taco & Grill',
     nameEn: 'Viva Mexico - Taco & Grill',
     lat: 20.2651322, lng: 105.9651667,
