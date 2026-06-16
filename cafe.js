@@ -353,6 +353,19 @@ const CAFES = [
     noteEn: 'Located in the same alley as One Day Coffee, very close to Hoa Lu Old Quarter. Features a modern, bright Korean-style aesthetic that is highly photogenic.',
   },
   {
+    name: 'Tiệm Trà Nông Pha',
+    nameEn: 'Nong Pha Tea House',
+    lat: 20.2442, lng: 105.9752,
+    color: '#06b6d4', type: 'cafe', priority: true, // Đã bật ưu tiên vì không gian rất chất lượng
+    location: '926 Trần Hưng Đạo, Phường Thanh Bình, TP. Ninh Bình',
+    locationEn: '926 Tran Hung Dao Street, Thanh Binh Ward, Ninh Binh',
+    price: '30.000 – 65.000đ', priceEn: '30,000 – 65,000 VND',
+    hours: '8h – 22h30',
+    style: 'Tiệm trà truyền thống, mộc mạc, chữa lành',
+    note: 'Một không gian thưởng trà bình yên và mộc mạc giữa lòng thành phố. Tiệm chuyên các loại trà thảo mộc, trà dưỡng nhan, trà hoa dùng kèm các loại bánh dân gian. Decor tone gỗ ấm, nhẹ nhàng, cực kỳ lý tưởng để tĩnh tâm, đọc sách hoặc trò chuyện nhỏ nhẹ.',
+    noteEn: 'A peaceful and rustic tea house in the heart of the city. Specializes in herbal teas, wellness teas, and floral teas served with traditional Vietnamese pastries. Cozy wooden decor, ideal for relaxing, reading, or quiet conversations.',
+  },
+  {
     name: 'At Where',
     nameEn: 'At Where',
     lat: 20.2168, lng: 105.9255, // Tọa độ chính xác tại lõi Tam Cốc
