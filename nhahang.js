@@ -85,6 +85,23 @@ const RESTAURANTS = [
     note: 'Nhà hàng mở muộn phục vụ các món ăn từ hải sản, chim câu và đặc sản dê núi Ninh Bình.',
     noteEn: 'Late-opening dining room featuring local mountain goat and fresh seafood variations.',
   },
+  {
+    name: 'La Lumière Tam Cốc',
+    nameEn: 'La Lumiere Tam Coc',
+    lat: 20.2312,
+    lng: 105.9285,
+    color: '#06b6d4',
+    type: 'food',
+    priority: true,
+    location: 'Thôn Đam Khê Trong, Ninh Hải, Hoa Lư, Ninh Bình',
+    locationEn: 'Dam Khe Trong Village, Ninh Hai, Hoa Lu, Ninh Binh',
+    price: '45.000 – 95.000đ',
+    priceEn: '45,000 – 95,000 VND',
+    bestTime: 'Sáng & Chiều',
+    bestTimeEn: 'Morning & Afternoon',
+    note: 'Tổ hợp cafe & check-in tuyệt đẹp nằm ẩn mình tại làng cổ Đam Khê Trong. Không gian thiết kế nghệ thuật, view nhìn thẳng ra cánh đồng lúa và núi đá vôi trùng điệp, cực kỳ yên bình.',
+    noteEn: 'Stunning cafe & check-in complex hidden in the ancient Dam Khe Trong village. Artistically designed space with views of rice fields and limestone mountains.'
+  },
     {
     name: 'Gỏi cá - 104 Lê Thánh Tông',
     nameEn: '104 Le Thanh Tong Raw Fish Salad',
