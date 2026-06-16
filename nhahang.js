@@ -1026,23 +1026,6 @@ const RESTAURANTS = [
     noteEn: 'Freshly hand-rolled hot rice crepes with a smooth, thin texture. Served with savory pork patties and well-balanced dipping sauce.'
   },
   {
-    name: 'Huyền Bamboo',
-    nameEn: 'Huyen Bamboo Restaurant',
-    lat: 20.2442,
-    lng: 105.9865,
-    color: '#f59e0b',
-    type: 'food',
-    priority: true,
-    location: '395 Nguyễn Công Trứ, Bích Đào, Ninh Bình',
-    locationEn: '395 Nguyen Cong Tru Street, Bich Dao, Ninh Binh',
-    price: '150.000 – 350.000đ/người',
-    priceEn: '150,000 – 350,000 VND/person',
-    bestTime: 'Trưa & Tối',
-    bestTimeEn: 'Lunch & Dinner',
-    note: 'Không gian mang phong cách tre trúc mộc mạc, chuyên các món ăn đồng quê, gà đồi và đặc sản Tây Bắc đậm đà.',
-    noteEn: 'Rustic bamboo-styled space specializing in Vietnamese countryside dishes, hill chicken, and flavorful Northwest specialties.'
-  },
-  {
     name: 'Tiệm Trộn',
     nameEn: 'Tiem Tron - Mixed Noodles & Snacks',
     lat: 20.2588,
