@@ -1101,6 +1101,23 @@ const RESTAURANTS = [
     noteEn: 'Specializing in refreshing Vietnamese rolls like pork belly, pig ears, and lemongrass pork skewers wrapped in rice paper with fresh herbs.'
   },
   {
+    name: 'Sisterfields Tam Cốc',
+    nameEn: 'Sisterfields Tam Coc',
+    lat: 20.2185,
+    lng: 105.9252,
+    color: '#f59e0b',
+    type: 'food',
+    priority: true,
+    location: 'Đường Tam Cốc (gần Bến thuyền Tam Cốc), Ninh Hải, Hoa Lư, Ninh Bình',
+    locationEn: 'Tam Coc Road (near Tam Coc Wharf), Ninh Hai, Hoa Lu, Ninh Binh',
+    price: '80.000 – 200.000đ/người',
+    priceEn: '80,000 – 200,000 VND/person',
+    bestTime: 'Sáng & Trưa',
+    bestTimeEn: 'Morning & Lunch time',
+    note: 'Quán cafe & brunch phong cách phương Tây hiện đại, không gian mở thoáng mát. Phục vụ cà phê máy chuẩn vị, sinh tố, bánh ngọt và các món ăn sáng kiểu Úc chất lượng.',
+    noteEn: 'Modern Western-style cafe & brunch with an airy open space. Serving specialty coffee, smoothies, pastries, and high-quality Australian-style breakfast.'
+  },
+  {
     name: 'Pizza Sen (Phố Cổ Hoa Lư)',
     nameEn: 'Pizza Sen (Hoa Lu Old Quarter)',
     lat: 20.2494,
