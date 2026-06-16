@@ -191,7 +191,19 @@ const CAFES = [
     noteEn: 'Great latte and fruit tea. Fresh daily pastries. 2nd floor with street view is quiet and chill. Warm evening lighting, great for dates.',
   },
 
-  // ── KHU VỰC TAM CỐC / HOA LƯ (gần điểm du lịch) ────────
+{
+    name: 'Katsura Coffee',
+    nameEn: 'Katsura Coffee',
+    lat: 20.2545, lng: 105.9742, // Tọa độ chính xác khu vực Lê Thái Tổ gần Phố cổ
+    color: '#06b6d4', type: 'cafe', priority: true,
+    location: 'Đường Lê Thái Tổ, Phường Tân Thành, TP. Ninh Bình (Gần Phố cổ Hoa Lư)',
+    locationEn: 'Le Thai To Street, Tan Thanh Ward, Ninh Binh City (Near Hoa Lu Old Quarter)',
+    price: '35.000 – 65.000đ', priceEn: '35,000 – 65,000 VND',
+    hours: '7h30 – 22h30',
+    style: 'Nhật Bản tối giản, sân vườn, gần Phố cổ',
+    note: 'Thiết kế mang đậm phong cách Nhật Bản tối giản với tone màu gỗ ấm và khoảng sân sỏi thanh tịnh. Nằm trên trục đường Lê Thái Tổ ngay sát Phố cổ Hoa Lư, cực kỳ lý tưởng để dừng chân nghỉ ngơi sau khi dạo chơi Phố cổ hoặc hồ Kỳ Lân.',
+    noteEn: 'Minimalist Japanese design with warm wood tones and a peaceful gravel courtyard. Located on Le Thai To Street right next to Hoa Lu Old Quarter, an ideal pitstop after exploring the Old Quarter or Ky Lan Lake.',
+  },
   {
     name: '24 Coffee Bar',
     nameEn: '24 Coffee Bar',
