@@ -628,8 +628,6 @@ const SNACKS = [
     note: 'Tiệm ăn online và offline chuyên các món chân gà sả ớt, miến trộn và các món ăn vặt theo xu hướng của giới trẻ.',
     noteEn: 'Trendy eatery known for chili-lemongrass chicken feet and mixed glass noodles.',
   },
-
-  // === NHÓM ĂN VẶT, TIỆM CHÈ, SỮA CHUA, TÀO PHỚ ===
   {
     name: 'Pan Pao - Tiệm bánh bao, trà sữa',
     nameEn: 'Pan Pao - Dumplings & Milk Tea',
@@ -1027,19 +1025,6 @@ const SNACKS = [
     note: 'Điểm dừng chân nhậu lý tưởng cho các hội nhóm sau khi đi trekking, tham quan các hang động Hoa Lư.',
     noteEn: 'A great refreshment pit-stop for tourist groups touring nearby caves.',
   },
-
-  {
-    name: 'Gỏi cá - 104 Lê Thánh Tông',
-    nameEn: '104 Le Thanh Tong Raw Fish Salad',
-    lat: 20.267542, lng: 105.978241,
-    color: '#8b5cf6', type: 'latenight', priority: true,
-    location: '104 Lê Thánh Tông, Phường Đông Thành, TP. Ninh Bình',
-    locationEn: '104 Le Thánh Tong Street, Dong Thanh Ward, Ninh Binh City',
-    price: '80.000 – 150.000đ', priceEn: '80,000 – 150,000 VND',
-    bestTime: 'Chiều & Đêm', bestTimeEn: 'Afternoon & Late night',
-    note: 'Đặc sản gỏi cá nhệch Kim Sơn chuẩn vị, cá tươi thính thơm lừng cuốn lá sung và nước chẻo nóng hổi béo ngậy.',
-    noteEn: 'Serving authentic Kim Son raw fish salad with aromatic roasted rice powder and rich warm dipping sauce.',
-  },
   {
     name: 'Chân cánh gà nướng cầu vòm',
     nameEn: 'Cau Vom Grilled Chicken Wings & Feet',
@@ -1125,18 +1110,6 @@ const SNACKS = [
     noteEn: 'Late night snack shop serving spicy noodles and quick comfort foods.',
   },
   {
-    name: 'Nhà Hàng Tùng Anh - 58 Đ. Lương Văn Thăng',
-    nameEn: 'Tung Anh Restaurant',
-    lat: 20.257122, lng: 105.979104,
-    color: '#8b5cf6', type: 'latenight', priority: false,
-    location: '58 Đường Lương Văn Thăng, Phường Đông Thành, TP. Ninh Bình',
-    locationEn: '58 Luong Van Thang Street, Dong Thanh Ward, Ninh Binh City',
-    price: '50.000 – 200.000đ', priceEn: '50,000 – 200,000 VND',
-    bestTime: 'Trưa & Đêm', bestTimeEn: 'Lunch & Late night',
-    note: 'Nhà hàng mở muộn phục vụ các món ăn từ hải sản, chim câu và đặc sản dê núi Ninh Bình.',
-    noteEn: 'Late-opening dining room featuring local mountain goat and fresh seafood variations.',
-  },
-  {
     name: 'Bánh cuốn nóng - 15 Phạm Văn Nghị',
     nameEn: '15 Pham Van Nghi Hot Rice Rolls',
     lat: 20.252412, lng: 105.973254,
@@ -1147,5 +1120,22 @@ const SNACKS = [
     bestTime: 'Sáng & Đêm muộn', bestTimeEn: 'Morning & Late night',
     note: 'Bánh cuốn tráng tay nóng hổi mở bán đến tận đêm khuya, thích hợp xoa dịu chiếc bụng đói sau một ngày dài.',
     noteEn: 'Freshly steamed hot rice sheets operating till midnight, an excellent comfort snack.',
+  },
+  {
+    name: 'Huyền Bamboo',
+    nameEn: 'Huyen Bamboo Restaurant',
+    lat: 20.2442,
+    lng: 105.9865,
+    color: '#f59e0b',
+    type: 'food',
+    priority: true,
+    location: '395 Nguyễn Công Trứ, Bích Đào, Ninh Bình',
+    locationEn: '395 Nguyen Cong Tru Street, Bich Dao, Ninh Binh',
+    price: '150.000 – 350.000đ/người',
+    priceEn: '150,000 – 350,000 VND/person',
+    bestTime: 'Trưa & Tối',
+    bestTimeEn: 'Lunch & Dinner',
+    note: 'Tiệm ăn muộn phục vụ bún kèn, mỳ cay và các món ăn nhanh tiện lợi cho giới trẻ.',
+    noteEn: 'Rustic bamboo-styled space specializing in Vietnamese countryside dishes, hill chicken, and flavorful Northwest specialties.'
   },
 ];
