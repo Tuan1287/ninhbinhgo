@@ -351,5 +351,18 @@ const CAFES = [
     style: 'Hiện đại, tone Hàn Quốc, gần Phố cổ',
     note: 'Nằm chung con ngõ với One Day Coffee nên rất gần Phố cổ Hoa Lư. Quán sở hữu thiết kế hiện đại, tone màu nhẹ nhàng kiểu Hàn Quốc, không gian sáng sủa cực kỳ ăn ảnh.',
     noteEn: 'Located in the same alley as One Day Coffee, very close to Hoa Lu Old Quarter. Features a modern, bright Korean-style aesthetic that is highly photogenic.',
-  }
+  },
+  {
+    name: 'At Where',
+    nameEn: 'At Where',
+    lat: 20.2168, lng: 105.9255, // Tọa độ chính xác tại lõi Tam Cốc
+    color: '#06b6d4', type: 'cafe', priority: true,
+    location: 'Khu du lịch Tam Cốc, Xã Ninh Hải, Huyện Hoa Lư, Ninh Bình',
+    locationEn: 'Tam Coc Tourism Area, Ninh Hai Commune, Hoa Lu District, Ninh Binh',
+    price: '35.000 – 70.000đ', priceEn: '35,000 – 70,000 VND',
+    hours: '9h – 18h (Thứ 7 mở đến 23h)',
+    style: 'Tối giản, nghệ thuật, yên bình, vibe quốc tế',
+    note: 'Một không gian ẩn mình đầy nghệ thuật và mộc mạc ngay tại trung tâm Tam Cốc. Thiết kế tối giản, tinh tế, cực kỳ được lòng cả du khách quốc tế lẫn giới trẻ bản địa nhờ không gian yên bình, âm nhạc chọn lọc gu chất và đồ uống chất lượng.',
+    noteEn: 'A hidden, artistic, and rustic gem right in the heart of Tam Coc. Its minimalist and sophisticated design makes it a favorite for both international travelers and local youth who appreciate peaceful vibes, curated music, and high-quality drinks.',
+  },
 ];
