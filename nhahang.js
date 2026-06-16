@@ -1126,5 +1126,39 @@ const RESTAURANTS = [
     bestTimeEn: 'Afternoon & Evening',
     note: 'Nằm ngay bến xe Đồng Gừng sát bến thuyền Tam Cốc. Không gian mở tiện lợi cho khách du lịch dừng chân nghỉ ngơi và ăn uống sau chuyến chèo thuyền.',
     noteEn: 'Located right at Dong Gung bus station near Tam Coc wharf. Convenient open space for travelers to rest and dine after the boat tour.'
+  },
+  {
+    name: 'Quán Cua Phố Cổ',
+    nameEn: 'Old Quarter Crab Restaurant',
+    lat: 20.2628,
+    lng: 105.9754,
+    color: '#f59e0b',
+    type: 'food',
+    priority: true,
+    location: '80/2 Đường Tràng An, Tân Thành, Hoa Lư, Ninh Bình',
+    locationEn: '80/2 Trang An Street, Tan Thanh, Hoa Lu, Ninh Binh',
+    price: '150.000 – 350.000đ/người',
+    priceEn: '150,000 – 350,000 VND/person',
+    bestTime: 'Trưa & Tối',
+    bestTimeEn: 'Lunch & Dinner',
+    note: 'Nằm ngay ngõ cạnh Cơm Niêu Việt Xưa CS1 đối diện Phố cổ. Chuyên các món lẩu cua đồng Tây Đô, cua biển, hải sản tươi sống vị đậm đà.',
+    noteEn: 'Located in the alley next to Com Nieu Viet Xua CS1, opposite the Old Quarter. Specializing in flavorful field crab hotpot and fresh seafood.'
+  },
+  {
+    name: 'Gà Rán Busan',
+    nameEn: 'Busan Fried Chicken',
+    lat: 20.2504,
+    lng: 105.9763,
+    color: '#f59e0b',
+    type: 'food',
+    priority: true,
+    location: '101 Trần Hưng Đạo, Đông Thành, Ninh Bình',
+    locationEn: '101 Tran Hung Dao Street, Dong Thanh, Ninh Binh',
+    price: '50.000 – 150.000đ/người',
+    priceEn: '50,000 – 150,000 VND/person',
+    bestTime: 'Trưa & Tối',
+    bestTimeEn: 'Lunch & Dinner',
+    note: 'Quán gà rán phong cách Hàn Quốc nằm trục đường lớn đối diện Phố cổ Hoa Lư. Gà sốt cay ngọt, sốt mật ong giòn rụm, không gian điều hòa mát mẻ.',
+    noteEn: 'Korean-style fried chicken restaurant on the main street opposite Hoa Lu Old Quarter. Famous for crispy sweet & spicy or honey-glazed chicken in an AC space.'
   }
 ];
