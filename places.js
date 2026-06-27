@@ -32,11 +32,17 @@ const NB_CENTER = { lat: 20.2513, lng: 105.9745 };
 const RADIUS_KM = 12; // bán kính gợi ý (km)
 
 function buildPriorityContext(lang, centerLat, centerLng) {
-  // Nếu có tọa độ tâm (địa điểm vừa gợi ý), filter nhà hàng trong 5km
-  // Nếu không có, dùng toàn bộ danh sách
-  const FILTER_RADIUS = 5; // km
+  // Filter theo thời gian đường bộ (ưu tiên) hoặc Haversine (fallback)
+  const FILTER_RADIUS   = 5;   // km (Haversine fallback)
+  const FILTER_MINUTES  = 10;  // phút đường bộ tối đa
   function nearCenter(p) {
     if (!centerLat || !centerLng) return true;
+    const cacheKey = `${p.lat},${p.lng}`;
+    // Dùng thời gian đường bộ nếu có cache
+    if (typeof _roadTimeCache !== 'undefined' && _roadTimeCache[cacheKey] !== undefined) {
+      return _roadTimeCache[cacheKey] <= FILTER_MINUTES;
+    }
+    // Fallback: Haversine 5km
     return haversine(centerLat, centerLng, p.lat, p.lng) <= FILTER_RADIUS;
   }
   const isVi       = lang === 'vi';
