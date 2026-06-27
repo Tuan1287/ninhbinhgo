@@ -27,6 +27,7 @@ const MAX_TURNS  = 10; // giới hạn turns/phiên
 let _weatherState = { temp: null, code: null }; // thời tiết realtime cho system prompt
 let _lastPlaceLat  = null; // tọa độ địa điểm cuối cùng AI đề cập
 let _lastPlaceLng  = null;
+let _roadTimeCache = {}; // cache thời gian đường bộ: 'lat,lng' -> phút
 
 // ── SYSTEM PROMPT CACHE ──────────────────────────────
 function getSystemCached(l) {
@@ -191,6 +192,25 @@ function openMap(routePlaces) {
     if (isRoute && list.length >= 2) drawRoute(list);
   });
 }
+// Fetch thời gian đường bộ từ điểm A đến tất cả PLACES (OSRM)
+async function prefetchRoadTimes(fromLat, fromLng) {
+  // Chỉ fetch cho places có priority, giới hạn 30 điểm để không overload
+  const targets = PLACES.filter(p => p.priority && p.lat && p.lng).slice(0, 30);
+  if (!targets.length) return;
+  try {
+    const coords = [[fromLng, fromLat], ...targets.map(p => [p.lng, p.lat])].map(c => c.join(',')).join(';');
+    const url = `https://router.project-osrm.org/table/v1/driving/${coords}?sources=0&annotations=duration`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data.code !== 'Ok') return;
+    const durations = data.durations[0]; // thời gian từ điểm 0 (source) đến từng target
+    targets.forEach((p, i) => {
+      const mins = Math.round((durations[i + 1] || 0) / 60);
+      _roadTimeCache[`${p.lat},${p.lng}`] = mins;
+    });
+  } catch(e) { console.warn('OSRM table:', e); }
+}
+
 async function drawRoute(places) {
   try {
     const coords = places.map(p => `${p.lng},${p.lat}`).join(';');
@@ -596,6 +616,8 @@ async function fetchWithStream(userText) {
         const _last = _detectedPlaces[_detectedPlaces.length - 1];
         _lastPlaceLat = _last.lat;
         _lastPlaceLng = _last.lng;
+        _roadTimeCache = {}; // reset cache khi có địa điểm mới
+        prefetchRoadTimes(_lastPlaceLat, _lastPlaceLng); // async, không block UI
       }
       history.push({ role:'model', parts:[{ text: reply }] });
       if (history.length > 20) history = history.slice(-20);
