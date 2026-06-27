@@ -34,7 +34,7 @@ function getSystem(l) {
     wx += '\n';
   }
 
-  const priority  = typeof buildPriorityContext === 'function' ? buildPriorityContext(l) : '';
+  const priority  = typeof buildPriorityContext === 'function' ? buildPriorityContext(l, typeof _lastPlaceLat !== "undefined" ? _lastPlaceLat : null, typeof _lastPlaceLng !== "undefined" ? _lastPlaceLng : null) : '';
   const distances = typeof buildDistanceContextLite === 'function' ? buildDistanceContextLite(l) : '';
 
   return wx + getBase(isVi, tickets) + priority + distances;
