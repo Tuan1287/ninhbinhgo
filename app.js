@@ -25,6 +25,8 @@ let leafletMap   = null, currentRouteLayer = null, currentMarkers = [];
 let _sysCache    = {};
 const MAX_TURNS  = 10; // giới hạn turns/phiên
 let _weatherState = { temp: null, code: null }; // thời tiết realtime cho system prompt
+let _lastPlaceLat  = null; // tọa độ địa điểm cuối cùng AI đề cập
+let _lastPlaceLng  = null;
 
 // ── SYSTEM PROMPT CACHE ──────────────────────────────
 function getSystemCached(l) {
@@ -46,6 +48,7 @@ QUY TẮC CHẤT LƯỢNG TRẢ LỜI:
 - KHÔNG thêm disclaimer dài dòng cuối câu trả lời.
 - KHI GỢI Ý lưu trú: chọn ĐÚNG MỘT cơ sở phù hợp nhất, KHÔNG dùng "A hoặc B". Thay đổi linh hoạt giữa các lần gợi ý.
 - TUYỆT ĐỐI KHÔNG thêm số sao (★, ⭐, "4 sao", "5 sao"...) vào tên khách sạn. Chỉ gọi đúng tên.
+- DANH SÁCH địa điểm ăn uống/lưu trú được xáo trộn ngẫu nhiên mỗi phiên. Hãy gợi ý đa dạng, không lặp lại cùng 1 địa điểm trong nhiều câu liên tiếp.
 - KHI LẬP LỊCH TRÌNH: nhóm địa điểm gần nhau vào cùng buổi, ghi rõ khoảng cách km và thời gian di chuyển giữa từng điểm.
 - KHI KHÔNG CÓ DỮ LIỆU CỤ THỂ (giá phòng, khách sạn lạ, nhà hàng chưa biết...): KHÔNG nói "không có trong dữ liệu" hay "tôi không có thông tin". Thay vào đó hãy: (1) chia sẻ những gì biết về khu vực/loại hình tương tự, (2) gợi ý cách tìm thông tin chính xác nhất như "bạn có thể xem trực tiếp trên Booking.com / liên hệ họ qua Facebook / Google Maps để có giá hôm nay". Trả lời như người địa phương thân thiện, không phải chatbot đọc database.
 - KHI ĐƯỢC HỎI VỀ GIÁ PHÒNG HIỆN TẠI: Luôn nhắc rằng giá có thể thay đổi theo mùa/dịp lễ và nên kiểm tra trực tiếp trên Booking/Agoda/web khách sạn để có giá thực tế nhất.`
@@ -587,6 +590,13 @@ async function fetchWithStream(userText) {
     if (reply) {
       document.getElementById('typing')?.remove();
       typewriterMsg(reply, isItinerary(userText) || isItinerary(reply));
+      // Lưu tọa độ địa điểm cuối cùng được đề cập để filter nhà hàng gần đó
+      const _detectedPlaces = extractRoutePlaces(reply);
+      if (_detectedPlaces.length > 0) {
+        const _last = _detectedPlaces[_detectedPlaces.length - 1];
+        _lastPlaceLat = _last.lat;
+        _lastPlaceLng = _last.lng;
+      }
       history.push({ role:'model', parts:[{ text: reply }] });
       if (history.length > 20) history = history.slice(-20);
       saveHistory();
