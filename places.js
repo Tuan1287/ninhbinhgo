@@ -8,19 +8,55 @@ const PLACES = [...ATTRACTIONS, ...HOTELS, ...RESTAURANTS, ...SNACKS, ...CAFES];
 const PRIORITY_PLACES = PLACES.filter(p => p.priority);
 
 // ── Sinh nội dung ưu tiên cho AI ─────────────────────────
-function buildPriorityContext(lang) {
+// ── Tính khoảng cách Haversine (km) ─────────────────────
+function haversine(lat1, lng1, lat2, lng2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLng/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+// ── Shuffle mảng (Fisher-Yates) ──────────────────────────
+function shuffleArray(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ── Trung tâm Ninh Bình (tọa độ mặc định) ───────────────
+const NB_CENTER = { lat: 20.2513, lng: 105.9745 };
+const RADIUS_KM = 12; // bán kính gợi ý (km)
+
+function buildPriorityContext(lang, centerLat, centerLng) {
+  // Nếu có tọa độ tâm (địa điểm vừa gợi ý), filter nhà hàng trong 5km
+  // Nếu không có, dùng toàn bộ danh sách
+  const FILTER_RADIUS = 5; // km
+  function nearCenter(p) {
+    if (!centerLat || !centerLng) return true;
+    return haversine(centerLat, centerLng, p.lat, p.lng) <= FILTER_RADIUS;
+  }
   const isVi       = lang === 'vi';
   const attractions = ATTRACTIONS.filter(p => p.priority);
-  const hotels      = HOTELS.filter(p => p.priority);
-  const foods       = RESTAURANTS.filter(p => p.priority && p.type === 'food');
-  const shops       = RESTAURANTS.filter(p => p.priority && p.type === 'shop');
-  const snacks      = SNACKS.filter(p => p.priority);
-  const cafes       = CAFES.filter(p => p.priority);
+  // hotels đã được khai báo bên dưới với shuffle
+  // Lọc theo priority + bán kính 5km từ địa điểm cuối, sau đó shuffle
+  const allFoods = RESTAURANTS.filter(p => p.priority && p.type === 'food' && nearCenter(p));
+  const foods    = shuffleArray(allFoods.length >= 5 ? allFoods : RESTAURANTS.filter(p => p.priority && p.type === 'food'));
+  const shops    = RESTAURANTS.filter(p => p.priority && p.type === 'shop');
+  const allSnacks = SNACKS.filter(p => p.priority && nearCenter(p));
+  const snacks   = shuffleArray(allSnacks.length >= 3 ? allSnacks : SNACKS.filter(p => p.priority));
+  const allCafes = CAFES.filter(p => p.priority && nearCenter(p));
+  const cafes    = shuffleArray(allCafes.length >= 3 ? allCafes : CAFES.filter(p => p.priority));
+  const allHotels = HOTELS.filter(p => p.priority && nearCenter(p));
+  const hotels   = shuffleArray(allHotels.length >= 2 ? allHotels : HOTELS.filter(p => p.priority));
 
   // Giới hạn để system prompt không quá dài
-  const MAX_HOTELS = 8;
-  const MAX_FOODS  = 14;
-  const MAX_SNACKS = 7;
+  const MAX_HOTELS = 6;
+  const MAX_FOODS  = 25;
+  const MAX_SNACKS = 8;
   const MAX_CAFES  = 8;
 
   let out = isVi
@@ -37,8 +73,7 @@ function buildPriorityContext(lang) {
   if (hotels.length) {
     out += isVi ? '\nLưu trú (checkin 14h, checkout 12h):\n' : '\nAccommodation (check-in 2pm, check-out 12pm):\n';
     hotels.slice(0, MAX_HOTELS).forEach(p => {
-      const stars = p.stars ? ` ${p.stars}★` : '';
-      out += `- ${isVi ? p.name : p.nameEn}${stars}: ${isVi ? p.note : p.noteEn} Giá: ${isVi ? p.price : p.priceEn}\n`;
+      out += `- ${isVi ? p.name : p.nameEn}: ${isVi ? p.note : p.noteEn} Giá: ${isVi ? p.price : p.priceEn}\n`;
     });
   }
 
