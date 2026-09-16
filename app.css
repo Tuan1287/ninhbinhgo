@@ -204,3 +204,127 @@
     .msg.user{max-width:85%}
     #weatherDesc{display:none}
   }
+
+
+/* ── SLOT MACHINE / SPINNER ──────────────────────────────── */
+.spinner-section {
+  margin-top: 2rem;
+  padding: 1.25rem 1.5rem 1.5rem;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 16px;
+}
+.spinner-title {
+  font-size: .85rem;
+  color: var(--muted);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+.spinner-slots {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  overflow-x: auto;
+}
+.slot-box {
+  flex: 1;
+  min-width: 0;
+  background: var(--surface);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color .3s;
+}
+.slot-box.spinning {
+  border-color: #d4a96a55;
+}
+.slot-box.landed {
+  border-color: #d4a96a;
+  box-shadow: 0 0 12px #d4a96a22;
+}
+.slot-label {
+  font-size: .72rem;
+  color: var(--muted);
+  padding: .5rem .75rem .3rem;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+  letter-spacing: .06em;
+}
+.slot-reel {
+  height: 2.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 .75rem;
+  overflow: hidden;
+  position: relative;
+}
+.slot-item {
+  font-size: .9rem;
+  font-weight: 500;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+  width: 100%;
+  transition: transform .15s, opacity .15s;
+}
+.slot-item.spinning-text {
+  animation: slotRoll .08s linear infinite;
+  color: #d4a96a88;
+  font-size: .8rem;
+}
+@keyframes slotRoll {
+  0%   { transform: translateY(-4px); opacity:.5; }
+  50%  { transform: translateY(0);    opacity:1;  }
+  100% { transform: translateY(4px);  opacity:.5; }
+}
+.slot-divider {
+  font-size: 1.2rem;
+  color: var(--muted);
+  flex-shrink: 0;
+  opacity: .5;
+}
+.spinner-actions {
+  display: flex;
+  gap: .75rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+.spin-btn {
+  flex: 1;
+  padding: .65rem 1rem;
+  background: rgba(212,169,106,.12);
+  border: 1px solid rgba(212,169,106,.35);
+  border-radius: 10px;
+  color: #d4a96a;
+  font-size: .88rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background .2s, transform .1s;
+}
+.spin-btn:hover  { background: rgba(212,169,106,.2); }
+.spin-btn:active { transform: scale(.97); }
+.spin-btn:disabled { opacity: .5; cursor: not-allowed; }
+.spin-go-btn {
+  flex: 1.5;
+  padding: .65rem 1rem;
+  background: linear-gradient(135deg, #d4a96a, #c4904a);
+  border: none;
+  border-radius: 10px;
+  color: #111110;
+  font-size: .88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity .2s, transform .1s;
+  animation: fadeInUp .3s ease;
+}
+.spin-go-btn:hover  { opacity: .9; }
+.spin-go-btn:active { transform: scale(.97); }
+
+@media (max-width: 480px) {
+  .spinner-slots { gap: .4rem; }
+  .slot-item { font-size: .78rem; }
+  .spinner-actions { gap: .5rem; }
+}
