@@ -329,6 +329,7 @@ function applyLang() {
     btn.onclick = () => { trackChip(label); quickAsk(t.chipQ[i], label); };
     nav.appendChild(btn);
   });
+  applySpinnerLang();
   const grid = document.getElementById('sugGrid');
   if (grid) {
     grid.innerHTML = '';
@@ -787,6 +788,130 @@ function applyPlannerLang(t) {
 }
 
 
+
+// ══════════════════════════════════════════════════════
+//  SLOT MACHINE SPINNER
+// ══════════════════════════════════════════════════════
+let _spinResult = { attraction: null, hotel: null, food: null };
+let _spinning   = false;
+
+function initSpinner() {
+  applySpinnerLang();
+  // Hiện kết quả mặc định ban đầu
+  const a = ATTRACTIONS.filter(p => p.priority);
+  const h = HOTELS.filter(p => p.priority);
+  const f = RESTAURANTS.filter(p => p.priority && p.type === 'food');
+  if (a.length) setReelText('reelA', a[Math.floor(Math.random()*a.length)].name);
+  if (h.length) setReelText('reelH', h[Math.floor(Math.random()*h.length)].name);
+  if (f.length) setReelText('reelF', f[Math.floor(Math.random()*f.length)].name);
+}
+
+function applySpinnerLang() {
+  const s = i18n[lang]?.spinner;
+  if (!s) return;
+  const el = id => document.getElementById(id);
+  if (el('spinnerTitle'))  el('spinnerTitle').textContent  = s.title;
+  if (el('slotLabelA'))    el('slotLabelA').textContent    = s.labelA;
+  if (el('slotLabelH'))    el('slotLabelH').textContent    = s.labelH;
+  if (el('slotLabelF'))    el('slotLabelF').textContent    = s.labelF;
+  if (el('spinBtnText'))   el('spinBtnText').textContent   = s.spinBtn;
+  if (el('spinGoBtnText')) el('spinGoBtnText').textContent = s.goBtn;
+}
+
+function setReelText(reelId, text) {
+  const reel = document.getElementById(reelId);
+  if (!reel) return;
+  const item = reel.querySelector('.slot-item');
+  if (item) item.textContent = text;
+}
+
+async function spinSlots() {
+  if (_spinning) return;
+  _spinning = true;
+
+  const spinBtn  = document.getElementById('spinBtn');
+  const goBtn    = document.getElementById('spinGoBtn');
+  spinBtn.disabled = true;
+  goBtn.style.display = 'none';
+
+  const reels = ['reelA','reelH','reelF'];
+  const boxes = ['slotAttraction','slotHotel','slotFood'];
+
+  // Lấy data
+  const pools = {
+    reelA: ATTRACTIONS.filter(p => p.priority),
+    reelH: HOTELS.filter(p => p.priority),
+    reelF: RESTAURANTS.filter(p => p.priority && p.type === 'food'),
+  };
+
+  // Bắt đầu quay — hiệu ứng slot rolling
+  reels.forEach((id, i) => {
+    const box  = document.getElementById(boxes[i]);
+    const item = document.getElementById(id)?.querySelector('.slot-item');
+    if (!item || !box) return;
+    box.classList.add('spinning');
+    box.classList.remove('landed');
+    item.classList.add('spinning-text');
+  });
+
+  // Random items
+  const picked = {
+    reelA: pools.reelA[Math.floor(Math.random()*pools.reelA.length)],
+    reelH: pools.reelH[Math.floor(Math.random()*pools.reelH.length)],
+    reelF: pools.reelF[Math.floor(Math.random()*pools.reelF.length)],
+  };
+
+  // Hiệu ứng rolling text
+  let tick = 0;
+  const rollInterval = setInterval(() => {
+    tick++;
+    reels.forEach(id => {
+      const pool = pools[id];
+      const item = document.getElementById(id)?.querySelector('.slot-item');
+      if (item) item.textContent = pool[Math.floor(Math.random()*pool.length)].name;
+    });
+  }, 80);
+
+  // Dừng từng ô lần lượt
+  await new Promise(r => setTimeout(r, 1200));
+  clearInterval(rollInterval);
+
+  for (let i = 0; i < reels.length; i++) {
+    await new Promise(r => setTimeout(r, 300 + i * 250));
+    const id  = reels[i];
+    const box = document.getElementById(boxes[i]);
+    const item = document.getElementById(id)?.querySelector('.slot-item');
+    if (item && box) {
+      item.classList.remove('spinning-text');
+      item.textContent = picked[id]?.name || '—';
+      box.classList.remove('spinning');
+      box.classList.add('landed');
+    }
+  }
+
+  _spinResult = {
+    attraction: picked.reelA,
+    hotel:      picked.reelH,
+    food:       picked.reelF,
+  };
+
+  spinBtn.disabled = false;
+  goBtn.style.display = 'block';
+  _spinning = false;
+}
+
+function spinGoChat() {
+  const { attraction, hotel, food } = _spinResult;
+  if (!attraction || !hotel || !food) return;
+  const s = i18n[lang]?.spinner;
+  if (!s) return;
+  const prompt  = s.prompt(attraction.name, hotel.name, food.name);
+  const display = lang === 'vi'
+    ? `${attraction.name} + ${hotel.name} + ${food.name}`
+    : `${attraction.nameEn} + ${hotel.nameEn} + ${food.nameEn}`;
+  sendMessage(prompt, display);
+}
+
 // ══════════════════════════════════════════════════════
 //  INIT — chạy SAU KHI tất cả functions đã định nghĩa
 // ══════════════════════════════════════════════════════
@@ -795,6 +920,7 @@ applyLang();
 loadWeather();
 loadHistory();
 setTimeout(() => getSystemCached(lang), 2000); // pre-warm system prompt
+initSpinner();
 updateTurnCounter();
 
 // ── iOS visualViewport fix ────────────────────────────────
