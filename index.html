@@ -185,6 +185,41 @@
         </button>
       </div>
     </div>
+
+    <!-- Vòng quay ngẫu nhiên -->
+    <div class="spinner-section" id="spinnerSection">
+      <div class="spinner-title" id="spinnerTitle">🎲 Để số phận quyết định</div>
+      <div class="spinner-slots">
+        <div class="slot-box" id="slotAttraction">
+          <div class="slot-label" id="slotLabelA">🏔️ Địa điểm</div>
+          <div class="slot-reel" id="reelA">
+            <div class="slot-item">Tràng An</div>
+          </div>
+        </div>
+        <div class="slot-divider">×</div>
+        <div class="slot-box" id="slotHotel">
+          <div class="slot-label" id="slotLabelH">🏨 Lưu trú</div>
+          <div class="slot-reel" id="reelH">
+            <div class="slot-item">Legend Hotel</div>
+          </div>
+        </div>
+        <div class="slot-divider">×</div>
+        <div class="slot-box" id="slotFood">
+          <div class="slot-label" id="slotLabelF">🍜 Ăn uống</div>
+          <div class="slot-reel" id="reelF">
+            <div class="slot-item">Dê Chính Thư</div>
+          </div>
+        </div>
+      </div>
+      <div class="spinner-actions">
+        <button class="spin-btn" id="spinBtn" onclick="spinSlots()">
+          <span id="spinBtnText">🎲 Quay ngẫu nhiên</span>
+        </button>
+        <button class="spin-go-btn" id="spinGoBtn" onclick="spinGoChat()" style="display:none">
+          <span id="spinGoBtnText">✨ Lên lịch cho combo này →</span>
+        </button>
+      </div>
+    </div>
   </div>
 </div>
 </div>
