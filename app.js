@@ -293,7 +293,7 @@ function resetKey() {
 }
 function resetChat() { history = []; localStorage.removeItem('nb_history'); rebuildWelcome(); updateTurnCounter(); }
 function rebuildWelcome() {
-  document.getElementById('messages').innerHTML = `<div class="welcome" id="welcome"><h1 class="welcome-heading" id="welcomeHeading"></h1><p class="welcome-sub" id="welcomeSub"></p><div class="suggestions" id="sugGrid"></div></div>`;
+  document.getElementById('messages').innerHTML = `<div class="welcome" id="welcome"><div class="welcome-body"><div class="welcome-left"><h1 class="welcome-heading" id="welcomeHeading"></h1><p class="welcome-sub" id="welcomeSub"></p><button class="open-spinner-btn" id="openSpinnerBtn" onclick="openSpinner()">🎲 <span id="openSpinnerText">Khám phá ngẫu nhiên</span></button><div class="suggestions" id="sugGrid"></div></div></div></div>`;
   applyLang();
 }
 
@@ -330,6 +330,7 @@ function applyLang() {
     nav.appendChild(btn);
   });
   applySpinnerLang();
+  const osb = document.getElementById('openSpinnerText'); if (osb) osb.textContent = t.spinner?.openBtn || 'Khám phá ngẫu nhiên';
   const grid = document.getElementById('sugGrid');
   if (grid) {
     grid.innerHTML = '';
