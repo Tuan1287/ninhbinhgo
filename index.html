@@ -186,40 +186,10 @@
       </div>
     </div>
 
-    <!-- Vòng quay ngẫu nhiên -->
-    <div class="spinner-section" id="spinnerSection">
-      <div class="spinner-title" id="spinnerTitle">🎲 Để số phận quyết định</div>
-      <div class="spinner-slots">
-        <div class="slot-box" id="slotAttraction">
-          <div class="slot-label" id="slotLabelA">🏔️ Địa điểm</div>
-          <div class="slot-reel" id="reelA">
-            <div class="slot-item">Tràng An</div>
-          </div>
-        </div>
-        <div class="slot-divider">×</div>
-        <div class="slot-box" id="slotHotel">
-          <div class="slot-label" id="slotLabelH">🏨 Lưu trú</div>
-          <div class="slot-reel" id="reelH">
-            <div class="slot-item">Legend Hotel</div>
-          </div>
-        </div>
-        <div class="slot-divider">×</div>
-        <div class="slot-box" id="slotFood">
-          <div class="slot-label" id="slotLabelF">🍜 Ăn uống</div>
-          <div class="slot-reel" id="reelF">
-            <div class="slot-item">Dê Chính Thư</div>
-          </div>
-        </div>
-      </div>
-      <div class="spinner-actions">
-        <button class="spin-btn" id="spinBtn" onclick="spinSlots()">
-          <span id="spinBtnText">🎲 Quay ngẫu nhiên</span>
-        </button>
-        <button class="spin-go-btn" id="spinGoBtn" onclick="spinGoChat()" style="display:none">
-          <span id="spinGoBtnText">✨ Lên lịch cho combo này →</span>
-        </button>
-      </div>
-    </div>
+    <!-- Nút vào màn hình spinner -->
+    <button class="open-spinner-btn" id="openSpinnerBtn" onclick="openSpinner()">
+      🎲 <span id="openSpinnerText">Khám phá ngẫu nhiên</span>
+    </button>
   </div>
 </div>
 </div>
@@ -271,5 +241,59 @@
 <script src="system.js"></script>
 
 <script src="app.js"></script>
+
+<!-- ── MÀN HÌNH SPINNER ─────────────────────────────── -->
+<div id="spinnerScreen" style="display:none">
+  <div class="spinner-screen-inner">
+    <div class="spinner-screen-header">
+      <button class="spinner-back-btn" onclick="closeSpinner()">← <span id="spinBackText">Quay lại</span></button>
+      <h2 class="spinner-screen-title" id="spinnerScreenTitle">🎲 Khám phá Ninh Bình ngẫu nhiên</h2>
+    </div>
+
+    <div class="spinner-grid">
+      <!-- Hàng 1: 3 slot -->
+      <div class="slot-card" id="cardA">
+        <div class="slot-card-label" id="scLabelA">🏔️ Địa điểm tham quan</div>
+        <div class="slot-card-result" id="resultA">—</div>
+        <div class="slot-card-sub" id="subA"></div>
+        <button class="slot-spin-btn" onclick="spinOne('A')" id="btnA">🎲 Quay</button>
+      </div>
+      <div class="slot-card" id="cardF">
+        <div class="slot-card-label" id="scLabelF">🍜 Nhà hàng</div>
+        <div class="slot-card-result" id="resultF">—</div>
+        <div class="slot-card-sub" id="subF"></div>
+        <button class="slot-spin-btn" onclick="spinOne('F')" id="btnF">🎲 Quay</button>
+      </div>
+      <div class="slot-card" id="cardS">
+        <div class="slot-card-label" id="scLabelS">🍡 Ăn vặt</div>
+        <div class="slot-card-result" id="resultS">—</div>
+        <div class="slot-card-sub" id="subS"></div>
+        <button class="slot-spin-btn" onclick="spinOne('S')" id="btnS">🎲 Quay</button>
+      </div>
+      <!-- Hàng 2: 2 slot -->
+      <div class="slot-card" id="cardC">
+        <div class="slot-card-label" id="scLabelC">☕ Quán Cafe</div>
+        <div class="slot-card-result" id="resultC">—</div>
+        <div class="slot-card-sub" id="subC"></div>
+        <button class="slot-spin-btn" onclick="spinOne('C')" id="btnC">🎲 Quay</button>
+      </div>
+      <div class="slot-card" id="cardH">
+        <div class="slot-card-label" id="scLabelH">🏨 Lưu trú</div>
+        <div class="slot-card-result" id="resultH">—</div>
+        <div class="slot-card-sub" id="subH"></div>
+        <button class="slot-spin-btn" onclick="spinOne('H')" id="btnH">🎲 Quay</button>
+      </div>
+    </div>
+
+    <div class="spinner-bottom-actions">
+      <button class="spin-all-btn" onclick="spinAll()" id="spinAllBtn">
+        🎲 <span id="spinAllText">Quay tất cả</span>
+      </button>
+      <button class="spin-go-btn2" onclick="spinGoChat2()" id="spinGoBtn2">
+        ✨ <span id="spinGoText2">Lên lịch combo này →</span>
+      </button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
