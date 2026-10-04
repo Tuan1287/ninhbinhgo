@@ -209,16 +209,15 @@
 /* ── SPINNER SCREEN ─────────────────────────────────────── */
 .open-spinner-btn {
   display: flex; align-items: center; gap: .5rem;
-  margin: 1.25rem auto 0;
-  padding: .6rem 1.4rem;
+  margin: 0 0 .875rem 0;
+  padding: .6rem 1.2rem;
   background: rgba(212,169,106,.1);
   border: 1px solid rgba(212,169,106,.3);
   border-radius: 24px;
   color: #d4a96a;
   font-size: .88rem; font-weight: 500;
   cursor: pointer; transition: background .2s, transform .1s;
-  width: 100%;
-  justify-content: center;
+  width: fit-content;
 }
 .open-spinner-btn:hover  { background: rgba(212,169,106,.18); }
 .open-spinner-btn:active { transform: scale(.97); }
