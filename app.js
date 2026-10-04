@@ -789,127 +789,124 @@ function applyPlannerLang(t) {
 
 
 
-// ══════════════════════════════════════════════════════
-//  SLOT MACHINE SPINNER
-// ══════════════════════════════════════════════════════
-let _spinResult = { attraction: null, hotel: null, food: null };
-let _spinning   = false;
 
-function initSpinner() {
+// ══════════════════════════════════════════════════════
+//  SPINNER SCREEN — 5 slots độc lập
+// ══════════════════════════════════════════════════════
+const SPIN_POOLS = {
+  A: () => ATTRACTIONS.filter(p => p.priority),
+  F: () => RESTAURANTS.filter(p => p.priority && p.type === 'food'),
+  S: () => SNACKS.filter(p => p.priority),
+  C: () => CAFES.filter(p => p.priority),
+  H: () => HOTELS.filter(p => p.priority),
+};
+const SPIN_KEYS = ['A','F','S','C','H'];
+let _spinResults = { A: null, F: null, S: null, C: null, H: null };
+let _spinningSet = new Set();
+
+function openSpinner() {
+  document.getElementById('spinnerScreen').style.display = 'block';
+  document.body.style.overflow = 'hidden';
   applySpinnerLang();
-  // Hiện kết quả mặc định ban đầu
-  const a = ATTRACTIONS.filter(p => p.priority);
-  const h = HOTELS.filter(p => p.priority);
-  const f = RESTAURANTS.filter(p => p.priority && p.type === 'food');
-  if (a.length) setReelText('reelA', a[Math.floor(Math.random()*a.length)].name);
-  if (h.length) setReelText('reelH', h[Math.floor(Math.random()*h.length)].name);
-  if (f.length) setReelText('reelF', f[Math.floor(Math.random()*f.length)].name);
+}
+function closeSpinner() {
+  document.getElementById('spinnerScreen').style.display = 'none';
+  document.body.style.overflow = '';
 }
 
 function applySpinnerLang() {
   const s = i18n[lang]?.spinner;
   if (!s) return;
   const el = id => document.getElementById(id);
-  if (el('spinnerTitle'))  el('spinnerTitle').textContent  = s.title;
-  if (el('slotLabelA'))    el('slotLabelA').textContent    = s.labelA;
-  if (el('slotLabelH'))    el('slotLabelH').textContent    = s.labelH;
-  if (el('slotLabelF'))    el('slotLabelF').textContent    = s.labelF;
-  if (el('spinBtnText'))   el('spinBtnText').textContent   = s.spinBtn;
-  if (el('spinGoBtnText')) el('spinGoBtnText').textContent = s.goBtn;
-}
-
-function setReelText(reelId, text) {
-  const reel = document.getElementById(reelId);
-  if (!reel) return;
-  const item = reel.querySelector('.slot-item');
-  if (item) item.textContent = text;
-}
-
-async function spinSlots() {
-  if (_spinning) return;
-  _spinning = true;
-
-  const spinBtn  = document.getElementById('spinBtn');
-  const goBtn    = document.getElementById('spinGoBtn');
-  spinBtn.disabled = true;
-  goBtn.style.display = 'none';
-
-  const reels = ['reelA','reelH','reelF'];
-  const boxes = ['slotAttraction','slotHotel','slotFood'];
-
-  // Lấy data
-  const pools = {
-    reelA: ATTRACTIONS.filter(p => p.priority),
-    reelH: HOTELS.filter(p => p.priority),
-    reelF: RESTAURANTS.filter(p => p.priority && p.type === 'food'),
-  };
-
-  // Bắt đầu quay — hiệu ứng slot rolling
-  reels.forEach((id, i) => {
-    const box  = document.getElementById(boxes[i]);
-    const item = document.getElementById(id)?.querySelector('.slot-item');
-    if (!item || !box) return;
-    box.classList.add('spinning');
-    box.classList.remove('landed');
-    item.classList.add('spinning-text');
+  if (el('openSpinnerText'))     el('openSpinnerText').textContent     = s.openBtn;
+  if (el('spinBackText'))        el('spinBackText').textContent        = s.back;
+  if (el('spinnerScreenTitle'))  el('spinnerScreenTitle').textContent  = s.screenTitle;
+  if (el('scLabelA'))            el('scLabelA').textContent            = s.labelA;
+  if (el('scLabelF'))            el('scLabelF').textContent            = s.labelF;
+  if (el('scLabelS'))            el('scLabelS').textContent            = s.labelS;
+  if (el('scLabelC'))            el('scLabelC').textContent            = s.labelC;
+  if (el('scLabelH'))            el('scLabelH').textContent            = s.labelH;
+  if (el('spinAllText'))         el('spinAllText').textContent         = s.spinAll;
+  if (el('spinGoText2'))         el('spinGoText2').textContent         = s.goBtn;
+  // Dịch từng nút quay
+  SPIN_KEYS.forEach(k => {
+    const btn = el('btn' + k);
+    if (btn) btn.innerHTML = '🎲 ' + (s.spinOne || 'Quay');
   });
+}
 
-  // Random items
-  const picked = {
-    reelA: pools.reelA[Math.floor(Math.random()*pools.reelA.length)],
-    reelH: pools.reelH[Math.floor(Math.random()*pools.reelH.length)],
-    reelF: pools.reelF[Math.floor(Math.random()*pools.reelF.length)],
-  };
+async function spinOne(key) {
+  if (_spinningSet.has(key)) return;
+  _spinningSet.add(key);
 
-  // Hiệu ứng rolling text
-  let tick = 0;
+  const pool    = SPIN_POOLS[key]();
+  if (!pool.length) { _spinningSet.delete(key); return; }
+
+  const card    = document.getElementById('card' + key);
+  const result  = document.getElementById('result' + key);
+  const sub     = document.getElementById('sub' + key);
+  const btn     = document.getElementById('btn' + key);
+
+  card.classList.add('spinning');
+  card.classList.remove('landed');
+  result.classList.add('rolling');
+  btn.disabled = true;
+
+  // Roll animation
   const rollInterval = setInterval(() => {
-    tick++;
-    reels.forEach(id => {
-      const pool = pools[id];
-      const item = document.getElementById(id)?.querySelector('.slot-item');
-      if (item) item.textContent = pool[Math.floor(Math.random()*pool.length)].name;
-    });
+    const r = pool[Math.floor(Math.random() * pool.length)];
+    result.textContent = r.name;
   }, 80);
 
-  // Dừng từng ô lần lượt
-  await new Promise(r => setTimeout(r, 1200));
+  await new Promise(r => setTimeout(r, 900 + Math.random() * 400));
   clearInterval(rollInterval);
 
-  for (let i = 0; i < reels.length; i++) {
-    await new Promise(r => setTimeout(r, 300 + i * 250));
-    const id  = reels[i];
-    const box = document.getElementById(boxes[i]);
-    const item = document.getElementById(id)?.querySelector('.slot-item');
-    if (item && box) {
-      item.classList.remove('spinning-text');
-      item.textContent = picked[id]?.name || '—';
-      box.classList.remove('spinning');
-      box.classList.add('landed');
-    }
-  }
+  // Pick final
+  const picked = pool[Math.floor(Math.random() * pool.length)];
+  _spinResults[key] = picked;
 
-  _spinResult = {
-    attraction: picked.reelA,
-    hotel:      picked.reelH,
-    food:       picked.reelF,
-  };
+  result.classList.remove('rolling');
+  result.textContent = picked.name;
+  sub.textContent    = picked.location || picked.locationEn || '';
 
-  spinBtn.disabled = false;
-  goBtn.style.display = 'block';
-  _spinning = false;
+  card.classList.remove('spinning');
+  card.classList.add('landed');
+  btn.disabled = false;
+  _spinningSet.delete(key);
 }
 
-function spinGoChat() {
-  const { attraction, hotel, food } = _spinResult;
-  if (!attraction || !hotel || !food) return;
+async function spinAll() {
+  const btn = document.getElementById('spinAllBtn');
+  btn.disabled = true;
+  // Quay tất cả song song
+  await Promise.all(SPIN_KEYS.map(k => spinOne(k)));
+  btn.disabled = false;
+}
+
+function spinGoChat2() {
+  const r = _spinResults;
+  if (!r.A && !r.F && !r.H) {
+    // Chưa quay gì — quay tất cả trước
+    spinAll(); return;
+  }
   const s = i18n[lang]?.spinner;
   if (!s) return;
-  const prompt  = s.prompt(attraction.name, hotel.name, food.name);
-  const display = lang === 'vi'
-    ? `${attraction.name} + ${hotel.name} + ${food.name}`
-    : `${attraction.nameEn} + ${hotel.nameEn} + ${food.nameEn}`;
+
+  const aName = r.A ? (lang==='vi' ? r.A.name    : r.A.nameEn)    : '—';
+  const fName = r.F ? (lang==='vi' ? r.F.name    : r.F.nameEn)    : '—';
+  const sName = r.S ? (lang==='vi' ? r.S.name    : r.S.nameEn)    : '—';
+  const cName = r.C ? (lang==='vi' ? r.C.name    : r.C.nameEn)    : '—';
+  const hName = r.H ? (lang==='vi' ? r.H.name    : r.H.nameEn)    : '—';
+
+  const prompt  = s.prompt(aName, fName, sName, cName, hName);
+  const display = `${aName} · ${hName} · ${fName}`;
+
+  closeSpinner();
   sendMessage(prompt, display);
+}
+
+function initSpinner() {
+  applySpinnerLang();
 }
 
 // ══════════════════════════════════════════════════════
