@@ -802,7 +802,9 @@ const SPIN_POOLS = {
   H: () => HOTELS.filter(p => p.priority),
 };
 const SPIN_KEYS = ['A','F','S','C','H'];
-let _spinResults = { A: null, F: null, S: null, C: null, H: null };
+let _spinResults  = { A: null, F: null, S: null, C: null, H: null };
+let _spinHistory  = []; // lịch sử các lần quay
+const MAX_HISTORY = 20;
 let _spinningSet = new Set();
 
 function openSpinner() {
@@ -813,6 +815,78 @@ function openSpinner() {
 function closeSpinner() {
   document.getElementById('spinnerScreen').style.display = 'none';
   document.body.style.overflow = '';
+}
+
+function addToHistory() {
+  const r = _spinResults;
+  if (!r.A && !r.F && !r.H) return;
+  const icons = { A:'🏔️', F:'🍜', S:'🍡', C:'☕', H:'🏨' };
+  const entry = {
+    ts: new Date().toLocaleTimeString('vi-VN', {hour:'2-digit', minute:'2-digit'}),
+    items: Object.entries(r)
+      .filter(([,v]) => v)
+      .map(([k,v]) => ({ icon: icons[k], name: v.name })),
+    results: { ...r },
+  };
+  _spinHistory.unshift(entry);
+  if (_spinHistory.length > MAX_HISTORY) _spinHistory.pop();
+  renderHistory();
+}
+
+function renderHistory() {
+  const list  = document.getElementById('historyList');
+  const empty = document.getElementById('historyEmpty');
+  if (!list) return;
+
+  if (!_spinHistory.length) {
+    if (empty) empty.style.display = 'block';
+    // Xóa các items cũ
+    [...list.querySelectorAll('.history-item')].forEach(el => el.remove());
+    return;
+  }
+  if (empty) empty.style.display = 'none';
+
+  // Re-render toàn bộ
+  [...list.querySelectorAll('.history-item')].forEach(el => el.remove());
+  _spinHistory.forEach((entry, idx) => {
+    const div = document.createElement('div');
+    div.className = 'history-item';
+    div.innerHTML = `
+      <div class="history-item-time">${entry.ts}</div>
+      ${entry.items.map(it => `
+        <div class="history-item-row">
+          <span class="hi-icon">${it.icon}</span>
+          <span class="hi-name">${it.name}</span>
+        </div>`).join('')}
+      <button class="history-use-btn" onclick="useHistory(${idx})">
+        ✨ ${lang === 'vi' ? 'Dùng combo này' : 'Use this combo'}
+      </button>`;
+    list.appendChild(div);
+  });
+}
+
+function useHistory(idx) {
+  const entry = _spinHistory[idx];
+  if (!entry) return;
+  // Restore results
+  _spinResults = { ...entry.results };
+  // Hiển thị lại lên cards
+  const icons  = { A:'🏔️', F:'🍜', S:'🍡', C:'☕', H:'🏨' };
+  ['A','F','S','C','H'].forEach(k => {
+    const p = _spinResults[k];
+    if (!p) return;
+    const result = document.getElementById('result'+k);
+    const sub    = document.getElementById('sub'+k);
+    const card   = document.getElementById('card'+k);
+    if (result) result.textContent = p.name;
+    if (sub)    sub.textContent    = p.location || '';
+    if (card)   { card.classList.remove('spinning'); card.classList.add('landed'); }
+  });
+}
+
+function clearSpinHistory() {
+  _spinHistory = [];
+  renderHistory();
 }
 
 function applySpinnerLang() {
@@ -829,6 +903,9 @@ function applySpinnerLang() {
   if (el('scLabelH'))            el('scLabelH').textContent            = s.labelH;
   if (el('spinAllText'))         el('spinAllText').textContent         = s.spinAll;
   if (el('spinGoText2'))         el('spinGoText2').textContent         = s.goBtn;
+  if (el('historyTitle'))        el('historyTitle').textContent        = s.historyTitle || (lang==='vi'?'📋 Lịch sử quay':'📋 Spin History');
+  if (el('historyClearBtn'))     el('historyClearBtn').textContent     = s.historyClear || (lang==='vi'?'Xóa':'Clear');
+  if (el('historyEmpty'))        el('historyEmpty').textContent        = s.historyEmpty || (lang==='vi'?'Chưa có kết quả nào':'No spins yet');
   // Dịch từng nút quay
   SPIN_KEYS.forEach(k => {
     const btn = el('btn' + k);
@@ -874,6 +951,8 @@ async function spinOne(key) {
   card.classList.add('landed');
   btn.disabled = false;
   _spinningSet.delete(key);
+  // Lưu history sau mỗi lần quay đơn
+  addToHistory();
 }
 
 async function spinAll() {
@@ -881,6 +960,7 @@ async function spinAll() {
   btn.disabled = true;
   // Quay tất cả song song
   await Promise.all(SPIN_KEYS.map(k => spinOne(k)));
+  addToHistory();
   btn.disabled = false;
 }
 
