@@ -342,3 +342,108 @@
   #cardH { grid-column: auto; }
   .slot-card-result { font-size: .85rem; }
 }
+
+/* ── SPINNER LAYOUT 2 CỘT ──────────────────────────── */
+.spinner-layout {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+.spinner-main {
+  flex: 1;
+  min-width: 0;
+}
+.spinner-history {
+  width: 220px;
+  flex-shrink: 0;
+  background: var(--surface);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 14px;
+  overflow: hidden;
+  max-height: calc(100vh - 120px);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 1rem;
+}
+.history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .75rem 1rem .6rem;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  font-size: .78rem;
+  color: var(--muted);
+  letter-spacing: .05em;
+  flex-shrink: 0;
+}
+.history-clear-btn {
+  background: none; border: none;
+  color: var(--muted); font-size: .72rem;
+  cursor: pointer; padding: .2rem .4rem;
+  border-radius: 6px; transition: color .2s, background .2s;
+}
+.history-clear-btn:hover { color: #ef4444; background: rgba(239,68,68,.1); }
+.history-list {
+  overflow-y: auto;
+  flex: 1;
+  padding: .5rem;
+}
+.history-empty {
+  text-align: center;
+  color: var(--muted);
+  font-size: .78rem;
+  padding: 1.5rem .5rem;
+  opacity: .6;
+}
+.history-item {
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 10px;
+  padding: .6rem .75rem;
+  margin-bottom: .5rem;
+  cursor: pointer;
+  transition: border-color .2s, background .2s;
+  animation: fadeInUp .2s ease;
+}
+.history-item:hover {
+  border-color: rgba(212,169,106,.4);
+  background: rgba(212,169,106,.05);
+}
+.history-item-time {
+  font-size: .65rem;
+  color: var(--muted);
+  margin-bottom: .35rem;
+  opacity: .7;
+}
+.history-item-row {
+  font-size: .75rem;
+  color: var(--text);
+  line-height: 1.5;
+  display: flex;
+  gap: .35rem;
+}
+.history-item-row span.hi-icon { flex-shrink: 0; opacity: .7; }
+.history-item-row span.hi-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.history-use-btn {
+  margin-top: .45rem;
+  font-size: .68rem;
+  color: #d4a96a;
+  background: none; border: none;
+  cursor: pointer; padding: 0;
+  opacity: .8; transition: opacity .2s;
+}
+.history-use-btn:hover { opacity: 1; }
+
+@media (max-width: 680px) {
+  .spinner-layout { flex-direction: column; }
+  .spinner-history {
+    width: 100%;
+    position: static;
+    max-height: 260px;
+  }
+}
