@@ -251,6 +251,9 @@
       <h2 class="spinner-screen-title" id="spinnerScreenTitle">🎲 Khám phá Ninh Bình ngẫu nhiên</h2>
     </div>
 
+    <div class="spinner-layout">
+    <!-- Cột trái: slots + actions -->
+    <div class="spinner-main">
     <div class="spinner-grid">
       <!-- Hàng 1: 3 slot -->
       <div class="slot-card" id="cardA">
@@ -294,6 +297,20 @@
         ✨ <span id="spinGoText2">Lên lịch combo này →</span>
       </button>
     </div>
+    </div><!-- end spinner-main -->
+
+    <!-- Cột phải: lịch sử quay -->
+    <div class="spinner-history">
+      <div class="history-header">
+        <span id="historyTitle">📋 Lịch sử quay</span>
+        <button class="history-clear-btn" onclick="clearSpinHistory()" id="historyClearBtn">Xóa</button>
+      </div>
+      <div class="history-list" id="historyList">
+        <div class="history-empty" id="historyEmpty">Chưa có kết quả nào</div>
+      </div>
+    </div>
+
+    </div><!-- end spinner-layout -->
   </div>
 </div>
 </body>
