@@ -805,7 +805,11 @@ const SPIN_KEYS = ['A','F','S','C','H'];
 let _spinResults  = { A: null, F: null, S: null, C: null, H: null };
 let _spinHistory  = []; // lịch sử các lần quay
 const MAX_HISTORY = 20;
-let _spinningSet = new Set();
+let _spinningSet   = new Set();
+let _spinningFromAll = false; // flag để phân biệt spinOne đơn vs từ spinAll
+let _selectedDays   = 1; // số ngày đang chọn (1/2/3)
+let _spinExclude    = null; // {A:Set,F:Set,S:Set,C:Set} tên đã quay ở các ngày trước
+let _multiDayResults = []; // [{A,F,S,C,H}, {A,F,S,C,H}, ...] mỗi ngày 1 bộ
 
 function openSpinner() {
   document.getElementById('spinnerScreen').style.display = 'block';
@@ -817,16 +821,41 @@ function closeSpinner() {
   document.body.style.overflow = '';
 }
 
+function selectDays(btn, days) {
+  _selectedDays = days;
+  document.querySelectorAll('.day-chip').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  // Reset results khi đổi số ngày
+  _spinResults = { A:null, F:null, S:null, C:null, H:null };
+  _multiDayResults = [];
+  ['A','F','S','C','H'].forEach(k => {
+    const result = document.getElementById('result'+k);
+    const sub    = document.getElementById('sub'+k);
+    const card   = document.getElementById('card'+k);
+    if (result) result.textContent = '—';
+    if (sub)    sub.textContent    = '';
+    if (card)   { card.classList.remove('landed','spinning'); }
+  });
+  // Cập nhật label card A theo số ngày
+  const labelA = document.getElementById('scLabelA');
+  const s = i18n[lang]?.spinner;
+  if (labelA && s) labelA.textContent = days > 1
+    ? (s.labelAMulti || (lang==='vi' ? `🏔️ Địa điểm (${days} ngày)` : `🏔️ Attractions (${days} days)`))
+    : s.labelA;
+}
+
 function addToHistory() {
-  const r = _spinResults;
-  if (!r.A && !r.F && !r.H) return;
+  const days = (_multiDayResults.length ? _multiDayResults : [{ ..._spinResults }])
+    .filter(d => d && (d.A || d.F || d.H));
+  if (!days.length) return;
   const icons = { A:'🏔️', F:'🍜', S:'🍡', C:'☕', H:'🏨' };
   const entry = {
     ts: new Date().toLocaleTimeString('vi-VN', {hour:'2-digit', minute:'2-digit'}),
-    items: Object.entries(r)
-      .filter(([,v]) => v)
-      .map(([k,v]) => ({ icon: icons[k], name: v.name })),
-    results: { ...r },
+    days: days.map(d => ({
+      items: ['A','F','S','C','H'].filter(k => d[k]).map(k => ({ icon: icons[k], name: d[k].name })),
+    })),
+    results: days.map(d => ({ ...d })),
+    selectedDays: _selectedDays,
   };
   _spinHistory.unshift(entry);
   if (_spinHistory.length > MAX_HISTORY) _spinHistory.pop();
@@ -853,11 +882,13 @@ function renderHistory() {
     div.className = 'history-item';
     div.innerHTML = `
       <div class="history-item-time">${entry.ts}</div>
-      ${entry.items.map(it => `
+      ${entry.days.map((d, di) => `
+        ${entry.days.length > 1 ? `<div class="history-item-day">${lang === 'vi' ? 'Ngày' : 'Day'} ${di + 1}</div>` : ''}
+        ${d.items.map(it => `
         <div class="history-item-row">
           <span class="hi-icon">${it.icon}</span>
           <span class="hi-name">${it.name}</span>
-        </div>`).join('')}
+        </div>`).join('')}`).join('')}
       <button class="history-use-btn" onclick="useHistory(${idx})">
         ✨ ${lang === 'vi' ? 'Dùng combo này' : 'Use this combo'}
       </button>`;
@@ -868,20 +899,22 @@ function renderHistory() {
 function useHistory(idx) {
   const entry = _spinHistory[idx];
   if (!entry) return;
-  // Restore results
-  _spinResults = { ...entry.results };
-  // Hiển thị lại lên cards
-  const icons  = { A:'🏔️', F:'🍜', S:'🍡', C:'☕', H:'🏨' };
+  _multiDayResults = entry.results.map(d => ({ ...d }));
+  _spinResults = { ..._multiDayResults[0] };
+  _selectedDays = entry.selectedDays || _multiDayResults.length;
+  document.querySelectorAll('.day-chip').forEach(b =>
+    b.classList.toggle('active', Number(b.dataset.days) === _selectedDays));
   ['A','F','S','C','H'].forEach(k => {
     const p = _spinResults[k];
-    if (!p) return;
     const result = document.getElementById('result'+k);
     const sub    = document.getElementById('sub'+k);
     const card   = document.getElementById('card'+k);
+    if (!p) { if (result) result.textContent = '—'; if (sub) sub.textContent = ''; return; }
     if (result) result.textContent = p.name;
     if (sub)    sub.textContent    = p.location || '';
     if (card)   { card.classList.remove('spinning'); card.classList.add('landed'); }
   });
+  showDayBadges();
 }
 
 function clearSpinHistory() {
@@ -904,6 +937,11 @@ function applySpinnerLang() {
   if (el('spinAllText'))         el('spinAllText').textContent         = s.spinAll;
   if (el('spinGoText2'))         el('spinGoText2').textContent         = s.goBtn;
   if (el('historyTitle'))        el('historyTitle').textContent        = s.historyTitle || (lang==='vi'?'📋 Lịch sử quay':'📋 Spin History');
+  // Cập nhật day chips
+  const dc1 = el('dayChip1'); const dc2 = el('dayChip2'); const dc3 = el('dayChip3');
+  if (dc1) dc1.textContent = lang==='vi'?'1 ngày':'1 day';
+  if (dc2) dc2.textContent = lang==='vi'?'2N1Đ':'2D1N';
+  if (dc3) dc3.textContent = lang==='vi'?'3N2Đ':'3D2N';
   if (el('historyClearBtn'))     el('historyClearBtn').textContent     = s.historyClear || (lang==='vi'?'Xóa':'Clear');
   if (el('historyEmpty'))        el('historyEmpty').textContent        = s.historyEmpty || (lang==='vi'?'Chưa có kết quả nào':'No spins yet');
   // Dịch từng nút quay
@@ -917,8 +955,12 @@ async function spinOne(key) {
   if (_spinningSet.has(key)) return;
   _spinningSet.add(key);
 
-  const pool    = SPIN_POOLS[key]();
+  let pool = SPIN_POOLS[key]();
   if (!pool.length) { _spinningSet.delete(key); return; }
+  if (_spinExclude && _spinExclude[key]) {
+    const fresh = pool.filter(p => !_spinExclude[key].has(p.name));
+    if (fresh.length) pool = fresh; // hết địa điểm mới thì mới cho lặp
+  }
 
   const card    = document.getElementById('card' + key);
   const result  = document.getElementById('result' + key);
@@ -951,36 +993,111 @@ async function spinOne(key) {
   card.classList.add('landed');
   btn.disabled = false;
   _spinningSet.delete(key);
-  // Lưu history sau mỗi lần quay đơn
-  addToHistory();
+  // Quay lẻ 1 ô: cập nhật ngày 1 của combo rồi lưu lịch sử
+  if (!_spinningFromAll) {
+    if (!_multiDayResults.length) _multiDayResults = [{ ..._spinResults }];
+    else _multiDayResults[0] = { ..._multiDayResults[0], [key]: picked };
+    if (key === 'H') _multiDayResults = _multiDayResults.map(d => ({ ...d, H: picked }));
+    addToHistory();
+  }
 }
 
 async function spinAll() {
   const btn = document.getElementById('spinAllBtn');
   btn.disabled = true;
-  // Quay tất cả song song
-  await Promise.all(SPIN_KEYS.map(k => spinOne(k)));
+
+  if (_selectedDays === 1) {
+    _spinningFromAll = true;
+    await Promise.all(SPIN_KEYS.map(k => spinOne(k)));
+    _spinningFromAll = false;
+    _multiDayResults = [{ ..._spinResults }];
+  } else {
+    // Multi-day: quay địa điểm + ăn uống + cafe riêng mỗi ngày, khách sạn chung
+    _spinningFromAll = true;
+    _multiDayResults = [];
+
+    _spinExclude = { A:new Set(), F:new Set(), S:new Set(), C:new Set() };
+    const remember = r => ['A','F','S','C'].forEach(k => r[k] && _spinExclude[k].add(r[k].name));
+
+    // Lần đầu: quay tất cả (hiển thị ngày 1 lên card)
+    await Promise.all(SPIN_KEYS.map(k => spinOne(k)));
+    _multiDayResults.push({ ..._spinResults });
+    remember(_spinResults);
+
+    // Các ngày tiếp theo: quay A/F/S/C (không quay H lại), không lặp ngày trước
+    for (let d = 1; d < _selectedDays; d++) {
+      await Promise.all(['A','F','S','C'].map(k => spinOne(k)));
+      _multiDayResults.push({ ..._spinResults, H: _multiDayResults[0].H });
+      remember(_spinResults);
+    }
+    _spinExclude = null;
+    _spinningFromAll = false;
+
+    // Hiển thị lại ngày 1 lên card, đồng bộ _spinResults về ngày 1
+    const day1 = _multiDayResults[0];
+    _spinResults = { ...day1 };
+    ['A','F','S','C','H'].forEach(k => {
+      const p = day1[k]; if (!p) return;
+      const result = document.getElementById('result'+k);
+      const sub    = document.getElementById('sub'+k);
+      const card   = document.getElementById('card'+k);
+      if (result) result.textContent = p.name;
+      if (sub)    sub.textContent    = p.location || '';
+      if (card)   { card.classList.remove('spinning'); card.classList.add('landed'); }
+    });
+
+    // Hiện badge ngày 1/2/3 nếu multi
+    showDayBadges();
+  }
+
   addToHistory();
   btn.disabled = false;
 }
 
-function spinGoChat2() {
-  const r = _spinResults;
-  if (!r.A && !r.F && !r.H) {
-    // Chưa quay gì — quay tất cả trước
-    spinAll(); return;
+function showDayBadges() {
+  if (_selectedDays <= 1 || _multiDayResults.length < 2) return;
+  // Hiện tooltip nhỏ dưới cardA chỉ ngày 1
+  const sub = document.getElementById('subA');
+  if (sub && _multiDayResults[0]?.A) {
+    const days = _multiDayResults.map((d,i) => d.A?.name).filter(Boolean);
+    const s = i18n[lang]?.spinner;
+    sub.textContent = (s?.day||'Ngày') + ' 1: ' + days[0];
+    if (days[1]) sub.textContent += ' · ' + (s?.day||'Ngày') + ' 2: ' + days[1];
+    if (days[2]) sub.textContent += ' · ' + (s?.day||'Ngày') + ' 3: ' + days[2];
   }
+}
+
+function spinGoChat2() {
+  const results = _multiDayResults.length ? _multiDayResults : [{ ..._spinResults }];
+  const first = results[0];
+  if (!first.A && !first.F && !first.H) { spinAll(); return; }
   const s = i18n[lang]?.spinner;
   if (!s) return;
 
-  const aName = r.A ? (lang==='vi' ? r.A.name    : r.A.nameEn)    : '—';
-  const fName = r.F ? (lang==='vi' ? r.F.name    : r.F.nameEn)    : '—';
-  const sName = r.S ? (lang==='vi' ? r.S.name    : r.S.nameEn)    : '—';
-  const cName = r.C ? (lang==='vi' ? r.C.name    : r.C.nameEn)    : '—';
-  const hName = r.H ? (lang==='vi' ? r.H.name    : r.H.nameEn)    : '—';
+  const n = (p, k) => p?.[k] ? (lang==='vi' ? p[k].name : p[k].nameEn) : '—';
+  const hName = n(results[0], 'H');
 
-  const prompt  = s.prompt(aName, fName, sName, cName, hName);
-  const display = `${aName} · ${hName} · ${fName}`;
+  let prompt, display;
+  if (_selectedDays === 1 || results.length === 1) {
+    prompt  = s.prompt(n(first,'A'), n(first,'F'), n(first,'S'), n(first,'C'), hName);
+    display = `${n(first,'A')} · ${hName} · ${n(first,'F')}`;
+  } else {
+    // Multi-day prompt
+    const dayLines = results.map((d, i) => {
+      const dayLabel = lang==='vi' ? `Ngày ${i+1}` : `Day ${i+1}`;
+      return lang==='vi'
+        ? `${dayLabel}: tham quan ${n(d,'A')}, ăn tại ${n(d,'F')}, ăn vặt ${n(d,'S')}, cafe ${n(d,'C')}`
+        : `${dayLabel}: visit ${n(d,'A')}, dine at ${n(d,'F')}, snack at ${n(d,'S')}, cafe ${n(d,'C')}`;
+    }).join('\n');
+    const nights = _selectedDays - 1;
+    const tripLabel = lang==='vi'
+      ? `${_selectedDays} ngày ${nights} đêm`
+      : `${_selectedDays} days ${nights} night${nights>1?'s':''}`;
+    prompt = lang==='vi'
+      ? `Lên lịch trình ${tripLabel} ở Ninh Bình chi tiết với combo sau:\nLưu trú: ${hName} (tất cả các đêm)\n${dayLines}\nSắp xếp theo khung giờ, tính khoảng cách và thời gian di chuyển giữa các điểm mỗi ngày.`
+      : `Plan a detailed ${tripLabel} Ninh Binh itinerary:\nAccommodation: ${hName} (all nights)\n${dayLines}\nArrange by time slots with distances and travel times each day.`;
+    display = `${tripLabel} · ${hName}`;
+  }
 
   closeSpinner();
   sendMessage(prompt, display);
