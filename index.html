@@ -249,6 +249,11 @@
     <div class="spinner-screen-header">
       <button class="spinner-back-btn" onclick="closeSpinner()">← <span id="spinBackText">Quay lại</span></button>
       <h2 class="spinner-screen-title" id="spinnerScreenTitle">🎲 Khám phá Ninh Bình ngẫu nhiên</h2>
+      <div class="spinner-days-selector">
+        <button class="day-chip active" data-days="1" onclick="selectDays(this,1)"><span id="dayChip1">1 ngày</span></button>
+        <button class="day-chip" data-days="2" onclick="selectDays(this,2)"><span id="dayChip2">2N1Đ</span></button>
+        <button class="day-chip" data-days="3" onclick="selectDays(this,3)"><span id="dayChip3">3N2Đ</span></button>
+      </div>
     </div>
 
     <div class="spinner-layout">
