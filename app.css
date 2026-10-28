@@ -447,3 +447,35 @@
     max-height: 260px;
   }
 }
+
+/* ── DAYS SELECTOR trong spinner ────────────────────── */
+.spinner-days-selector {
+  display: flex; gap: .4rem;
+  margin-left: auto;
+}
+.day-chip {
+  padding: .35rem .75rem;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: none;
+  color: var(--muted);
+  font-size: .78rem; font-weight: 500;
+  cursor: pointer;
+  transition: all .2s;
+  white-space: nowrap;
+}
+.day-chip:hover  { border-color: rgba(212,169,106,.4); color: #d4a96a; }
+.day-chip.active {
+  background: rgba(212,169,106,.15);
+  border-color: rgba(212,169,106,.5);
+  color: #d4a96a;
+}
+
+.history-item-day {
+  font-size: .65rem; color: #d4a96a; letter-spacing: .05em;
+  text-transform: uppercase; margin: .4rem 0 .15rem; opacity: .9;
+}
+@media (max-width: 680px) {
+  .spinner-screen-header { flex-wrap: wrap; }
+  .spinner-days-selector { margin-left: 0; width: 100%; }
+}
