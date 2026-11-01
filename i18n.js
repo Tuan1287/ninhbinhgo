@@ -57,6 +57,7 @@ const i18n = {
     },
     spinner: {
       openBtn: 'Khám phá ngẫu nhiên',
+      openSub: 'Quay chọn địa điểm · quán ăn · cafe · lưu trú',
       back: 'Quay lại',
       screenTitle: '🎲 Khám phá Ninh Bình ngẫu nhiên',
       labelA: '🏔️ Địa điểm tham quan',
@@ -133,6 +134,7 @@ const i18n = {
     },
     spinner: {
       openBtn: 'Random Explorer',
+      openSub: 'Spin for places · food · cafes · stays',
       back: 'Back',
       screenTitle: '🎲 Explore Ninh Binh Randomly',
       labelA: '🏔️ Attraction',
