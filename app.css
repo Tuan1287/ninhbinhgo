@@ -68,7 +68,7 @@
   /* ── WELCOME LAYOUT ── */
   .welcome{padding:.5rem 0;transition:opacity .25s ease,transform .25s ease;width:100%}
   .welcome.fading{opacity:0;transform:translateY(-6px);pointer-events:none}
-  .welcome-body{display:grid;grid-template-columns:1fr 320px;gap:1.5rem;align-items:start;width:100%;max-width:900px}
+  .welcome-body{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:clamp(1.5rem,5vw,4rem);align-items:start;width:100%;max-width:1120px}
   .welcome-left{display:flex;flex-direction:column;gap:.9rem}
   .welcome-heading{font-family:'Playfair Display',serif;font-size:clamp(1.5rem,3vw,2rem);line-height:1.15;letter-spacing:-.03em}
   .welcome-sub{font-size:.85rem;color:#555552;line-height:1.65;font-weight:400;max-width:480px;letter-spacing:.01em}
@@ -208,19 +208,60 @@
 
 /* ── SPINNER SCREEN ─────────────────────────────────────── */
 .open-spinner-btn {
-  display: flex; align-items: center; gap: .5rem;
-  margin: 0 0 .875rem 0;
-  padding: .6rem 1.2rem;
-  background: rgba(212,169,106,.1);
-  border: 1px solid rgba(212,169,106,.3);
-  border-radius: 24px;
-  color: #d4a96a;
-  font-size: .88rem; font-weight: 500;
-  cursor: pointer; transition: background .2s, transform .1s;
-  width: fit-content;
+  position: relative; overflow: hidden;
+  display: flex; align-items: center; gap: .9rem;
+  width: 100%; margin: 0; padding: .9rem 1.05rem;
+  text-align: left; font-family: 'Nunito', sans-serif;
+  color: #fff; cursor: pointer;
+  background: linear-gradient(135deg, #1f1b14 0%, #111110 55%, #2b2216 100%);
+  border: 1.5px solid #d4a96a; border-radius: 14px;
+  box-shadow: 0 6px 18px rgba(17,17,16,.18), 0 0 0 0 rgba(212,169,106,.55);
+  animation: ctaPulse 2.6s ease-out 4;           /* gợn sóng 4 lần rồi nghỉ */
+  transition: transform .15s ease, box-shadow .2s ease;
 }
-.open-spinner-btn:hover  { background: rgba(212,169,106,.18); }
-.open-spinner-btn:active { transform: scale(.97); }
+.open-spinner-btn::before {                       /* vệt sáng quét ngang */
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(110deg, transparent 35%, rgba(212,169,106,.30) 50%, transparent 65%);
+  transform: translateX(-120%);
+  animation: ctaShine 4.5s ease-in-out infinite;
+}
+.osb-dice {
+  position: relative; font-size: 2rem; line-height: 1; flex-shrink: 0;
+  display: inline-block; transform-origin: 50% 60%;
+  animation: diceWobble 4.5s ease-in-out infinite;
+}
+.osb-text { position: relative; display: flex; flex-direction: column; gap: .12rem; min-width: 0; flex: 1; }
+.osb-title { font-size: 1.02rem; font-weight: 800; letter-spacing: .01em; color: #f3d9a4; }
+.osb-sub   { font-size: .76rem; line-height: 1.4; color: rgba(255,255,255,.74); }
+.osb-arrow { position: relative; font-size: 1.25rem; color: #d4a96a; transition: transform .2s ease; }
+.open-spinner-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(17,17,16,.26), 0 0 0 3px rgba(212,169,106,.35);
+}
+.open-spinner-btn:hover .osb-arrow { transform: translateX(5px); }
+.open-spinner-btn:active { transform: translateY(0) scale(.985); }
+.open-spinner-btn:focus-visible { outline: 3px solid #d4a96a; outline-offset: 2px; }
+
+@keyframes ctaPulse {
+  0%   { box-shadow: 0 6px 18px rgba(17,17,16,.18), 0 0 0 0   rgba(212,169,106,.55); }
+  70%  { box-shadow: 0 6px 18px rgba(17,17,16,.18), 0 0 0 14px rgba(212,169,106,0); }
+  100% { box-shadow: 0 6px 18px rgba(17,17,16,.18), 0 0 0 14px rgba(212,169,106,0); }
+}
+@keyframes ctaShine {
+  0%, 55% { transform: translateX(-120%); }
+  100%    { transform: translateX(120%); }
+}
+@keyframes diceWobble {
+  0%, 55%, 100% { transform: rotate(0); }
+  10% { transform: rotate(-16deg); }
+  20% { transform: rotate(13deg); }
+  30% { transform: rotate(-9deg); }
+  40% { transform: rotate(6deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .open-spinner-btn, .open-spinner-btn::before, .osb-dice { animation: none; }
+  .open-spinner-btn, .osb-arrow { transition: none; }
+}
 
 #spinnerScreen {
   position: fixed; inset: 0; z-index: 200;
@@ -478,4 +519,8 @@
 @media (max-width: 680px) {
   .spinner-screen-header { flex-wrap: wrap; }
   .spinner-days-selector { margin-left: 0; width: 100%; }
+}
+
+@media (min-width: 701px) and (max-width: 900px) {
+  .welcome-body { grid-template-columns: minmax(0,1fr) 300px; gap: 1.5rem; }
 }
