@@ -122,7 +122,12 @@
         <p class="welcome-sub" id="welcomeSub"></p>
         <!-- Nút khám phá ngẫu nhiên — trên suggestions -->
         <button class="open-spinner-btn" id="openSpinnerBtn" onclick="openSpinner()">
-          🎲 <span id="openSpinnerText">Khám phá ngẫu nhiên</span>
+          <span class="osb-dice" aria-hidden="true">🎲</span>
+          <span class="osb-text">
+            <span class="osb-title" id="openSpinnerText">Khám phá ngẫu nhiên</span>
+            <span class="osb-sub" id="openSpinnerSub">Quay chọn địa điểm · quán ăn · cafe · lưu trú</span>
+          </span>
+          <span class="osb-arrow" aria-hidden="true">→</span>
         </button>
         <div class="suggestions" id="sugGrid"></div>
       </div>
