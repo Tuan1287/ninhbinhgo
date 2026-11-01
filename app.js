@@ -293,7 +293,7 @@ function resetKey() {
 }
 function resetChat() { history = []; localStorage.removeItem('nb_history'); rebuildWelcome(); updateTurnCounter(); }
 function rebuildWelcome() {
-  document.getElementById('messages').innerHTML = `<div class="welcome" id="welcome"><div class="welcome-body"><div class="welcome-left"><h1 class="welcome-heading" id="welcomeHeading"></h1><p class="welcome-sub" id="welcomeSub"></p><button class="open-spinner-btn" id="openSpinnerBtn" onclick="openSpinner()">🎲 <span id="openSpinnerText">Khám phá ngẫu nhiên</span></button><div class="suggestions" id="sugGrid"></div></div></div></div>`;
+  document.getElementById('messages').innerHTML = `<div class="welcome" id="welcome"><div class="welcome-body"><div class="welcome-left"><h1 class="welcome-heading" id="welcomeHeading"></h1><p class="welcome-sub" id="welcomeSub"></p><button class="open-spinner-btn" id="openSpinnerBtn" onclick="openSpinner()"><span class="osb-dice" aria-hidden="true">🎲</span><span class="osb-text"><span class="osb-title" id="openSpinnerText">Khám phá ngẫu nhiên</span><span class="osb-sub" id="openSpinnerSub">Quay chọn địa điểm · quán ăn · cafe · lưu trú</span></span><span class="osb-arrow" aria-hidden="true">→</span></button><div class="suggestions" id="sugGrid"></div></div></div></div>`;
   applyLang();
 }
 
@@ -927,6 +927,7 @@ function applySpinnerLang() {
   if (!s) return;
   const el = id => document.getElementById(id);
   if (el('openSpinnerText'))     el('openSpinnerText').textContent     = s.openBtn;
+  if (el('openSpinnerSub'))      el('openSpinnerSub').textContent      = s.openSub;
   if (el('spinBackText'))        el('spinBackText').textContent        = s.back;
   if (el('spinnerScreenTitle'))  el('spinnerScreenTitle').textContent  = s.screenTitle;
   if (el('scLabelA'))            el('scLabelA').textContent            = s.labelA;
