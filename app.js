@@ -192,10 +192,34 @@ function openMap(routePlaces) {
     if (isRoute && list.length >= 2) drawRoute(list);
   });
 }
+// Ghi nhớ địa điểm cuối cùng được nhắc tới (trong câu hỏi của khách hoặc câu trả lời của AI)
+// để system prompt chỉ gợi ý quán ăn/cafe/lưu trú gần đó.
+function noteLastPlace(text) {
+  const found = extractRoutePlaces(text);
+  if (!found.length) return;
+  const last = found[found.length - 1];
+  if (last.lat === _lastPlaceLat && last.lng === _lastPlaceLng) return; // không đổi → giữ nguyên cache
+  _lastPlaceLat = last.lat;
+  _lastPlaceLng = last.lng;
+  _roadTimeCache = {};  // số liệu đường bộ cũ thuộc về địa điểm trước
+  _sysCache = {};       // dựng lại prompt theo địa điểm mới
+  prefetchRoadTimes(last.lat, last.lng); // không chặn giao diện; xong sẽ dựng lại prompt với số liệu thật
+}
+
 // Fetch thời gian đường bộ từ điểm A đến tất cả PLACES (OSRM)
 async function prefetchRoadTimes(fromLat, fromLng) {
-  // Chỉ fetch cho places có priority, giới hạn 30 điểm để không overload
-  const targets = PLACES.filter(p => p.priority && p.lat && p.lng).slice(0, 30);
+  // Chỉ tính cho các nhóm được lọc gợi ý (quán ăn, ăn vặt, cafe, lưu trú) nằm trong ~12km đường chim bay,
+  // lấy tối đa 60 điểm gần nhất để bảng OSRM nhỏ gọn (server công cộng giới hạn ~100 tọa độ).
+  const pool = [
+    ...RESTAURANTS.filter(p => p.type === 'food'),
+    ...SNACKS, ...CAFES, ...HOTELS,
+  ].filter(p => p.priority && p.lat && p.lng);
+  const targets = pool
+    .map(p => ({ p, d: haversine(fromLat, fromLng, p.lat, p.lng) }))
+    .filter(x => x.d <= 12)
+    .sort((x, y) => x.d - y.d)
+    .slice(0, 60)
+    .map(x => x.p);
   if (!targets.length) return;
   try {
     const coords = [[fromLng, fromLat], ...targets.map(p => [p.lng, p.lat])].map(c => c.join(',')).join(';');
@@ -203,12 +227,15 @@ async function prefetchRoadTimes(fromLat, fromLng) {
     const res = await fetch(url);
     const data = await res.json();
     if (data.code !== 'Ok') return;
-    const durations = data.durations[0]; // thời gian từ điểm 0 (source) đến từng target
+    // Bỏ kết quả nếu trong lúc chờ AI đã nhắc sang địa điểm khác
+    if (_lastPlaceLat !== fromLat || _lastPlaceLng !== fromLng) return;
+    const durations = data.durations[0]; // giây, từ điểm 0 (source) đến từng target
     targets.forEach((p, i) => {
-      const mins = Math.round((durations[i + 1] || 0) / 60);
-      _roadTimeCache[`${p.lat},${p.lng}`] = mins;
+      const sec = durations[i + 1];
+      if (typeof sec === 'number') _roadTimeCache[`${p.lat},${p.lng}`] = Math.round(sec / 60); // null = không có đường → để Haversine xử lý
     });
-  } catch(e) { console.warn('OSRM table:', e); }
+    _sysCache = {}; // có số liệu đường bộ thật → dựng lại prompt gợi ý
+  } catch (e) { console.warn('OSRM table:', e); }
 }
 
 async function drawRoute(places) {
@@ -613,14 +640,7 @@ async function fetchWithStream(userText) {
       document.getElementById('typing')?.remove();
       typewriterMsg(reply, isItinerary(userText) || isItinerary(reply));
       // Lưu tọa độ địa điểm cuối cùng được đề cập để filter nhà hàng gần đó
-      const _detectedPlaces = extractRoutePlaces(reply);
-      if (_detectedPlaces.length > 0) {
-        const _last = _detectedPlaces[_detectedPlaces.length - 1];
-        _lastPlaceLat = _last.lat;
-        _lastPlaceLng = _last.lng;
-        _roadTimeCache = {}; // reset cache khi có địa điểm mới
-        prefetchRoadTimes(_lastPlaceLat, _lastPlaceLng); // async, không block UI
-      }
+      noteLastPlace(reply);
       history.push({ role:'model', parts:[{ text: reply }] });
       if (history.length > 20) history = history.slice(-20);
       saveHistory();
@@ -649,6 +669,7 @@ async function sendMessage(retryText, displayText) {
   }
 
   lastQuestion = text;
+  noteLastPlace(text); // khách vừa nhắc địa điểm mới → cập nhật tâm lọc TRƯỚC khi dựng prompt
   inp.value = ''; inp.style.height = 'auto';
   document.getElementById('sendBtn').disabled = true;
   addMsg('user', displayText || text);
@@ -794,12 +815,12 @@ function applyPlannerLang(t) {
 // ══════════════════════════════════════════════════════
 //  SPINNER SCREEN — 5 slots độc lập
 // ══════════════════════════════════════════════════════
-const SPIN_POOLS = {
-  A: () => ATTRACTIONS.filter(p => p.priority),
-  F: () => RESTAURANTS.filter(p => p.priority && p.type === 'food'),
-  S: () => SNACKS.filter(p => p.priority),
-  C: () => CAFES.filter(p => p.priority),
-  H: () => HOTELS.filter(p => p.priority),
+const SPIN_POOLS = {   // dùng chung nhóm với system prompt (places.js)
+  A: () => getAttractionPool(),
+  F: () => getFoodPool(),
+  S: () => getSnackPool(),
+  C: () => getCafePool(),
+  H: () => getHotelPool(),
 };
 const SPIN_KEYS = ['A','F','S','C','H'];
 let _spinResults  = { A: null, F: null, S: null, C: null, H: null };
