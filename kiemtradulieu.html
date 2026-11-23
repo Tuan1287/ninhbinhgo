@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Kiểm tra dữ liệu — Ninh Bình AI</title>
+<style>
+  body{font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;max-width:920px;margin:0 auto;padding:1rem;color:#111110;background:#f8f8f6}
+  h1{font-size:1.3rem;margin:.2rem 0 .4rem}
+  p{margin:.35rem 0}
+  section{background:#fff;border:1px solid #e5e5e0;border-radius:10px;margin:.55rem 0;padding:.65rem .9rem}
+  summary{cursor:pointer;display:flex;gap:.6rem;align-items:center;font-weight:700;font-size:.95rem}
+  .b{padding:.08rem .55rem;border-radius:99px;font-size:.76rem;font-weight:800;white-space:nowrap}
+  .ok{background:#dcfce7;color:#166534}.warn{background:#fef3c7;color:#92400e}
+  .bad{background:#fee2e2;color:#991b1b}.info{background:#e0e7ff;color:#3730a3}
+  ul{margin:.5rem 0 0 1.1rem;padding:0;font-size:.86rem}
+  li{margin:.18rem 0;word-break:break-word}
+  .hint{color:#666;font-size:.84rem;margin:.45rem 0 0}
+  button{padding:.55rem 1rem;border-radius:8px;border:1px solid #111110;background:#111110;color:#fff;font-weight:700;cursor:pointer}
+  button:active{transform:scale(.98)}
+</style>
+</head>
+<body>
+<h1>🔎 Kiểm tra dữ liệu</h1>
+<p id="status"></p>
+<p><button id="copyBtn" type="button">Sao chép báo cáo (dán vào chat để gửi cho mình)</button></p>
+<div id="report"></div>
+
+<!-- Đặt file này cạnh index.html. Các file thiếu sẽ được bỏ qua và báo ở đầu trang. -->
+<script src="khudiem.js"></script>
+<script src="luutru.js"></script>
+<script src="nhahang.js"></script>
+<script src="anvat.js"></script>
+<script src="cafe.js"></script>
+<script src="khoangcach.js"></script>
+<script>
+(function () {
+  // ── Gom dữ liệu (file nào thiếu thì bỏ qua) ─────────────────
+  const SETS = [
+    ['khudiem.js',  typeof ATTRACTIONS !== 'undefined' ? ATTRACTIONS : null],
+    ['luutru.js',   typeof HOTELS      !== 'undefined' ? HOTELS      : null],
+    ['nhahang.js',  typeof RESTAURANTS !== 'undefined' ? RESTAURANTS : null],
+    ['anvat.js',    typeof SNACKS      !== 'undefined' ? SNACKS      : null],
+    ['cafe.js',     typeof CAFES       !== 'undefined' ? CAFES       : null],
+  ];
+  const ROAD = typeof ROAD_TABLE !== 'undefined' ? ROAD_TABLE : null;
+  const missing = SETS.filter(s => !s[1]).map(s => s[0]);
+  const ALL = []; SETS.forEach(([src, arr]) => (arr || []).forEach(p => ALL.push({ src, p })));
+
+  // ── Tiện ích (cùng cách chuẩn hóa với places.js) ────────────
+  const vn  = s => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd');
+  const key = s => vn(s).replace(/[^a-z0-9]+/g, ' ').trim();
+  const addrKey = p => {
+    const segs = vn(p.location).split(',');
+    let first = segs[0] || '';
+    if (/\d/.test(first) && first.trim().length <= 8 && segs[1]) first += ' ' + segs[1];
+    const k = first.replace(/\b(so|duong|pho)\b/g, ' ').replace(/[^a-z0-9]+/g, ' ').trim().replace(/^0+(?=\d)/, '');
+    return /^\d/.test(k) ? k : '';
+  };
+  const hav = (a, b, c, d) => { const R = 6371, t = x => x * Math.PI / 180, dl = t(c - a), dn = t(d - b);
+    const x = Math.sin(dl / 2) ** 2 + Math.cos(t(a)) * Math.cos(t(c)) * Math.sin(dn / 2) ** 2; return R * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x)); };
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const lab = x => `${x.src}: ${x.p.name}`;
+  const groupBy = (arr, fn) => { const m = new Map(); arr.forEach(x => { const k = fn(x); if (!k) return; (m.get(k) || m.set(k, []).get(k)).push(x); }); return [...m.values()].filter(g => g.length > 1); };
+
+  const out = [];  // {title, level, items, hint}
+  const add = (title, level, items, hint) => out.push({ title, level: items.length === 0 && level !== 'info' ? 'ok' : level, items, hint: hint || '' });
+
+  // 1) Tổng quan
+  add('Tổng quan', 'info', SETS.filter(s => s[1]).map(([src, arr]) => {
+    const types = {}; arr.forEach(p => types[p.type] = (types[p.type] || 0) + 1);
+    return `${src}: ${arr.length} mục · ${arr.filter(p => p.priority).length} priority · ${Object.entries(types).map(([k, v]) => k + ':' + v).join(', ')}`;
+  }).concat([`Tổng: ${ALL.length} địa điểm`]));
+
+  // 2) Trùng tên / trùng địa chỉ
+  add('Trùng tên (kể cả giữa các file)', 'bad',
+    groupBy(ALL, x => key(x.p.name)).map(g => g.map(lab).join('  ↔  ')),
+    'Một địa điểm xuất hiện 2 lần: marker chồng nhau trên bản đồ, vòng quay/AI có thể gợi ý 2 lần.');
+  add('Cùng số nhà + tên đường nhưng tên khác (nghi trùng)', 'warn',
+    groupBy(ALL, x => addrKey(x.p)).filter(g => new Set(g.map(x => key(x.p.name))).size > 1)
+      .map(g => `${addrKey(g[0].p)} → ` + g.map(lab).join('  ↔  ')),
+    'Hoặc là cùng một quán ghi 2 lần (nên giữ 1 bản), hoặc là 2 quán thật trong cùng nhà.');
+
+  // 3) Tọa độ
+  const coordGroups = groupBy(ALL, x => (typeof x.p.lat === 'number' && typeof x.p.lng === 'number') ? x.p.lat.toFixed(5) + ',' + x.p.lng.toFixed(5) : '');
+  const sharing = coordGroups.reduce((s, g) => s + g.length, 0);
+  add(`Dùng chung tọa độ với địa điểm khác — ${coordGroups.length} cụm, ${sharing}/${ALL.length} địa điểm`, 'warn',
+    coordGroups.sort((a, b) => b.length - a.length).map(g => `(${g[0].p.lat}, ${g[0].p.lng}) ×${g.length}: ` + g.map(x => x.p.name).join(' | ')),
+    'Nhiều quán chung một điểm = tọa độ ước tính. Hệ quả: bản đồ chồng marker, lọc "quán gần đây" và tính thời gian đường bộ sai.');
+  add('Tọa độ thiếu hoặc nằm ngoài khu vực Ninh Bình', 'bad',
+    ALL.filter(x => typeof x.p.lat !== 'number' || typeof x.p.lng !== 'number' || x.p.lat < 20.0 || x.p.lat > 20.45 || x.p.lng < 105.5 || x.p.lng > 106.1)
+       .map(x => `${lab(x)} (${x.p.lat}, ${x.p.lng})`));
+
+  // 4) Thiếu trường
+  const REQ = ['name', 'nameEn', 'lat', 'lng', 'type', 'note', 'noteEn', 'price', 'priceEn'];
+  add('Thiếu trường bắt buộc', 'bad',
+    ALL.filter(x => x.src !== 'khudiem.js').map(x => [x, REQ.filter(f => x.p[f] === undefined || x.p[f] === '')]).filter(([, m]) => m.length)
+       .map(([x, m]) => `${lab(x)} → thiếu ${m.join(', ')}`));
+
+  // 5) Loại (type) và cách phân file
+  const KNOWN = ['attraction', 'hotel', 'food', 'shop', 'cafe', 'snack', 'asian', 'western', 'pub', 'latenight'];
+  add('Loại (type) lạ — app xếp vào nhóm "ăn vặt"', 'warn', ALL.filter(x => x.p.type && !KNOWN.includes(x.p.type)).map(x => `${lab(x)} → type "${x.p.type}"`));
+  const snackFood = ALL.filter(x => x.src === 'anvat.js' && ['asian', 'western', 'food'].includes(x.p.type));
+  add(`Nhà hàng đang nằm trong anvat.js (type asian/western/food): ${snackFood.length} mục`, 'info',
+    snackFood.map(x => x.p.name), 'Không phải lỗi: app đã tự đưa nhóm này vào mục "Nhà hàng" của vòng quay và AI.');
+  add('Trong nhahang.js nhưng có vẻ là quán cafe', 'warn',
+    ALL.filter(x => x.src === 'nhahang.js' && x.p.type === 'food' && (/cafe|coffee|\btea\b|matcha|trà/i.test(x.p.name) || x.p.color === '#06b6d4'))
+       .map(x => `${x.p.name}${CAFES_HAS(x.p.name) ? '  (đã có trong cafe.js → app tự bỏ bản này)' : '  (chưa có trong cafe.js)'}`));
+  function CAFES_HAS(n) { return (SETS[4][1] || []).some(c => key(c.name) === key(n)); }
+
+  // 6) Mức "priority"
+  add('Tỉ lệ priority', 'info', SETS.filter(s => s[1] && s[1].length).map(([src, arr]) => {
+    const r = Math.round(100 * arr.filter(p => p.priority).length / arr.length);
+    return `${src}: ${r}% priority${r > 90 && arr.length > 10 ? '  ⚠ gần như tất cả → "priority" mất ý nghĩa (AI không phân biệt được quán nổi bật)' : ''}`;
+  }));
+  const attrOff = (SETS[0][1] || []).filter(p => !p.priority);
+  add(`Điểm tham quan priority:false — vòng quay và AI KHÔNG bao giờ gợi ý: ${attrOff.length}`, 'warn', attrOff.map(p => p.name),
+    'Nếu muốn vòng quay có Tam Cốc / Bái Đính / Vân Long… hãy đặt priority:true cho chúng.');
+
+  // 7) Nội dung
+  const RATING = /\d[.,]\d\s*(sao|★|stars?|\/\s*5)|★|⭐|\b\d\s*(sao|stars?)\b/i;
+  add('Ghi chú có điểm đánh giá / số sao (dễ lỗi thời)', 'warn',
+    ALL.filter(x => RATING.test(x.p.note || '') || RATING.test(x.p.noteEn || '')).map(x => { const m = (x.p.note || '').match(RATING) || (x.p.noteEn || '').match(RATING); return `${lab(x)} → "${m[0]}"`; }));
+  add('Ghi chú (note) giống hệt giữa các địa điểm khác nhau (nghi chép nhầm)', 'bad',
+    groupBy(ALL.filter(x => x.p.note), x => key(x.p.note)).filter(g => new Set(g.map(x => key(x.p.name))).size > 1).map(g => g.map(lab).join('  ↔  ')));
+  const VI = /[àáảãạăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵđ]/i;
+  add('Trường tiếng Anh (nameEn / locationEn) còn dấu tiếng Việt', 'warn',
+    ALL.filter(x => VI.test(x.p.nameEn || '') || VI.test(x.p.locationEn || '')).map(x => `${lab(x)} → ${[x.p.nameEn, x.p.locationEn].filter(v => VI.test(v || '')).join(' / ')}`));
+
+  // 8) Bảng khoảng cách (khoangcach.js)
+  if (!ROAD) {
+    add('khoangcach.js', 'info', ['Không tải được khoangcach.js — bỏ qua phần kiểm tra bảng khoảng cách.']);
+  } else {
+    const byName = new Map(); ALL.forEach(x => byName.set(x.p.name, x.p));
+    const SPECIAL = { 'Hà Nội': null, 'TP Ninh Bình': { lat: 20.2513, lng: 105.9745 } };   // tâm TP: cùng tọa độ app dùng cho thời tiết
+    const pairs = Object.entries(ROAD).map(([k, v]) => { const [a, b] = k.split('|'); return { k, a, b, km: v.km }; });
+    const known = n => byName.has(n) || n in SPECIAL;
+    const unknown = {}; pairs.forEach(p => [p.a, p.b].forEach(n => { if (!known(n)) (unknown[n] = unknown[n] || []).push(p.k); }));
+    add(`Bảng khoảng cách: ${pairs.length} cặp`, 'info', []);
+    add('Tên trong khoangcach.js KHÔNG khớp tên trong dữ liệu (cặp đó không bao giờ được dùng)', 'bad',
+      Object.entries(unknown).map(([n, ks]) => `"${n}" (${ks.length} cặp, vd: ${ks[0]})`),
+      'Tên phải trùng từng chữ với trường name trong dữ liệu, ví dụ "Thung Nham" ≠ "Khu du lịch sinh thái Thung Nham".');
+    const coord = n => byName.get(n) || SPECIAL[n];
+    const bad = pairs.map(p => { const A = coord(p.a), B = coord(p.b); if (!A || !B || A.lat === undefined || B.lat === undefined) return null;
+      const d = hav(A.lat, A.lng, B.lat, B.lng); return p.km < d * 0.95 ? { ...p, d } : null; }).filter(Boolean);
+    add(`Quãng đường bộ NGẮN HƠN đường chim bay giữa hai tọa độ (bất khả thi): ${bad.length} cặp`, 'bad',
+      bad.sort((x, y) => (y.d - y.km) - (x.d - x.km)).map(p => `${p.k}: bảng ${p.km} km, chim bay ${p.d.toFixed(1)} km`),
+      'Thường do tọa độ của 1 địa điểm sai (nếu nhiều cặp cùng chứa 1 địa điểm thì nghi tọa độ địa điểm đó, không phải bảng).');
+    const inTable = new Set(); pairs.forEach(p => { inTable.add(p.a); inTable.add(p.b); });
+    add('Điểm tham quan có trong bảng nhưng priority:false (AI không bao giờ thấy các cặp này)', 'warn',
+      attrOff.filter(p => inTable.has(p.name)).map(p => p.name));
+    const cover = (label, arr) => `${label}: ${(arr || []).filter(p => p.priority && inTable.has(p.name)).length}/${(arr || []).filter(p => p.priority).length} địa điểm priority có trong bảng`;
+    add('Độ phủ của bảng khoảng cách', 'info', [cover('Lưu trú', SETS[1][1]), cover('Nhà hàng', (SETS[2][1] || []).filter(p => p.type === 'food')), cover('Cafe', SETS[4][1]), cover('Ăn vặt', SETS[3][1])],
+      'Địa điểm không có trong bảng thì AI phải tự ước lượng khoảng cách.');
+  }
+
+  // ── Hiển thị ────────────────────────────────────────────────
+  const LABEL = { ok: 'Ổn', warn: 'Cần xem', bad: 'Nên sửa', info: 'Thông tin' };
+  document.getElementById('status').innerHTML = missing.length
+    ? `<span class="b warn">Thiếu file</span> không tải được: <b>${esc(missing.join(', '))}</b> (phần liên quan được bỏ qua)`
+    : `<span class="b ok">Đã tải đủ 5 file dữ liệu</span>${ROAD ? ' và khoangcach.js' : ''}`;
+  document.getElementById('report').innerHTML = out.map(s =>
+    `<section><details ${s.level === 'bad' || s.level === 'warn' ? 'open' : ''}><summary><span class="b ${s.level}">${LABEL[s.level]}${s.items.length && s.level !== 'info' ? ' · ' + s.items.length : ''}</span>${esc(s.title)}</summary>`
+    + (s.hint ? `<p class="hint">${esc(s.hint)}</p>` : '')
+    + (s.items.length ? `<ul>${s.items.map(i => `<li>${esc(i)}</li>`).join('')}</ul>` : '') + '</details></section>').join('');
+
+  const text = out.map(s => `## [${LABEL[s.level]}] ${s.title}\n` + s.items.map(i => '- ' + i).join('\n')).join('\n\n');
+  window.__REPORT__ = out; window.__REPORT_TEXT__ = text;
+  document.getElementById('copyBtn').onclick = () => {
+    const done = () => { document.getElementById('copyBtn').textContent = '✓ Đã sao chép'; };
+    (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject()).then(done).catch(() => { const t = document.createElement('textarea'); t.value = text; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove(); done(); });
+  };
+})();
+</script>
+</body>
+</html>
